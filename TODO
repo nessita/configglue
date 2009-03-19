@@ -1,0 +1,7 @@
+* Documentation!
+* Examples!!
+
+--
+
+* rework configglue to read the configuration more like optparse, with
+   a --dump option to produce the ini-style config file
