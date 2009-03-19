@@ -1,3 +1,8 @@
+# This file is part of configglue, by John R. Lenton <john.lenton@canonical.com>
+# (C) 2009 by Canonical Ltd.
+# Released under the BSD License (see the file LICENSE)
+# For bug reports, support, and new releases: http://launchpad.net/configglue
+
 from setuptools import setup, find_packages
 import sys, os
 
