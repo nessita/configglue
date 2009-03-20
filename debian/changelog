@@ -1,4 +1,4 @@
-configglue (0.1) jaunty; urgency=low
+python-configglue (0.1) jaunty; urgency=low
 
     * Debianization for packageing
 

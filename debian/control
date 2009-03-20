@@ -1,4 +1,4 @@
-Source: configglue
+Source: python-configglue
 Section: development
 Priority: optional
 Maintainer: Rick McBride <rick.mcbride@canonical.com>
@@ -7,7 +7,7 @@ Build-Depends: cdbs,
  python-all-dev
 Standards-Version: 3.8.0
 
-Package: configglue
+Package: python-configglue
 Architecture: all
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
 Provides: ${python:Provides}
