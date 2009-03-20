@@ -1,0 +1,3 @@
+configglue.egg-info/
+*.py[co]
+*_flymake.py
