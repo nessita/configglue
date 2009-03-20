@@ -1,0 +1,6 @@
+configglue (0.1) jaunty; urgency=low
+
+    * Debianization for packageing
+
+ -- Rick McBride <rick.mcbride@canonical.com>  Fri, 20 Mar 2009 14:40:00 -0400
+
