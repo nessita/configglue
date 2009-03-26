@@ -4,11 +4,12 @@ Priority: optional
 Maintainer: Rick McBride <rick.mcbride@canonical.com>
 Build-Depends: cdbs,
  python-central,
- python-all-dev
+ python-all-dev,
+ python-setuptools
 Standards-Version: 3.8.0
 
 Package: python-configglue
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, python-setuptools
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
 Provides: ${python:Provides}
 Description: configglue -- glue for your apps' configuration
