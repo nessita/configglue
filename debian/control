@@ -9,6 +9,6 @@ Standards-Version: 3.8.0
 
 Package: python-configglue
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, python-setuptools
 Provides: ${python:Provides}
 Description: configglue -- glue for your apps' configuration
