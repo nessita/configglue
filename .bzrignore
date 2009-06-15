@@ -5,3 +5,4 @@ debian/files
 debian/python-configglue*
 python-build-stamp*
 build
+dist
