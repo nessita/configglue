@@ -42,7 +42,7 @@ class TypedConfigParser(AttributedConfigParser):
     def add_parsers(self, *args):
         """Add multiple custom parsers
 
-        @param args: any number of (name, parser, [clobbber]) tuples
+        @param args: any number of (name, parser, [clobber]) tuples
         """
         for arg in args:
             self.add_parser(*arg)
