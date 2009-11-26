@@ -34,6 +34,9 @@ bar = 2
 baz.parser = some.parser
 baz = marker
 
+baz2.parser = more.parser
+baz2 = -1
+
 meep = \xe1rbol
 meep.parser = unicode
 meep.parser.args = latin1
@@ -77,17 +80,36 @@ class TestParserd(BaseTest):
         self.assertEqual(self.config.get('xyzzy', 'foo').value, 1j)
     def test_parse_all_parses_all(self):
         self.config.add_parser('some.parser', some_parser)
+        self.config.add_parser('more.parser', some_parser)
         self.config.parse_all()
         self.assertEqual([(section, [(k, v.value) for (k, v) in
                                      sorted(self.config.items(section))])
                           for section in self.config.sections()],
                          [('xyzzy', [('bar', 2),
                                      ('baz', marker),
+                                     ('baz2', None),
                                      ('foo', 1j),
                                      ('meep', u'\xe1rbol'),
                                      ('quux', u'\ufffdol'),
                                      ('thud', None),
                                      ])])
+    def test_add_multiple_parsers(self):
+        self.config.add_parsers(('some.parser', some_parser),
+                                ('more.parser', some_parser))
+        self.config.parse('xyzzy', 'baz')
+        self.config.parse('xyzzy', 'baz2')
+        self.assertEqual(self.config.get('xyzzy', 'baz').value, marker)
+        self.assertEqual(self.config.get('xyzzy', 'baz2').value, None)
+    def test_add_mutliple_with_repeat_without_clobber(self):
+        self.assertRaises(ValueError,
+                          self.config.add_parsers,
+                          ('some.parser', some_parser),
+                          ('some.parser', some_parser))
+    def test_add_multiple_with_repeat_with_clobber(self):
+        self.config.add_parsers(('some.parser', some_parser),
+                                ('some.parser', bool, True))
+        self.config.parse('xyzzy', 'baz')
+        self.assertEqual(self.config.get('xyzzy', 'baz').value, True)
 
 
 if __name__ == '__main__':

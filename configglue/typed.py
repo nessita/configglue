@@ -39,6 +39,14 @@ class TypedConfigParser(AttributedConfigParser):
         else:
             raise ValueError('A parser by that name already exists')
 
+    def add_parsers(self, *args):
+        """Add multiple custom parsers
+
+        @param args: any number of (name, parser, [clobber]) tuples
+        """
+        for arg in args:
+            self.add_parser(*arg)
+
     def parse(self, section, option):
         """Parse a single option in a single section.
 
