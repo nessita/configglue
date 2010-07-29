@@ -90,7 +90,7 @@ class TestParserd(BaseTest):
                                      ('baz2', None),
                                      ('foo', 1j),
                                      ('meep', u'\xe1rbol'),
-                                     ('quux', u'\ufffdol'),
+                                     ('quux', u'\ufffdrbol'),
                                      ('thud', None),
                                      ])])
     def test_add_multiple_parsers(self):
