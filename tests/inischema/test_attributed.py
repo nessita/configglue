@@ -10,7 +10,7 @@ import unittest
 from ConfigParser import RawConfigParser
 from StringIO import StringIO
 
-from configglue.attributed import AttributedConfigParser
+from configglue.inischema.attributed import AttributedConfigParser
 
 class BaseTest(unittest.TestCase):
     """ Base class to keep common set-up """

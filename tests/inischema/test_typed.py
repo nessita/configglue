@@ -10,7 +10,7 @@ import unittest
 from StringIO import StringIO
 from ConfigParser import RawConfigParser
 
-from configglue.typed import TypedConfigParser
+from configglue.inischema.typed import TypedConfigParser
 
 marker = object()
 def some_parser(value):

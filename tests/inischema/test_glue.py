@@ -10,7 +10,7 @@ import sys
 import unittest
 from StringIO import StringIO
 
-from configglue.glue import configglue
+from configglue.inischema.glue import configglue
 
 class TestBase(unittest.TestCase):
     """ Base class to keep common set-up """

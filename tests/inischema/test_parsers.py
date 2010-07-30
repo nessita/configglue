@@ -8,7 +8,7 @@
 
 import unittest
 
-from configglue import parsers
+from configglue.inischema import parsers
 
 class TestParsers(unittest.TestCase):
     def test_bool(self):
