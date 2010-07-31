@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ###############################################################################
 # 
 # configglue -- glue for your apps' configuration
@@ -14,10 +15,6 @@
 # For bug reports, support, and new releases: http://launchpad.net/configglue
 # 
 ###############################################################################
-
-# -*- coding: utf-8 -*-
-# Copyright 2010 Canonical Ltd.  This software is licensed under the
-# GNU Lesser General Public License version 3 (see the file LICENSE).
 
 import os
 import shutil
