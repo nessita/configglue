@@ -15,15 +15,11 @@
 # 
 ###############################################################################
 
-# Copyright 2010 Canonical Ltd.  This software is licensed under the
-# GNU Lesser General Public License version 3 (see the file LICENSE).
-
 import unittest
-from StringIO import StringIO
 
 from configglue.pyschema import ConfigSection
-from configglue.pyschema.options import (BoolConfigOption, DictConfigOption,
-    IntConfigOption, StringConfigOption, LinesConfigOption)
+from configglue.pyschema.options import (BoolConfigOption,
+    IntConfigOption, LinesConfigOption)
 from configglue.pyschema.schema import Schema
 
 
