@@ -19,7 +19,7 @@ import __builtin__
 from optparse import OptionParser
 import sys
 
-from configglue.inischema import AttributedConfigParser, parsers
+# XXX: more imports at bottom (we probably want to fix this)
 
 def ini2schema(fd):
     """
@@ -254,3 +254,6 @@ from options import (BoolConfigOption, DictConfigOption, IntConfigOption,
     LinesConfigOption, StringConfigOption, TupleConfigOption)
 from parser import SchemaConfigParser
 from schema import Schema
+
+# circular import avoidance
+from configglue.inischema import AttributedConfigParser, parsers
