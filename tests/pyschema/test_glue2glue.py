@@ -17,15 +17,12 @@
 ###############################################################################
 
 import sys
+import unittest
 from StringIO import StringIO
 
 from configglue.inischema import configglue
+from configglue.pyschema import schemaconfigglue, ini2schema
 
-from configglue.pyschema import ConfigSection, schemaconfigglue, options, ini2schema
-from configglue.pyschema.parser import SchemaConfigParser
-from configglue.pyschema.schema import Schema
-
-import unittest
 
 class TestGlueConvertor(unittest.TestCase):
     def setUp(self):

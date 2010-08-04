@@ -16,11 +16,10 @@
 ###############################################################################
 
 import unittest
-from StringIO import StringIO
 
 from configglue.pyschema import ConfigSection
-from configglue.pyschema.options import (BoolConfigOption, DictConfigOption,
-    IntConfigOption, StringConfigOption, LinesConfigOption)
+from configglue.pyschema.options import (BoolConfigOption,
+    IntConfigOption, LinesConfigOption)
 from configglue.pyschema.schema import Schema
 
 
