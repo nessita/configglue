@@ -44,7 +44,7 @@ foo = 2
     val = 2
 
     def test_ini_file_wins_when_no_args(self):
-        parser, options, args = configglue(self.file)
+        parser, options, args = configglue(self.file, args=[])
         self.assertEqual(vars(options),
                          {self.opt: self.val})
 
@@ -72,7 +72,7 @@ foo.metavar = FOO
 foo.parser = int
 foo = 2
 '''
-    arg = '--bl-ah-foo'
+    arg = '--bl-ah_foo'
     opt = 'bl_ah_foo'
 
 class TestNoValue(TestGlue):

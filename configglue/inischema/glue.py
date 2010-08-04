@@ -88,3 +88,8 @@ def configglue(fileobj, *filenames, **kwargs):
                 setattr(options, optname, optval.parser(value))
 
     return op, options, args
+
+from configglue.pyschema import schemaconfigglue, ini2schema
+def configglue(fileobj, args=None):
+    return schemaconfigglue(ini2schema(fileobj),
+                            argv=args)
