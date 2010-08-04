@@ -32,7 +32,7 @@ def normoptname(parser, section, option):
         return parser.optionxform(section +'-'+ option)
     
 
-def configglue(fileobj, *filenames, **kwargs):
+def _configglue(fileobj, *filenames, **kwargs):
     """Populate an OptionParser with options and defaults taken from a
     series of files.
 
@@ -90,6 +90,6 @@ def configglue(fileobj, *filenames, **kwargs):
     return op, options, args
 
 from configglue.pyschema import schemaconfigglue, ini2schema
-def configglue(fileobj, args=None):
-    return schemaconfigglue(ini2schema(fileobj),
-                            argv=args)
+def configglue(fileobj, *filenames, **kwargs):
+    args = kwargs.pop('args', None)
+    return schemaconfigglue(ini2schema(fileobj), argv=args)

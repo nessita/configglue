@@ -84,9 +84,9 @@ class LinesConfigOption(ConfigOption):
         return items
 
     def __init__(self, item, raw=False, default=NO_DEFAULT, fatal=False,
-        help='', remove_duplicates=False):
+        help='', action='store', remove_duplicates=False):
         super(LinesConfigOption, self).__init__(raw=raw, default=default,
-                                                fatal=fatal, help=help)
+            fatal=fatal, help=help, action=action)
         self.item = item
         self.require_parser = item.require_parser
         self.raw = item.raw
@@ -109,10 +109,10 @@ class StringConfigOption(ConfigOption):
         return unicode(value)
 
     def __init__(self, raw=False, default=NO_DEFAULT, fatal=False, null=False,
-                 help=''):
+                 help='', action='store'):
         self.null = null
         super(StringConfigOption, self).__init__(raw=raw, default=default,
-                                                 fatal=fatal, help=help)
+            fatal=fatal, help=help, action=action)
 
 
 class TupleConfigOption(ConfigOption):
@@ -122,9 +122,10 @@ class TupleConfigOption(ConfigOption):
     constructor argument.
     """
 
-    def __init__(self, length=0, raw=False, default=NO_DEFAULT, fatal=False, help=''):
+    def __init__(self, length=0, raw=False, default=NO_DEFAULT, fatal=False,
+                 help='', action='store'):
         super(TupleConfigOption, self).__init__(raw=raw, default=default,
-                                                fatal=fatal, help=help)
+            fatal=fatal, help=help, action=action)
         self.length = length
 
     def _get_default(self):
@@ -160,8 +161,8 @@ class DictConfigOption(ConfigOption):
     require_parser = True
 
     def __init__(self, spec=None, strict=False, raw=False,
-                 default=NO_DEFAULT, fatal=False,
-                 help='', item=None):
+                 default=NO_DEFAULT, fatal=False, help='', action='store',
+                 item=None):
         if spec is None:
             spec = {}
         if item is None:
@@ -170,7 +171,7 @@ class DictConfigOption(ConfigOption):
         self.strict = strict
         self.item = item
         super(DictConfigOption, self).__init__(raw=raw, default=default,
-                                               fatal=fatal, help=help)
+            fatal=fatal, help=help, action=action)
 
     def _get_default(self):
         default = {}
