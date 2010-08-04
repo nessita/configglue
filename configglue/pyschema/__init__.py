@@ -239,8 +239,9 @@ class ConfigSection(object):
 
     def option(self, name):
         """Return a ConfigOption by name"""
-        assert hasattr(self, name), "Invalid ConfigOption name '%s'" % name
-        return getattr(self, name)
+        opt = getattr(self, name, None)
+        assert opt is not None, "Invalid ConfigOption name '%s'" % name
+        return opt
 
     def options(self):
         """Return a list of all available ConfigOptions within this section"""
