@@ -32,7 +32,8 @@ def ini2schema(fd):
 
     parser2option = {'unicode': options.StringConfigOption,
                      'int': options.IntConfigOption,
-                     'bool': options.BoolConfigOption}
+                     'bool': options.BoolConfigOption,
+                     'lines': options.LinesConfigOption}
 
     class MySchema(Schema):
         pass
@@ -45,6 +46,7 @@ def ini2schema(fd):
             setattr(MySchema, section_name, section)
         for option_name in p.options(section_name):
             option = p.get(section_name, option_name)
+
             parser = option.attrs.pop('parser', 'unicode')
             parser_args = option.attrs.pop('parser.args', '').split()
             parser_fun = getattr(parsers, parser, None)
@@ -52,9 +54,23 @@ def ini2schema(fd):
                 parser_fun = getattr(__builtin__, parser, None)
             if parser_fun is None:
                 parser_fun = lambda x: x
+
+            attrs = {}
+            option_help = option.attrs.pop('help', None)
+            if option_help is not None:
+                attrs['help'] = option_help
+            if not option.is_empty:
+                attrs['default'] = parser_fun(option.value, *parser_args)
+            option_action = option.attrs.pop('action', None)
+            if option_action is not None:
+                attrs['action'] = option_action
+
             klass = parser2option.get(parser, options.StringConfigOption)
-            setattr(section, option_name,
-                    klass(default=parser_fun(option.value, *parser_args)))
+            if parser == 'lines':
+                instance = klass(options.StringConfigOption(), **attrs)
+            else:
+                instance = klass(**attrs)
+            setattr(section, option_name, instance)
 
     return SchemaConfigParser(MySchema())
 
@@ -69,6 +85,9 @@ def schemaconfigglue(parser, op=None, argv=None):
             return option.name
         return option.section.name + '_' + option.name
 
+    def opt_name(option):
+        return long_name(option).replace('-', '_')
+
     if op is None:
         op = OptionParser()
     if argv is None:
@@ -81,17 +100,17 @@ def schemaconfigglue(parser, op=None, argv=None):
         else:
             og = op.add_option_group(section.name)
         for option in section.options():
-            attrs = {}
+            kwargs = {}
             if option.help:
-                attrs['help'] = option.help
-            default = parser.get(section.name, option.name)
-            og.add_option('--' + long_name(option),
-                          default=default, **attrs)
+                kwargs['help'] = option.help
+            kwargs['default'] = parser.get(section.name, option.name)
+            kwargs['action'] = option.action
+            og.add_option('--' + long_name(option), **kwargs)
     options, args = op.parse_args(argv)
 
     for section in schema.sections():
         for option in section.options():
-            value = getattr(options, long_name(option))
+            value = getattr(options, opt_name(option))
             if parser.get(section.name, option.name) != value:
                 # the value has been overridden by an argument;
                 # update it.
@@ -142,7 +161,7 @@ class ConfigOption(object):
     require_parser = False
 
     def __init__(self, name='', raw=False, default=NO_DEFAULT, fatal=False, help='',
-                 section=None):
+                 section=None, action='store'):
         self.name = name
         self.raw = raw
         self.fatal = fatal
@@ -151,6 +170,7 @@ class ConfigOption(object):
         self.default = default
         self.help = help
         self.section = section
+        self.action = action
 
     def __eq__(self, other):
         try:
