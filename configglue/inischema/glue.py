@@ -19,9 +19,9 @@
 """
 from __future__ import absolute_import
 
-__all__ = ('configglue',)
-
 from configglue.pyschema import schemaconfigglue, ini2schema
+
+__all__ = ('configglue',)
 
 def configglue(fileobj, *filenames, **kwargs):
     args = kwargs.pop('args', None)

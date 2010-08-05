@@ -56,9 +56,13 @@ meep.parser.args = latin1
 quux = \xe1rbol
 quux.parser = unicode
 quux.parser.args = utf-8
-                   ignore
+                   replace
 
 thud.help = this is the help for thud
+
+woof.default = marker
+woof.default.parser = some.parser
+woof.parser = bool
 '''
         self.config = TypedConfigParser()
         self.config.readfp(StringIO(self.config_string))
@@ -90,6 +94,10 @@ class TestParserd(BaseTest):
     def test_value_is_default_if_empty(self):
         self.config.parse('xyzzy', 'foo')
         self.assertEqual(self.config.get('xyzzy', 'foo').value, 1j)
+    def test_parse_default_parser(self):
+        self.config.add_parser('some.parser', some_parser)
+        self.config.parse('xyzzy', 'woof')
+        self.assertTrue(self.config.get('xyzzy', 'woof').value)
     def test_parse_all_parses_all(self):
         self.config.add_parser('some.parser', some_parser)
         self.config.add_parser('more.parser', some_parser)
@@ -102,8 +110,10 @@ class TestParserd(BaseTest):
                                      ('baz2', None),
                                      ('foo', 1j),
                                      ('meep', u'\xe1rbol'),
-                                     ('quux', u'rbol'),
+                                     ('quux', unicode('\xe1rbol', 'utf-8',
+                                                      'replace')),
                                      ('thud', None),
+                                     ('woof', True),
                                      ])])
     def test_add_multiple_parsers(self):
         self.config.add_parsers(('some.parser', some_parser),
