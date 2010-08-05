@@ -33,5 +33,15 @@ class TestParsers(unittest.TestCase):
         for value in ('xyzzy', '', '-1', '0.', '0.1'):
             self.assertRaises(ValueError, parsers.bool_parser, value)
 
+    def test_bool_not_string(self):
+        self.assertEqual(parsers.bool_parser(1), True)
+
+    def test_bool_is_None(self):
+        self.assertEqual(parsers.bool_parser(None), False)
+
     def test_lines(self):
         self.assertEqual(parsers.lines('abc\ndef'), ['abc', 'def'])
+
+    def test_lines_not_string(self):
+        self.assertEqual(parsers.lines(42), 42)
+
