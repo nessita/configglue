@@ -19,7 +19,7 @@ import __builtin__
 from optparse import OptionParser
 import sys
 
-from configglue.inischema import AttributedConfigParser, parsers
+# XXX: more imports at bottom (we probably want to fix this)
 
 def ini2schema(fd):
     """
@@ -239,8 +239,9 @@ class ConfigSection(object):
 
     def option(self, name):
         """Return a ConfigOption by name"""
-        assert hasattr(self, name), "Invalid ConfigOption name '%s'" % name
-        return getattr(self, name)
+        opt = getattr(self, name, None)
+        assert opt is not None, "Invalid ConfigOption name '%s'" % name
+        return opt
 
     def options(self):
         """Return a list of all available ConfigOptions within this section"""
@@ -254,3 +255,6 @@ from options import (BoolConfigOption, DictConfigOption, IntConfigOption,
     LinesConfigOption, StringConfigOption, TupleConfigOption)
 from parser import SchemaConfigParser
 from schema import Schema
+
+# circular import avoidance
+from configglue.inischema import AttributedConfigParser, parsers
