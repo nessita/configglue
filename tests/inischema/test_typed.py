@@ -56,7 +56,7 @@ meep.parser.args = latin1
 quux = \xe1rbol
 quux.parser = unicode
 quux.parser.args = utf-8
-                   ignore
+                   replace
 
 thud.help = this is the help for thud
 
@@ -110,8 +110,10 @@ class TestParserd(BaseTest):
                                      ('baz2', None),
                                      ('foo', 1j),
                                      ('meep', u'\xe1rbol'),
-                                     ('quux', u'rbol'),
+                                     ('quux', unicode('\xe1rbol', 'utf-8',
+                                                      'replace')),
                                      ('thud', None),
+                                     ('woof', True),
                                      ])])
     def test_add_multiple_parsers(self):
         self.config.add_parsers(('some.parser', some_parser),
