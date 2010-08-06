@@ -114,8 +114,12 @@ class TestSchemaInheritance(unittest.TestCase):
         class SchemaB(SchemaA):
             baz = ConfigSection()
             baz.wham = IntConfigOption()
+        class SchemaC(SchemaA):
+            bar = ConfigSection()
+            bar.woof = IntConfigOption()
 
         self.schema = SchemaB()
+        self.other = SchemaC()
 
     def test_basic_inheritance(self):
         names = [('foo', ['bar']), ('baz', ['wham'])]
@@ -133,4 +137,12 @@ class TestSchemaInheritance(unittest.TestCase):
     def test_inherited_options(self):
         names = set(s.name for s in self.schema.options())
         self.assertEqual(set(['bar', 'wham']), names)
+
+    def test_mutable_inherited(self):
+        # modify one inherited attribute
+        self.schema.foo.baz = IntConfigOption()
+
+        # test on the other schema
+        self.assertFalse(hasattr(self.other.foo, 'baz'))
+
 
