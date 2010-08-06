@@ -15,9 +15,13 @@
 # 
 ###############################################################################
 
+from copy import deepcopy
+
 from configglue.pyschema import ConfigOption, ConfigSection, super_vars
 from configglue.pyschema.options import LinesConfigOption, StringConfigOption
 
+
+_internal = object.__dict__.keys() + ['__module__']
 
 class Schema(object):
     """A complete description of a system configuration.
@@ -36,6 +40,21 @@ class Schema(object):
     '__main__' section, that allows configuration files to include other
     configuration files.
     """
+
+    def __new__(cls):
+        instance = super(Schema, cls).__new__(cls)
+
+        # override class attributes with instance attributes to correctly
+        # handle schema inheritance
+        schema_attributes = filter(
+            lambda x: x not in _internal and
+                isinstance(getattr(cls, x), (ConfigSection, ConfigOption)),
+            super_vars(cls))
+        for attr in schema_attributes:
+            setattr(instance, attr, deepcopy(getattr(cls, attr)))
+
+        return instance
+
     def __init__(self):
         self.includes = LinesConfigOption(item=StringConfigOption())
         self._sections = {}
