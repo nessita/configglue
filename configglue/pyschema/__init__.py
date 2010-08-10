@@ -21,12 +21,16 @@ import sys
 
 # XXX: more imports at bottom (we probably want to fix this)
 
-def ini2schema(fd):
+def ini2schema(fd, p=None):
     """
     Turn a fd that refers to a INI-style schema definition into a
     SchemaConfigParser object
+
+    @param fd: file-like object to read the schema from
+    @param p: a parser to use. If not set, uses AttributedConfigParser
     """
-    p = AttributedConfigParser()
+    if p is None:
+        p = AttributedConfigParser()
     p.readfp(fd)
     p.parse_all()
 
