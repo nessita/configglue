@@ -152,3 +152,6 @@ Profit!
 That's it! Your application now uses configglue to manage it's configuration.
 Congratulations!
 
+If you want to know more about configglue, read
+:ref:`walkthrough`.
+
