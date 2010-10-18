@@ -13,4 +13,3 @@ Contents:
 
     intro
     quickstart
-    walkthrough
