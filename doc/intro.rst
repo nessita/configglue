@@ -43,6 +43,7 @@ Who else is using configglue?
 =============================
 
 - Ubuntu Pay 
+- Ubuntu Software Center
 - Ubuntu Single Sign On
 - Ubuntu One 
 
