@@ -1,3 +1,5 @@
+.. _quickstart:
+
 configglue 101
 ==============
 
