@@ -6,3 +6,4 @@ debian/python-configglue*
 python-build-stamp*
 build
 dist
+doc/_build
