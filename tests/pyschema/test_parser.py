@@ -25,12 +25,22 @@ from StringIO import StringIO
 from ConfigParser import (InterpolationMissingOptionError,
     InterpolationDepthError, NoSectionError)
 
-from configglue.pyschema import ConfigSection
-from configglue.pyschema.options import (BoolConfigOption, DictConfigOption,
-    IntConfigOption, StringConfigOption, LinesConfigOption, TupleConfigOption)
-from configglue.pyschema.schema import Schema
-from configglue.pyschema.parser import (NoOptionError, SchemaConfigParser,
-    SchemaValidationError, CONFIG_FILE_ENCODING)
+from configglue.pyschema.parser import (
+    CONFIG_FILE_ENCODING,
+    NoOptionError,
+    SchemaConfigParser,
+    SchemaValidationError,
+)
+from configglue.pyschema.schema import (
+    BoolConfigOption,
+    ConfigSection,
+    DictConfigOption,
+    IntConfigOption,
+    LinesConfigOption,
+    Schema,
+    StringConfigOption,
+    TupleConfigOption,
+)
 
 
 class TestIncludes(unittest.TestCase):
