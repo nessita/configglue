@@ -264,10 +264,14 @@ from options import (BoolConfigOption, DictConfigOption, IntConfigOption,
 from parser import SchemaConfigParser
 from schema import Schema
 
-def configglue(schema_class, configs):
+def configglue(schema_class, configs, usage=None):
     scp = SchemaConfigParser(schema_class())
-    scp.read(*configs)
-    parser, opts, args = schemaconfigglue(scp)
+    scp.read(configs)
+    if usage is not None:
+        op = OptionParser(usage=usage)
+    else:
+        op = None
+    parser, opts, args = schemaconfigglue(scp, op=op)
     is_valid, reasons = scp.is_valid(report=True)
     if not is_valid:
         parser.error(reasons[0])

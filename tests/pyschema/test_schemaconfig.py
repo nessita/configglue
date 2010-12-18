@@ -19,7 +19,9 @@ import unittest
 import sys
 from StringIO import StringIO
 
-from configglue.pyschema import ConfigOption, ConfigSection, schemaconfigglue
+from mock import patch, Mock
+
+from configglue.pyschema import ConfigOption, ConfigSection, schemaconfigglue, configglue
 from configglue.pyschema.options import IntConfigOption
 from configglue.pyschema.parser import SchemaConfigParser
 from configglue.pyschema.schema import Schema
@@ -178,4 +180,110 @@ class TestSchemaConfigGlue(unittest.TestCase):
         stdout.seek(0)
         output = stdout.read()
         self.assertTrue(output.startswith('Usage:'))
+
+
+class ConfigglueTestCase(unittest.TestCase):
+    @patch('configglue.pyschema.SchemaConfigParser')
+    @patch('configglue.pyschema.schemaconfigglue')
+    def test_configglue(self, mock_schemaconfigglue, mock_schema_parser):
+        # prepare mocks
+        expected_schema_parser = Mock()
+        expected_schema_parser.is_valid.return_value = (True, None)
+        expected_option_parser = Mock()
+        expected_options = Mock()
+        expected_args = Mock()
+        mock_schemaconfigglue.return_value = (expected_option_parser,
+            expected_options, expected_args)
+        mock_schema_parser.return_value = expected_schema_parser
+
+        # define the inputs
+        class MySchema(Schema):
+            foo = IntConfigOption()
+
+        configs = ['config.ini']
+
+        # call the function under test
+        glue = configglue(MySchema, configs)
+
+        # schema_parse is a SchemaConfigParser, initialized with MySchema
+        # and fed with the configs file list
+        self.assertEqual(glue.schema_parser, expected_schema_parser)
+        mock_schema_parser.assert_called_with(MySchema())
+        mock_schema_parser.return_value.read.assert_called_with(configs)
+        # the other attributes are the result of calling schemaconfigglue
+        mock_schemaconfigglue.assert_called_with(expected_schema_parser, op=None)
+        self.assertEqual(glue.option_parser, expected_option_parser)
+        self.assertEqual(glue.options, expected_options)
+        self.assertEqual(glue.args, expected_args)
+
+    @patch('configglue.pyschema.SchemaConfigParser')
+    @patch('configglue.pyschema.schemaconfigglue')
+    def test_configglue(self, mock_schemaconfigglue, mock_schema_parser):
+        # prepare mocks
+        expected_schema_parser = Mock()
+        expected_schema_parser.is_valid.return_value = (False, ['some error'])
+        expected_option_parser = Mock()
+        expected_options = Mock()
+        expected_args = Mock()
+        mock_schemaconfigglue.return_value = (expected_option_parser,
+            expected_options, expected_args)
+        mock_schema_parser.return_value = expected_schema_parser
+
+        # define the inputs
+        class MySchema(Schema):
+            foo = IntConfigOption()
+
+        configs = ['config.ini']
+
+        # call the function under test
+        glue = configglue(MySchema, configs)
+
+        # schema_parse is a SchemaConfigParser, initialized with MySchema
+        # and fed with the configs file list
+        self.assertEqual(glue.schema_parser, expected_schema_parser)
+        mock_schema_parser.assert_called_with(MySchema())
+        mock_schema_parser.return_value.read.assert_called_with(configs)
+        # the other attributes are the result of calling schemaconfigglue
+        mock_schemaconfigglue.assert_called_with(expected_schema_parser, op=None)
+        self.assertEqual(glue.option_parser, expected_option_parser)
+        expected_option_parser.error.assert_called_with('some error')
+        self.assertEqual(glue.options, expected_options)
+        self.assertEqual(glue.args, expected_args)
+
+    @patch('configglue.pyschema.OptionParser')
+    @patch('configglue.pyschema.SchemaConfigParser')
+    @patch('configglue.pyschema.schemaconfigglue')
+    def test_configglue_with_usage(self, mock_schemaconfigglue,
+        mock_schema_parser, mock_option_parser):
+        # prepare mocks
+        expected_schema_parser = Mock()
+        expected_schema_parser.is_valid.return_value = (True, None)
+        expected_option_parser = mock_option_parser.return_value
+        expected_options = Mock()
+        expected_args = Mock()
+        mock_schemaconfigglue.return_value = (expected_option_parser, expected_options,
+            expected_args)
+        mock_schema_parser.return_value = expected_schema_parser
+
+        # define the inputs
+        class MySchema(Schema):
+            foo = IntConfigOption()
+
+        configs = ['config.ini']
+
+        # call the function under test
+        glue = configglue(MySchema, configs, usage='foo')
+
+        # schema_parse is a SchemaConfigParser, initialized with MySchema
+        # and fed with the configs file list
+        self.assertEqual(glue.schema_parser, expected_schema_parser)
+        mock_schema_parser.assert_called_with(MySchema())
+        mock_schema_parser.return_value.read.assert_called_with(configs)
+        # the other attributes are the result of calling schemaconfigglue
+        mock_schemaconfigglue.assert_called_with(expected_schema_parser,
+            op=expected_option_parser)
+        mock_option_parser.assert_called_with(usage='foo')
+        self.assertEqual(glue.option_parser, expected_option_parser)
+        self.assertEqual(glue.options, expected_options)
+        self.assertEqual(glue.args, expected_args)
 
