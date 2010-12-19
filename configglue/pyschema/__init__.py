@@ -17,9 +17,13 @@
 
 import __builtin__
 from optparse import OptionParser
+from collections import namedtuple
 import sys
 
 # XXX: more imports at bottom (we probably want to fix this)
+
+SchemaGlue = namedtuple("SchemaGlue", "schema_parser option_parser options args")
+IniGlue = namedtuple("IniGlue", " option_parser options args")
 
 def ini2schema(fd, p=None):
     """
@@ -120,7 +124,7 @@ def schemaconfigglue(parser, op=None, argv=None):
                 # update it.
                 parser.set(section.name, option.name, value)
 
-    return op, options, args
+    return IniGlue(op, options, args)
 
 def super_vars(obj):
     """An extended version of vars() that walks all base classes."""
@@ -259,6 +263,19 @@ from options import (BoolConfigOption, DictConfigOption, IntConfigOption,
     LinesConfigOption, StringConfigOption, TupleConfigOption)
 from parser import SchemaConfigParser
 from schema import Schema
+
+def configglue(schema_class, configs, usage=None):
+    scp = SchemaConfigParser(schema_class())
+    scp.read(configs)
+    if usage is not None:
+        op = OptionParser(usage=usage)
+    else:
+        op = None
+    parser, opts, args = schemaconfigglue(scp, op=op)
+    is_valid, reasons = scp.is_valid(report=True)
+    if not is_valid:
+        parser.error(reasons[0])
+    return SchemaGlue(scp, parser, opts, args)
 
 # circular import avoidance
 from configglue.inischema import AttributedConfigParser, parsers
