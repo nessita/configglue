@@ -16,13 +16,25 @@
 ###############################################################################
 
 
-from setuptools import setup, find_packages
-import sys, os
+import os
+import sys
+from setuptools import (
+    find_packages,
+    setup,
+)
 
-version = '0.9pre1'
+
+def get_version():
+    version = [
+        (line.split('=')[1]).strip().strip('"').strip("'")
+        for line in open(os.path.join('configglue', '__init__.py'))
+        if line.startswith( '__version__' )
+    ][0]
+    return version
+
 
 setup(name='configglue',
-      version=version,
+      version=get_version(),
       description="Glue to stick OptionParser and ConfigParser together",
       long_description="""
 configglue is a library that glues together python's optparse.OptionParser and
@@ -44,4 +56,4 @@ interface.
       zip_safe=True,
       test_suite='tests',
       tests_require=['mock'],
-      )
+)
