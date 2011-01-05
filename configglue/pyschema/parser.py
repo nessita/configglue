@@ -21,12 +21,21 @@ import copy
 import os
 import string
 
-from ConfigParser import (NoSectionError, DEFAULTSECT,
-    InterpolationMissingOptionError, NoOptionError,
-    ConfigParser as BaseConfigParser)
+from ConfigParser import (
+    DEFAULTSECT,
+    ConfigParser as BaseConfigParser,
+    InterpolationMissingOptionError,
+    NoOptionError,
+    NoSectionError,
+)
 
-from configglue.pyschema.options import DictConfigOption
+from configglue.pyschema.schema import DictConfigOption
 
+
+__all__ = [
+    'SchemaValidationError',
+    'SchemaConfigParser',
+]
 
 CONFIG_FILE_ENCODING = 'utf-8'
 

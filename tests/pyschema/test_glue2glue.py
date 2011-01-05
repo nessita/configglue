@@ -21,7 +21,10 @@ import unittest
 from StringIO import StringIO
 
 from configglue.inischema import configglue
-from configglue.pyschema import schemaconfigglue, ini2schema
+from configglue.utils import (
+    ini2schema,
+    schemaconfigglue,
+)
 
 
 class TestGlueConvertor(unittest.TestCase):
