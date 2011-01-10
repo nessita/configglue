@@ -20,11 +20,11 @@ import sys
 import unittest
 from StringIO import StringIO
 
-from configglue.inischema import configglue
-from configglue.utils import (
+from configglue.inischema.glue import (
+    configglue,
     ini2schema,
-    schemaconfigglue,
 )
+from configglue.pyschema.glue import schemaconfigglue
 
 
 class TestGlueConvertor(unittest.TestCase):
@@ -82,5 +82,4 @@ class TestGlueConvertor(unittest.TestCase):
         self.assertEqual(vars(cg), vars(sg))
 
 if __name__ == '__main__':
-
     unittest.main()
