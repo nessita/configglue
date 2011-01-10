@@ -190,9 +190,9 @@ class TestSchemaConfigGlue(unittest.TestCase):
 
 
 class ConfigglueTestCase(unittest.TestCase):
-    @patch('configglue.pyschema.parser.SchemaConfigParser')
+    @patch('configglue.pyschema.glue.SchemaConfigParser')
     @patch('configglue.pyschema.glue.schemaconfigglue')
-    def test_configglue(self, mock_schemaconfigglue, mock_schema_parser):
+    def test_configglue_no_errors(self, mock_schemaconfigglue, mock_schema_parser):
         # prepare mocks
         expected_schema_parser = Mock()
         expected_schema_parser.is_valid.return_value = (True, None)
@@ -225,7 +225,7 @@ class ConfigglueTestCase(unittest.TestCase):
 
     @patch('configglue.pyschema.glue.SchemaConfigParser')
     @patch('configglue.pyschema.glue.schemaconfigglue')
-    def test_configglue(self, mock_schemaconfigglue, mock_schema_parser):
+    def test_configglue_with_errors(self, mock_schemaconfigglue, mock_schema_parser):
         # prepare mocks
         expected_schema_parser = Mock()
         expected_schema_parser.is_valid.return_value = (False, ['some error'])
