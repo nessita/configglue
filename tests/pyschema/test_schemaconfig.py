@@ -21,7 +21,7 @@ from StringIO import StringIO
 
 from mock import patch, Mock
 
-from configglue.utils import (
+from configglue.pyschema.glue import (
     configglue,
     schemaconfigglue,
 )
@@ -190,9 +190,9 @@ class TestSchemaConfigGlue(unittest.TestCase):
 
 
 class ConfigglueTestCase(unittest.TestCase):
-    @patch('configglue.pyschema.parser.SchemaConfigParser')
-    @patch('configglue.utils.schemaconfigglue')
-    def test_configglue(self, mock_schemaconfigglue, mock_schema_parser):
+    @patch('configglue.pyschema.glue.SchemaConfigParser')
+    @patch('configglue.pyschema.glue.schemaconfigglue')
+    def test_configglue_no_errors(self, mock_schemaconfigglue, mock_schema_parser):
         # prepare mocks
         expected_schema_parser = Mock()
         expected_schema_parser.is_valid.return_value = (True, None)
@@ -223,9 +223,9 @@ class ConfigglueTestCase(unittest.TestCase):
         self.assertEqual(glue.options, expected_options)
         self.assertEqual(glue.args, expected_args)
 
-    @patch('configglue.utils.SchemaConfigParser')
-    @patch('configglue.utils.schemaconfigglue')
-    def test_configglue(self, mock_schemaconfigglue, mock_schema_parser):
+    @patch('configglue.pyschema.glue.SchemaConfigParser')
+    @patch('configglue.pyschema.glue.schemaconfigglue')
+    def test_configglue_with_errors(self, mock_schemaconfigglue, mock_schema_parser):
         # prepare mocks
         expected_schema_parser = Mock()
         expected_schema_parser.is_valid.return_value = (False, ['some error'])
@@ -257,9 +257,9 @@ class ConfigglueTestCase(unittest.TestCase):
         self.assertEqual(glue.options, expected_options)
         self.assertEqual(glue.args, expected_args)
 
-    @patch('configglue.utils.OptionParser')
-    @patch('configglue.utils.SchemaConfigParser')
-    @patch('configglue.utils.schemaconfigglue')
+    @patch('configglue.pyschema.glue.OptionParser')
+    @patch('configglue.pyschema.glue.SchemaConfigParser')
+    @patch('configglue.pyschema.glue.schemaconfigglue')
     def test_configglue_with_usage(self, mock_schemaconfigglue,
         mock_schema_parser, mock_option_parser):
         # prepare mocks

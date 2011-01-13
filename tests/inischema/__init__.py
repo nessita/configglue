@@ -24,11 +24,12 @@ if __name__ == '__main__':
     import unittest
 
     from configglue.tests import (test_attributed, test_typed,
-                                  test_parsers, test_glue)
+                                  test_parsers, test_glue, test_glue2glue)
 
     suite = unittest.TestSuite()
     loader = unittest.TestLoader()
-    for module in test_attributed, test_typed, test_parsers, test_glue:
+    for module in (test_attributed, test_typed, test_parsers, test_glue,
+        test_glue2glue):
         suite.addTest(loader.loadTestsFromModule(module))
 
     unittest.TextTestRunner(verbosity=2).run(suite)
