@@ -16,24 +16,16 @@
 ###############################################################################
 
 
-import os
 from setuptools import (
     find_packages,
     setup,
 )
 
-
-def get_version():
-    version = [
-        (line.split('=')[1]).strip().strip('"').strip("'")
-        for line in open(os.path.join('configglue', '__init__.py'))
-        if line.startswith( '__version__' )
-    ][0]
-    return version
+import configglue
 
 
 setup(name='configglue',
-      version=get_version(),
+      version=configglue.__version__,
       description="Glue to stick OptionParser and ConfigParser together",
       long_description="""
 configglue is a library that glues together python's optparse.OptionParser and
