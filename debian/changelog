@@ -1,0 +1,32 @@
+python-configglue (0.9pre1-0ubuntu1) maverick; urgency=low
+
+  [Rick McBride]
+  * New upstream release. Closes (LP: #616477)
+    - fixed broken tests
+    - moved existing code around
+    - initial import of configglue.pyschema (from schemaconfig)
+    - merged changes from Ricardo Kirkner
+    - unified the © headers
+    - worked around circular import that happens when importing pyschema first
+    - schema inheritance fix
+    -added optional arguement to ini2schema for ubuntuone-client
+
+  [Elliot Murphy]
+  * debian/control: bumped standards-version to 3.9.1
+
+ -- Rick McBride <rick.mcbride@canonical.com>  Wed, 11 Aug 2010 16:43:35 -0400
+
+python-configglue (0.2dev-0ubuntu2) karmic; urgency=low
+
+  * debian/control:
+    + XS-Python-Version changed to >= 2.5 because of absolute imports 
+      (LP: #391451)
+
+ -- Andrew Mitchell <ajmitch@ubuntu.com>  Wed, 24 Jun 2009 14:35:22 +1200
+
+python-configglue (0.2dev-0ubuntu1) karmic; urgency=low
+
+    * Initial package Closes (LP: #384830)
+
+ -- Rick McBride <rick.mcbride@canonical.com>  Mon, 15 Jun 2009 14:33:00 -0400
+
