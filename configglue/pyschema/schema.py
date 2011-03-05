@@ -82,25 +82,36 @@ class Schema(object):
     def __init__(self):
         self.includes = LinesConfigOption(item=StringConfigOption())
         self._sections = {}
-        defaultSection = None
-        for attname in super_vars(self.__class__):
-            att = getattr(self, attname)
-            if isinstance(att, ConfigSection):
-                att.name = attname
-                self._sections[attname] = att
-                for optname in super_vars(att):
-                    opt = getattr(att, optname)
-                    if isinstance(opt, ConfigOption):
-                        opt.name = optname
-                        opt.section = att
-            elif isinstance(att, ConfigOption):
-                if defaultSection is None:
-                    defaultSection = ConfigSection()
-                    defaultSection.name = '__main__'
-                    self._sections['__main__'] = defaultSection
-                att.name = attname
-                att.section = defaultSection
-                setattr(defaultSection, attname, att)
+        # add section and options to the schema
+        for key in super_vars(self.__class__):
+            value = getattr(self, key)
+            self._add_item(key, value)
+
+    def _add_item(self, name, item):
+        """Add a top-level item to the schema."""
+        if not isinstance(item, (ConfigSection, ConfigOption)):
+            return
+
+        item.name = name
+        if isinstance(item, ConfigSection):
+            self._add_section(name, item)
+        elif isinstance(item, ConfigOption):
+            self._add_option(name, item)
+
+    def _add_section(self, name, section):
+        """Add a top-level section to the schema."""
+        self._sections[name] = section
+        items = super_vars(section).items()
+        options = ((k, v) for (k, v) in items if isinstance(v, ConfigOption))
+        for opt_name, opt in options:
+            opt.name = opt_name
+            opt.section = section
+
+    def _add_option(self, name, option):
+        """Add a top-level option to the schema."""
+        section = self._sections.setdefault('__main__', ConfigSection(name='__main__'))
+        option.section = section
+        setattr(section, name, option)
 
     def __eq__(self, other):
         return (self._sections == other._sections and
