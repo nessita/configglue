@@ -95,7 +95,7 @@ def ini2schema(fd, p=None):
 
             klass = parser2option.get(parser, StringConfigOption)
             if parser == 'lines':
-                instance = klass(StringConfigOption(), **attrs)
+                instance = klass(item=StringConfigOption(), **attrs)
             else:
                 instance = klass(**attrs)
             setattr(section, option_name, instance)
