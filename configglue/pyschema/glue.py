@@ -15,6 +15,7 @@
 # 
 ###############################################################################
 
+import locale
 import sys
 from optparse import OptionParser
 from collections import namedtuple
@@ -64,6 +65,7 @@ def schemaconfigglue(parser, op=None, argv=None):
             og.add_option('--' + long_name(option), **kwargs)
     options, args = op.parse_args(argv)
 
+    encoding = locale.getpreferredencoding()
     for section in schema.sections():
         for option in section.options():
             value = getattr(options, opt_name(option))
@@ -71,7 +73,9 @@ def schemaconfigglue(parser, op=None, argv=None):
                 # the value has been overridden by an argument;
                 # update it, but make sure it's a string, as
                 # SafeConfigParser will complain otherwise.
-                parser.set(section.name, option.name, unicode(value))
+                if not isinstance(value, basestring):
+                    value = repr(value)
+                parser.set(section.name, option.name, unicode(value, encoding))
 
     return op, options, args
 

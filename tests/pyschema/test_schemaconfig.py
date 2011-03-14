@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ###############################################################################
 # 
 # configglue -- glue for your apps' configuration
@@ -31,6 +32,7 @@ from configglue.pyschema.schema import (
     ConfigSection,
     IntConfigOption,
     Schema,
+    StringConfigOption,
 )
 
 
@@ -187,6 +189,19 @@ class TestSchemaConfigGlue(unittest.TestCase):
         stdout.seek(0)
         output = stdout.read()
         self.assertTrue(output.startswith('Usage:'))
+
+    def test_parser_set_with_encoding(self):
+        class MySchema(Schema):
+            foo = StringConfigOption()
+
+        parser = SchemaConfigParser(MySchema())
+        with patch('locale.getpreferredencoding') as mock_getpreferredencoding:
+            mock_getpreferredencoding.return_value = 'utf-8'
+            op, options, args = schemaconfigglue(
+                parser, argv=['--foo', 'fóobâr'])
+        self.assertEqual(parser.get('__main__', 'foo', parse=False),
+            u'fóobâr')
+        self.assertEqual(parser.get('__main__', 'foo'), u'fóobâr')
 
 
 class ConfigglueTestCase(unittest.TestCase):
