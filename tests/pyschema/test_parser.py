@@ -825,6 +825,15 @@ class TestParserIsValid(unittest.TestCase):
 
         self.assertFalse(self.parser.is_valid())
 
+    def test_parse_invalid_section_with_report(self):
+        config = StringIO("[bar]\nbaz=foo")
+        self.parser.readfp(config)
+
+        valid, errors = self.parser.is_valid(report=True)
+        self.assertFalse(valid)
+        self.assertEqual(errors,
+            [u'Sections in configuration do not match schema: bar'])
+
     def test_different_sections(self):
         config = StringIO("[__main__]\nfoo=1\n[bar]\nbaz=2")
         self.parser.readfp(config)
