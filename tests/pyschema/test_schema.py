@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ###############################################################################
 # 
 # configglue -- glue for your apps' configuration
@@ -155,44 +156,45 @@ class TestSchemaInheritance(unittest.TestCase):
 
 
 class TestStringConfigOption(unittest.TestCase):
+    def setUp(self):
+        self.opt = StringConfigOption()
+
     def test_init_no_args(self):
-        opt = StringConfigOption()
-        self.assertFalse(opt.null)
+        self.assertFalse(self.opt.null)
 
     def test_init_null(self):
         opt = StringConfigOption(null=True)
         self.assertTrue(opt.null)
 
-    def test_parse_string(self):
-        class MySchema(Schema):
-            foo = StringConfigOption(null=True)
-        config = StringIO("[__main__]\nfoo = 42")
-        expected_values = {'__main__': {'foo': '42'}}
-        schema = MySchema()
-        parser = SchemaConfigParser(schema)
-        parser.readfp(config)
-        self.assertEqual(parser.values(), expected_values)
+    def test_parse_ascii_string(self):
+        value = self.opt.parse('42')
+        self.assertEqual(value, '42')
 
-        config = StringIO("[__main__]\nfoo = ")
-        expected_values = {'__main__': {'foo': ''}}
-        parser = SchemaConfigParser(schema)
-        parser.readfp(config)
-        self.assertEqual(parser.values(), expected_values)
+    def test_parse_empty_string(self):
+        value = self.opt.parse('')
+        self.assertEqual(value, '')
 
-        config = StringIO("[__main__]\nfoo = None")
-        expected_values = {'__main__': {'foo': None}}
-        parser = SchemaConfigParser(schema)
-        parser.readfp(config)
-        self.assertEqual(parser.values(), expected_values)
+    def test_parse_null_string(self):
+        opt = StringConfigOption(null=True)
+        value = opt.parse(None)
+        self.assertEqual(value, None)
 
-        class MySchema(Schema):
-            foo = StringConfigOption()
-        config = StringIO("[__main__]\nfoo = None")
-        expected_values = {'__main__': {'foo': 'None'}}
-        schema = MySchema()
-        parser = SchemaConfigParser(schema)
-        parser.readfp(config)
-        self.assertEqual(parser.values(), expected_values)
+    def test_None_string(self):
+        value = self.opt.parse('None')
+        self.assertEqual(value, 'None')
+
+    def test_parse_nonascii_string(self):
+        foo = StringConfigOption()
+        value = foo.parse('foóbâr')
+        self.assertEqual(value, 'foóbâr')
+
+    def test_parse_int(self):
+        value = self.opt.parse(42)
+        self.assertEqual(value, '42')
+
+    def test_parse_bool(self):
+        value = self.opt.parse(False)
+        self.assertEqual(value, 'False')
 
     def test_default(self):
         opt = StringConfigOption()
