@@ -195,13 +195,11 @@ class TestSchemaConfigGlue(unittest.TestCase):
             foo = StringConfigOption()
 
         parser = SchemaConfigParser(MySchema())
-        with patch('locale.getpreferredencoding') as mock_getpreferredencoding:
-            mock_getpreferredencoding.return_value = 'utf-8'
-            op, options, args = schemaconfigglue(
-                parser, argv=['--foo', 'fóobâr'])
+        op, options, args = schemaconfigglue(
+            parser, argv=['--foo', 'fóobâr'])
         self.assertEqual(parser.get('__main__', 'foo', parse=False),
-            u'fóobâr')
-        self.assertEqual(parser.get('__main__', 'foo'), u'fóobâr')
+            'fóobâr')
+        self.assertEqual(parser.get('__main__', 'foo'), 'fóobâr')
 
 
 class ConfigglueTestCase(unittest.TestCase):
