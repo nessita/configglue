@@ -20,10 +20,18 @@ import os
 import shutil
 import tempfile
 import unittest
+from ConfigParser import (
+    InterpolationDepthError,
+    InterpolationMissingOptionError,
+    InterpolationSyntaxError,
+    NoSectionError,
+)
 from StringIO import StringIO
 
-from ConfigParser import (InterpolationMissingOptionError,
-    InterpolationDepthError, NoSectionError)
+from mock import (
+    Mock,
+    patch_object,
+)
 
 from configglue.pyschema.parser import (
     CONFIG_FILE_ENCODING,
@@ -211,7 +219,7 @@ class TestInterpolation(unittest.TestCase):
         rawval = '%(bar)'
         vars = {'foo': '%(bar)s', 'bar': 'pepe'}
         parser = SchemaConfigParser(MySchema())
-        self.assertRaises(ValueError, parser._interpolate, section, option,
+        self.assertRaises(InterpolationSyntaxError, parser._interpolate, section, option,
                           rawval, vars)
 
     def test_interpolate_across_sections(self):
@@ -236,7 +244,7 @@ class TestInterpolation(unittest.TestCase):
             baz = ConfigSection()
             baz.wham = IntConfigOption()
 
-        config = StringIO("[foo]\nbar=%(wham)\n[baz]\nwham=42")
+        config = StringIO("[foo]\nbar=%(wham)s\n[baz]\nwham=42")
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
         self.assertRaises(InterpolationMissingOptionError, parser.get,
@@ -341,6 +349,22 @@ class TestInterpolation(unittest.TestCase):
         parser.readfp(config)
         value = parser._interpolate_value('__main__', 'foo')
         self.assertEqual(value, expected_value)
+
+    def test_interpolate_value_no_keys(self):
+        class MySchema(Schema):
+            foo = TupleConfigOption(2)
+        config = StringIO("[__main__]\nfoo=%(bar)s,%(bar)s")
+
+        mock_get_interpolation_keys = Mock(return_value=('%(bar)s', None))
+
+        parser = SchemaConfigParser(MySchema())
+        parser.readfp(config)
+        with patch_object(parser, '_get_interpolation_keys',
+                mock_get_interpolation_keys):
+
+            value = parser._interpolate_value('__main__', 'foo')
+            self.assertEqual(value, None)
+
 
     def test_get_with_raw_value(self):
         class MySchema(Schema):

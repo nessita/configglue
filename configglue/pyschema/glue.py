@@ -69,7 +69,10 @@ def schemaconfigglue(parser, op=None, argv=None):
             value = getattr(options, opt_name(option))
             if parser.get(section.name, option.name) != value:
                 # the value has been overridden by an argument;
-                # update it.
+                # update it, but make sure it's a string, as
+                # SafeConfigParser will complain otherwise.
+                if not isinstance(value, basestring):
+                    value = repr(value)
                 parser.set(section.name, option.name, value)
 
     return op, options, args

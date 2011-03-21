@@ -352,9 +352,14 @@ class StringConfigOption(ConfigOption):
 
     def parse(self, value, raw=False):
         if raw:
-            return value
-
-        return unicode(value)
+            result = value
+        elif self.null:
+            result = None if value in (None, 'None') else value
+        elif isinstance(value, basestring):
+            result = value
+        else:
+            result = repr(value)
+        return result
 
     def __init__(self, raw=False, default=NO_DEFAULT, fatal=False, null=False,
                  help='', action='store'):

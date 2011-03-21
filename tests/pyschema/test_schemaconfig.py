@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ###############################################################################
 # 
 # configglue -- glue for your apps' configuration
@@ -31,6 +32,7 @@ from configglue.pyschema.schema import (
     ConfigSection,
     IntConfigOption,
     Schema,
+    StringConfigOption,
 )
 
 
@@ -187,6 +189,17 @@ class TestSchemaConfigGlue(unittest.TestCase):
         stdout.seek(0)
         output = stdout.read()
         self.assertTrue(output.startswith('Usage:'))
+
+    def test_parser_set_with_encoding(self):
+        class MySchema(Schema):
+            foo = StringConfigOption()
+
+        parser = SchemaConfigParser(MySchema())
+        op, options, args = schemaconfigglue(
+            parser, argv=['--foo', 'fóobâr'])
+        self.assertEqual(parser.get('__main__', 'foo', parse=False),
+            'fóobâr')
+        self.assertEqual(parser.get('__main__', 'foo'), 'fóobâr')
 
 
 class ConfigglueTestCase(unittest.TestCase):

@@ -23,7 +23,7 @@ import string
 
 from ConfigParser import (
     DEFAULTSECT,
-    ConfigParser as BaseConfigParser,
+    SafeConfigParser as BaseConfigParser,
     InterpolationMissingOptionError,
     NoOptionError,
     NoSectionError,
