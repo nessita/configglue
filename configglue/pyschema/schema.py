@@ -36,15 +36,16 @@ NO_DEFAULT = object()
 _internal = object.__dict__.keys() + ['__module__']
 
 
+def get_config_objects(obj):
+    objects = ((n, o) for (n, o) in getmembers(obj)
+        if isinstance(o, (ConfigSection, ConfigOption)))
+    return objects
+
+
 def merge(*schemas):
     # define result schema
     class MergedSchema(Schema):
         pass
-
-    def get_config_objects(obj):
-        objects = ((n, o) for (n, o) in getmembers(obj)
-            if isinstance(o, (ConfigSection, ConfigOption)))
-        return objects
 
     def add_to_object(obj, name, value):
         if isinstance(value, ConfigSection):
@@ -97,23 +98,18 @@ class Schema(object):
 
         # override class attributes with instance attributes to correctly
         # handle schema inheritance
-        schema_attributes = filter(
-            lambda x: x not in _internal and
-                isinstance(getattr(merged, x), (ConfigSection, ConfigOption)),
-            dict(getmembers(merged)))
-        for attr in schema_attributes:
-            setattr(self, attr, deepcopy(getattr(merged, attr)))
+        for name, value in get_config_objects(merged):
+            setattr(self, name, deepcopy(value))
 
         self.includes = LinesConfigOption(item=StringConfigOption())
         self._sections = {}
         defaultSection = None
-        for attname in dict(getmembers(self.__class__)):
-            att = getattr(self, attname)
+        for name, value in get_config_objects(self.__class__):
+            att = getattr(self, name)
             if isinstance(att, ConfigSection):
-                att.name = attname
-                self._sections[attname] = att
-                for optname in dict(getmembers(att)):
-                    opt = getattr(att, optname)
+                att.name = name
+                self._sections[name] = att
+                for optname, opt in get_config_objects(att):
                     if isinstance(opt, ConfigOption):
                         opt.name = optname
                         opt.section = att
@@ -122,9 +118,9 @@ class Schema(object):
                     defaultSection = ConfigSection()
                     defaultSection.name = '__main__'
                     self._sections['__main__'] = defaultSection
-                att.name = attname
+                att.name = name
                 att.section = defaultSection
-                setattr(defaultSection, attname, att)
+                setattr(defaultSection, name, att)
 
     def __eq__(self, other):
         return (self._sections == other._sections and
@@ -164,7 +160,8 @@ class Schema(object):
             for s in self.sections():
                 options += self.options(s)
         elif section.name == '__main__':
-            options = [getattr(self, att) for att in dict(getmembers(self.__class__)) 
+            class_config_objects = get_config_objects(self.__class__)
+            options = [getattr(self, att) for att, _ in class_config_objects
                            if isinstance(getattr(self, att), ConfigOption)]
         else:
             options = section.options()
