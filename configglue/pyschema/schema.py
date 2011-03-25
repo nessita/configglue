@@ -16,6 +16,7 @@
 ###############################################################################
 
 from copy import deepcopy
+from inspect import getmembers
 
 
 __all__ = [
@@ -45,6 +46,40 @@ def super_vars(obj):
     else:
         items = vars(obj)
     return items
+
+
+def merge(*schemas):
+    # define result schema
+    class MergedSchema(Schema):
+        pass
+
+    def get_config_objects(obj):
+        objects = ((n, o) for (n, o) in getmembers(obj)
+            if isinstance(o, (ConfigSection, ConfigOption)))
+        return objects
+
+    def add_to_object(obj, name, value):
+        if isinstance(value, ConfigSection):
+            if not hasattr(obj, name):
+                # name not found in section, just add it
+                setattr(obj, name, value)
+            else:
+                # name found, let's merge it's children
+                parent = getattr(obj, name)
+                for child_name, child_value in get_config_objects(value):
+                    add_to_object(parent, child_name, child_value)
+        else:
+            # not a ConfigSection, so just override the current value as
+            # it has no children
+            setattr(obj, name, value)
+
+    # for each schema
+    for schema in schemas:
+        # process top-level objects
+        for name, obj in get_config_objects(schema):
+            add_to_object(MergedSchema, name, obj)
+
+    return MergedSchema
 
 
 class Schema(object):

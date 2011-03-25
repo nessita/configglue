@@ -29,6 +29,7 @@ from configglue.pyschema.schema import (
     Schema,
     StringConfigOption,
     TupleConfigOption,
+    merge,
 )
 
 
@@ -153,6 +154,28 @@ class TestSchemaInheritance(unittest.TestCase):
 
         # test on the other schema
         self.assertFalse(hasattr(self.other.foo, 'baz'))
+
+    def test_merge(self):
+        class SchemaA(Schema):
+            foo = ConfigSection()
+            foo.bar = IntConfigOption()
+            bar = IntConfigOption()
+
+        class SchemaB(Schema):
+            foo = ConfigSection()
+            foo.baz = IntConfigOption()
+
+        class SchemaC(Schema):
+            foo = ConfigSection()
+            foo.bar = IntConfigOption()
+            foo.baz = IntConfigOption()
+            bar = IntConfigOption()
+
+        expected = SchemaC()
+        merged = merge(SchemaA, SchemaB)()
+
+        self.assertEqual(merged.sections(), expected.sections())
+        self.assertEqual(merged.options(), expected.options())
 
 
 class TestStringConfigOption(unittest.TestCase):
