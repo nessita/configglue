@@ -20,7 +20,6 @@ from inspect import getmembers
 
 
 __all__ = [
-    'super_vars',
     'BoolConfigOption',
     'ConfigOption',
     'ConfigSection',
@@ -35,17 +34,6 @@ __all__ = [
 NO_DEFAULT = object()
 
 _internal = object.__dict__.keys() + ['__module__']
-
-
-def super_vars(obj):
-    """An extended version of vars() that walks all base classes."""
-    items = {}
-    if hasattr(obj, '__mro__'):
-        bases = map(vars, obj.__mro__)
-        map(items.update, bases)
-    else:
-        items = vars(obj)
-    return items
 
 
 def merge(*schemas):
@@ -112,19 +100,19 @@ class Schema(object):
         schema_attributes = filter(
             lambda x: x not in _internal and
                 isinstance(getattr(merged, x), (ConfigSection, ConfigOption)),
-            super_vars(merged))
+            dict(getmembers(merged)))
         for attr in schema_attributes:
             setattr(self, attr, deepcopy(getattr(merged, attr)))
 
         self.includes = LinesConfigOption(item=StringConfigOption())
         self._sections = {}
         defaultSection = None
-        for attname in super_vars(self.__class__):
+        for attname in dict(getmembers(self.__class__)):
             att = getattr(self, attname)
             if isinstance(att, ConfigSection):
                 att.name = attname
                 self._sections[attname] = att
-                for optname in super_vars(att):
+                for optname in dict(getmembers(att)):
                     opt = getattr(att, optname)
                     if isinstance(opt, ConfigOption):
                         opt.name = optname
@@ -176,7 +164,7 @@ class Schema(object):
             for s in self.sections():
                 options += self.options(s)
         elif section.name == '__main__':
-            options = [getattr(self, att) for att in super_vars(self.__class__) 
+            options = [getattr(self, att) for att in dict(getmembers(self.__class__)) 
                            if isinstance(getattr(self, att), ConfigOption)]
         else:
             options = section.options()
