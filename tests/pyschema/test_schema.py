@@ -177,6 +177,24 @@ class TestSchemaInheritance(unittest.TestCase):
         self.assertEqual(merged.sections(), expected.sections())
         self.assertEqual(merged.options(), expected.options())
 
+    def test_merge_inherited(self):
+        class SchemaA(Schema):
+            foo = ConfigSection()
+            foo.bar = IntConfigOption()
+            bar = IntConfigOption()
+
+        class SchemaB(SchemaA):
+            foo = ConfigSection()
+            foo.baz = IntConfigOption()
+
+        schema = SchemaB()
+        section_names = set(s.name for s in schema.sections())
+        option_names = set(o.name for o in schema.options('__main__'))
+        foo_option_names = set(o.name for o in schema.options('foo'))
+        self.assertEqual(section_names, set(['__main__', 'foo']))
+        self.assertEqual(option_names, set(['bar']))
+        self.assertEqual(foo_option_names, set(['bar', 'baz']))
+
 
 class TestStringConfigOption(unittest.TestCase):
     def setUp(self):

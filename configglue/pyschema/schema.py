@@ -100,21 +100,22 @@ class Schema(object):
     configuration files.
     """
 
-    def __new__(cls):
-        instance = super(Schema, cls).__new__(cls)
+    def __init__(self):
+        bases = (c for c in reversed(self.__class__.__mro__)
+            if issubclass(c, Schema))
+        # get merged schema so that all inherited attributes are
+        # included
+        merged = merge(*bases)
 
         # override class attributes with instance attributes to correctly
         # handle schema inheritance
         schema_attributes = filter(
             lambda x: x not in _internal and
-                isinstance(getattr(cls, x), (ConfigSection, ConfigOption)),
-            super_vars(cls))
+                isinstance(getattr(merged, x), (ConfigSection, ConfigOption)),
+            super_vars(merged))
         for attr in schema_attributes:
-            setattr(instance, attr, deepcopy(getattr(cls, attr)))
+            setattr(self, attr, deepcopy(getattr(merged, attr)))
 
-        return instance
-
-    def __init__(self):
         self.includes = LinesConfigOption(item=StringConfigOption())
         self._sections = {}
         defaultSection = None
