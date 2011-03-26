@@ -58,9 +58,9 @@ def merge(*schemas):
                 for child_name, child_value in get_config_objects(value):
                     add_to_object(parent, child_name, child_value)
         else:
-            # not a ConfigSection, so just override the current value as
-            # it has no children
-            setattr(obj, name, value)
+            # don't override ConfigOption objects if they already exist
+            if not hasattr(obj, name):
+                setattr(obj, name, value)
 
     # for each schema
     for schema in schemas:
@@ -90,8 +90,7 @@ class Schema(object):
     """
 
     def __init__(self):
-        bases = (c for c in reversed(self.__class__.__mro__)
-            if issubclass(c, Schema))
+        bases = (c for c in self.__class__.__mro__ if issubclass(c, Schema))
         # get merged schema so that all inherited attributes are
         # included
         merged = merge(*bases)

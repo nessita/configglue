@@ -187,6 +187,8 @@ class TestSchemaInheritance(unittest.TestCase):
             foo = ConfigSection()
             foo.baz = IntConfigOption()
 
+        # SchemaB inherits attributes from SchemaA and merges its own
+        # attributes into
         schema = SchemaB()
         section_names = set(s.name for s in schema.sections())
         option_names = set(o.name for o in schema.options('__main__'))
@@ -194,6 +196,15 @@ class TestSchemaInheritance(unittest.TestCase):
         self.assertEqual(section_names, set(['__main__', 'foo']))
         self.assertEqual(option_names, set(['bar']))
         self.assertEqual(foo_option_names, set(['bar', 'baz']))
+
+        # SchemaB inheritance does not affect SchemaA
+        schema = SchemaA()
+        section_names = set(s.name for s in schema.sections())
+        option_names = set(o.name for o in schema.options('__main__'))
+        foo_option_names = set(o.name for o in schema.options('foo'))
+        self.assertEqual(section_names, set(['__main__', 'foo']))
+        self.assertEqual(option_names, set(['bar']))
+        self.assertEqual(foo_option_names, set(['bar']))
 
 
 class TestStringConfigOption(unittest.TestCase):
