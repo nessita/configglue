@@ -1,13 +1,12 @@
-.. _quickstart:
-
-configglue 101
-==============
+=================================================
+Writing your first configglue-enabled application
+=================================================
 
 This is a minimalistic step-by-step guide on how to start using configglue to
 manage configuration settings for your application.
 
-Jump in
--------
+Jump right in
+=============
 
 Most of the time the code needed to make your application work with configglue
 will look like the following snippet, so let's look at it in detail::
@@ -26,8 +25,12 @@ will look like the following snippet, so let's look at it in detail::
 
     if __name__ == '__main__':
         from configglue.pyschema import (
-            IntConfigOption, BoolConfigOption, Schema, SchemaConfigParser,
-            schemaconfigglue)
+            BoolConfigOption,
+            IntConfigOption,
+            Schema,
+            schemaconfigglue,
+            SchemaConfigParser,
+        )
 
         # create the schema
         class MySchema(Schema):
@@ -108,8 +111,47 @@ The general structure is:
         if not is_valid:
             op.error(reasons[0])
 
-Test
-----
+Since this code will be structured the same for any configglue-enable project
+you do, there is also a utility function you can use to avoid repeating
+yourself.
+
+When using that function (see :func:`~configglue.pyschema.glue.configglue`),
+this code would look like::
+
+    def main(config, opts):
+        # do something
+        values = config.values('__main__')
+        for opt in ('foo', 'bar'):
+            option = config.schema.section('__main__').option(opt)
+            value = values.get(opt)
+            if value != option.default:
+                print "%s option has been configured with value: %s" % (opt,
+                    value)
+            else:
+                print "%s option has default value: %s" % (opt, option.default)
+
+    if __name__ == '__main__':
+        from configglue.pyschema import (
+            BoolConfigOption,
+            IntConfigOption,
+            Schema,
+            configglue,
+        )
+
+        # create the schema
+        class MySchema(Schema):
+            foo = IntConfigOption()
+            bar = BoolConfigOption()
+
+        # glue everything together
+        glue = configglue(MySchema, ['config.ini'])
+
+        # run
+        main(glue.schema_parser, glue.options)
+
+
+Test it
+=======
 
 To test our configglue support, let's try out different use cases.
 
@@ -149,7 +191,7 @@ To test our configglue support, let's try out different use cases.
 
 
 Profit!
--------
+=======
 
 That's it! Your application now uses configglue to manage it's configuration.
 Congratulations!
