@@ -319,7 +319,7 @@ class TestInterpolation(unittest.TestCase):
 
     def test_get_interpolation_keys_dict(self):
         class MySchema(Schema):
-            foo = DictConfigOption({'a': IntConfigOption()})
+            foo = DictConfigOption(spec={'a': IntConfigOption()})
         config = StringIO("[__noschema__]\nbar=4\n[__main__]\nfoo=mydict\n[mydict]\na=%(bar)s")
         expected = ('mydict', set([]))
 
@@ -379,7 +379,7 @@ class TestInterpolation(unittest.TestCase):
 
     def test_interpolate_parse_dict(self):
         class MySchema(Schema):
-            foo = DictConfigOption({'a': IntConfigOption()})
+            foo = DictConfigOption(spec={'a': IntConfigOption()})
         config = StringIO("[__noschema__]\nbar=4\n[__main__]\nfoo=mydict\n[mydict]\na=%(bar)s")
         expected = {'__main__': {'foo': {'a': 4}}}
 
@@ -549,7 +549,7 @@ class TestSchemaConfigParser(unittest.TestCase):
 
     def test_extra_sections(self):
         class MySchema(Schema):
-            foo = DictConfigOption({'bar': IntConfigOption()})
+            foo = DictConfigOption(spec={'bar': IntConfigOption()})
 
         config = StringIO("[__main__]\nfoo=mydict\n[mydict]\nbar=1")
         parser = SchemaConfigParser(MySchema())
@@ -563,7 +563,7 @@ class TestSchemaConfigParser(unittest.TestCase):
     def test_multiple_extra_sections(self):
         class MySchema(Schema):
             foo = LinesConfigOption(
-                item=DictConfigOption({'bar': IntConfigOption()}))
+                item=DictConfigOption(spec={'bar': IntConfigOption()}))
 
         config = StringIO('[__main__]\nfoo=d1\n    d2\n    d3\n'
                           '[d1]\nbar=1\n[d2]\nbar=2\n[d3]\nbar=3')
@@ -613,9 +613,10 @@ class TestSchemaConfigParser(unittest.TestCase):
 
     def test_multi_file_dict_config(self):
         class MySchema(Schema):
-            foo = DictConfigOption({'bar': IntConfigOption(),
-                                    'baz': IntConfigOption()},
-                                   strict=True)
+            foo = DictConfigOption(spec={
+                'bar': IntConfigOption(),
+                'baz': IntConfigOption(),
+            }, strict=True)
         config1 = StringIO('[__main__]\nfoo=mydict\n[mydict]\nbar=1\nbaz=1')
         config2 = StringIO('[mydict]\nbaz=2')
         expected_values = {'__main__': {'foo': {'bar': 1, 'baz': 2}}}
@@ -628,9 +629,10 @@ class TestSchemaConfigParser(unittest.TestCase):
     def test_multi_file_dict_list_config(self):
         class MySchema(Schema):
             foo = LinesConfigOption(
-                item=DictConfigOption({'bar': IntConfigOption(),
-                                       'baz': IntConfigOption()},
-                                      strict=True))
+                item=DictConfigOption(spec={
+                    'bar': IntConfigOption(),
+                    'baz': IntConfigOption(),
+                }, strict=True))
 
         config1 = StringIO('[__main__]\nfoo=mydict\n[mydict]\nbar=1\nbaz=1')
         expected_values = {'__main__': {'foo': [{'bar': 1, 'baz': 1}]}}
@@ -888,7 +890,7 @@ class TestParserIsValid(unittest.TestCase):
 
     def test_extra_sections(self):
         class MySchema(Schema):
-            foo = DictConfigOption({'bar': IntConfigOption()})
+            foo = DictConfigOption(spec={'bar': IntConfigOption()})
 
         config = StringIO("[__main__]\nfoo=mydict\n[mydict]\nbar=1")
         parser = SchemaConfigParser(MySchema())
@@ -919,7 +921,7 @@ baz=42
 
     def test_extra_sections_with_nested_dicts_strict(self):
         class MySchema(Schema):
-            foo = DictConfigOption({'bar': DictConfigOption()}, strict=True)
+            foo = DictConfigOption(spec={'bar': DictConfigOption()}, strict=True)
 
         config = StringIO("""
 [__main__]
@@ -1029,7 +1031,7 @@ swoosh = 4
     def test_multiple_extra_sections(self):
         class MySchema(Schema):
             foo = LinesConfigOption(
-                item=DictConfigOption({'bar': IntConfigOption()}))
+                item=DictConfigOption(spec={'bar': IntConfigOption()}))
 
         config = StringIO('[__main__]\nfoo=d1\n    d2\n    d3\n'
                           '[d1]\nbar=1\n[d2]\nbar=2\n[d3]\nbar=3')
