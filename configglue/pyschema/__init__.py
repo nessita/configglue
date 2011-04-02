@@ -14,3 +14,5 @@
 # For bug reports, support, and new releases: http://launchpad.net/configglue
 # 
 ###############################################################################
+
+from configglue.pyschema.schema import *
