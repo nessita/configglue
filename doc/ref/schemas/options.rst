@@ -23,7 +23,7 @@ This document contains details about the `option attributes`_ and
     ``from configglue import pyschema`` and refer to classes as
     ``pyschema.<Foo>ConfigOption``.
 
-.. _common-option-attributes:
+.. _common-schema-option-attributes:
 
 Option attributes
 =================
@@ -83,7 +83,7 @@ Default is ``''``.
 
 .. attribute:: ConfigOption.section
 
-The :class:`configglue.pyschema.ConfigSection` object where this option was
+The :class:`~configglue.pyschema.ConfigSection` object where this option was
 defined.
 
 Default is ``None``.
@@ -130,7 +130,7 @@ A list of items.
     *Required*.
 
     List elements will be parsed as being of this type. Should be an
-    instance of a subclass of ``configglue.pyschema.schema.ConfigOption``.
+    instance of a subclass of :class:`~configglue.pyschema.schema.ConfigOption`.
 
 .. attribute:: LinesConfigOption.remove_duplicates
 
@@ -180,7 +180,7 @@ A dictionary.
 
     If not ``None``, should be a ``dict`` instance, such that its values
     are instances of a subclass of
-    :class:`configglue.pyschema.schema.ConfigOption`.
+    :class:`~configglue.pyschema.schema.ConfigOption`.
 
 .. attribute:: DictConfigOption.strict
 
@@ -195,5 +195,5 @@ A dictionary.
 
     Any not explicitelly defined attributes will be parsed as being
     of this type. This should be an instance of a subclass of
-    :class:`configglue.pyschema.schema.ConfigOption`.
+    :class:`~configglue.pyschema.schema.ConfigOption`.
 
