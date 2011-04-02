@@ -102,24 +102,33 @@ class Schema(object):
 
         self.includes = LinesConfigOption(item=StringConfigOption())
         self._sections = {}
-        defaultSection = None
-        for name, value in get_config_objects(self.__class__):
-            att = getattr(self, name)
-            if isinstance(att, ConfigSection):
-                att.name = name
-                self._sections[name] = att
-                for optname, opt in get_config_objects(att):
-                    if isinstance(opt, ConfigOption):
-                        opt.name = optname
-                        opt.section = att
-            elif isinstance(att, ConfigOption):
-                if defaultSection is None:
-                    defaultSection = ConfigSection()
-                    defaultSection.name = '__main__'
-                    self._sections['__main__'] = defaultSection
-                att.name = name
-                att.section = defaultSection
-                setattr(defaultSection, name, att)
+        # add section and options to the schema
+        for name, item in get_config_objects(self.__class__):
+            self._add_item(name, item)
+
+    def _add_item(self, name, item):
+        """Add a top-level item to the schema."""
+        if not isinstance(item, (ConfigSection, ConfigOption)):
+            return
+
+        item.name = name
+        if isinstance(item, ConfigSection):
+            self._add_section(name, item)
+        elif isinstance(item, ConfigOption):
+            self._add_option(name, item)
+
+    def _add_section(self, name, section):
+        """Add a top-level section to the schema."""
+        self._sections[name] = section
+        for opt_name, opt in get_config_objects(section):
+            opt.name = opt_name
+            opt.section = section
+
+    def _add_option(self, name, option):
+        """Add a top-level option to the schema."""
+        section = self._sections.setdefault('__main__', ConfigSection(name='__main__'))
+        option.section = section
+        setattr(section, name, option)
 
     def __eq__(self, other):
         return (self._sections == other._sections and
@@ -350,10 +359,10 @@ class LinesConfigOption(ConfigOption):
             items = filtered_items
         return items
 
-    def __init__(self, item, raw=False, default=NO_DEFAULT, fatal=False,
-        help='', action='store', remove_duplicates=False):
-        super(LinesConfigOption, self).__init__(raw=raw, default=default,
-            fatal=fatal, help=help, action=action)
+    def __init__(self, name='', item=None, raw=False, default=NO_DEFAULT,
+        fatal=False, help='', action='store', remove_duplicates=False):
+        super(LinesConfigOption, self).__init__(name=name, raw=raw,
+            default=default, fatal=fatal, help=help, action=action)
         self.item = item
         self.require_parser = item.require_parser
         self.raw = item.raw
@@ -381,11 +390,11 @@ class StringConfigOption(ConfigOption):
             result = repr(value)
         return result
 
-    def __init__(self, raw=False, default=NO_DEFAULT, fatal=False, null=False,
-                 help='', action='store'):
+    def __init__(self, name='', raw=False, default=NO_DEFAULT, fatal=False,
+        null=False, help='', action='store'):
         self.null = null
-        super(StringConfigOption, self).__init__(raw=raw, default=default,
-            fatal=fatal, help=help, action=action)
+        super(StringConfigOption, self).__init__(name=name, raw=raw,
+            default=default, fatal=fatal, help=help, action=action)
 
 
 class TupleConfigOption(ConfigOption):
@@ -395,10 +404,10 @@ class TupleConfigOption(ConfigOption):
     constructor argument.
     """
 
-    def __init__(self, length=0, raw=False, default=NO_DEFAULT, fatal=False,
-                 help='', action='store'):
-        super(TupleConfigOption, self).__init__(raw=raw, default=default,
-            fatal=fatal, help=help, action=action)
+    def __init__(self, name='', length=0, raw=False, default=NO_DEFAULT,
+        fatal=False, help='', action='store'):
+        super(TupleConfigOption, self).__init__(name=name, raw=raw,
+            default=default, fatal=fatal, help=help, action=action)
         self.length = length
 
     def _get_default(self):
@@ -433,7 +442,7 @@ class DictConfigOption(ConfigOption):
     """
     require_parser = True
 
-    def __init__(self, spec=None, strict=False, raw=False,
+    def __init__(self, name='', spec=None, strict=False, raw=False,
                  default=NO_DEFAULT, fatal=False, help='', action='store',
                  item=None):
         if spec is None:
@@ -443,8 +452,8 @@ class DictConfigOption(ConfigOption):
         self.spec = spec
         self.strict = strict
         self.item = item
-        super(DictConfigOption, self).__init__(raw=raw, default=default,
-            fatal=fatal, help=help, action=action)
+        super(DictConfigOption, self).__init__(name=name, raw=raw,
+            default=default, fatal=fatal, help=help, action=action)
 
     def _get_default(self):
         default = {}

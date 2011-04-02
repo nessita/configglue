@@ -388,7 +388,7 @@ class TestLinesConfigOption(unittest.TestCase):
 
 class TestTupleConfigOption(unittest.TestCase):
     def test_init(self):
-        opt = TupleConfigOption(2)
+        opt = TupleConfigOption(length=2)
         self.assertEqual(opt.length, 2)
 
     def test_init_no_length(self):
@@ -427,7 +427,7 @@ class TestTupleConfigOption(unittest.TestCase):
         self.assertRaises(ValueError, parser.values)
 
     def test_default(self):
-        opt = TupleConfigOption(2)
+        opt = TupleConfigOption(length=2)
         self.assertEqual(opt.default, ())
 
 
@@ -438,11 +438,11 @@ class TestDictConfigOption(unittest.TestCase):
         self.assertEqual(opt.strict, False)
 
         spec = {'a': IntConfigOption(), 'b': BoolConfigOption()}
-        opt = DictConfigOption(spec)
+        opt = DictConfigOption(spec=spec)
         self.assertEqual(opt.spec, spec)
         self.assertEqual(opt.strict, False)
 
-        opt = DictConfigOption(spec, strict=True)
+        opt = DictConfigOption(spec=spec, strict=True)
         self.assertEqual(opt.spec, spec)
         self.assertEqual(opt.strict, True)
 
@@ -468,10 +468,11 @@ baz=42
 
     def test_parse_dict(self):
         class MySchema(Schema):
-            foo = DictConfigOption({'bar': StringConfigOption(),
-                                    'baz': IntConfigOption(),
-                                    'bla': BoolConfigOption(),
-                                    })
+            foo = DictConfigOption(spec={
+                'bar': StringConfigOption(),
+                'baz': IntConfigOption(),
+                'bla': BoolConfigOption(),
+            })
         config = StringIO("""[__main__]
 foo = mydict
 [mydict]
@@ -492,10 +493,11 @@ bla=Yes
 
     def test_parse_raw(self):
         class MySchema(Schema):
-            foo = DictConfigOption({'bar': StringConfigOption(),
-                                    'baz': IntConfigOption(),
-                                    'bla': BoolConfigOption(),
-                                    })
+            foo = DictConfigOption(spec={
+                'bar': StringConfigOption(),
+                'baz': IntConfigOption(),
+                'bla': BoolConfigOption(),
+            })
         config = StringIO("""[__main__]
 foo = mydict
 [mydict]
@@ -511,7 +513,7 @@ baz=42
 
     def test_parse_invalid_key_in_parsed(self):
         class MySchema(Schema):
-            foo = DictConfigOption({'bar': IntConfigOption()})
+            foo = DictConfigOption(spec={'bar': IntConfigOption()})
 
         config = StringIO("[__main__]\nfoo=mydict\n[mydict]\nbaz=2")
         expected_values = {'__main__': {'foo': {'bar': 0, 'baz': '2'}}}
@@ -521,8 +523,9 @@ baz=42
 
     def test_parse_invalid_key_in_spec(self):
         class MySchema(Schema):
-            foo = DictConfigOption({'bar': IntConfigOption(),
-                                    'baz': IntConfigOption(fatal=True)})
+            foo = DictConfigOption(spec={
+                'bar': IntConfigOption(),
+                'baz': IntConfigOption(fatal=True)})
 
         config = StringIO("[__main__]\nfoo=mydict\n[mydict]\nbar=2")
         parser = SchemaConfigParser(MySchema())
@@ -530,12 +533,12 @@ baz=42
         self.assertRaises(ValueError, parser.parse_all)
 
     def test_default(self):
-        opt = DictConfigOption({})
+        opt = DictConfigOption(spec={})
         self.assertEqual(opt.default, {})
 
     def test_parse_no_strict_missing_args(self):
         class MySchema(Schema):
-            foo = DictConfigOption({'bar': IntConfigOption()})
+            foo = DictConfigOption(spec={'bar': IntConfigOption()})
 
         config = StringIO("[__main__]\nfoo=mydict\n[mydict]")
         expected_values = {'__main__': {'foo': {'bar': 0}}}
@@ -574,7 +577,7 @@ wham=42
     def test_parse_strict(self):
         class MySchema(Schema):
             spec = {'bar': IntConfigOption()}
-            foo = DictConfigOption(spec, strict=True)
+            foo = DictConfigOption(spec=spec, strict=True)
 
         config = StringIO("[__main__]\nfoo=mydict\n[mydict]\nbar=2")
         expected_values = {'__main__': {'foo': {'bar': 2}}}
@@ -586,7 +589,7 @@ wham=42
         class MySchema(Schema):
             spec = {'bar': IntConfigOption(),
                     'baz': IntConfigOption()}
-            foo = DictConfigOption(spec, strict=True)
+            foo = DictConfigOption(spec=spec, strict=True)
 
         config = StringIO("[__main__]\nfoo=mydict\n[mydict]\nbar=2")
         expected_values = {'__main__': {'foo': {'bar': 2, 'baz': 0}}}
@@ -597,7 +600,7 @@ wham=42
     def test_parse_strict_extra_vars(self):
         class MySchema(Schema):
             spec = {'bar': IntConfigOption()}
-            foo = DictConfigOption(spec, strict=True)
+            foo = DictConfigOption(spec=spec, strict=True)
 
         config = StringIO("[__main__]\nfoo=mydict\n[mydict]\nbar=2\nbaz=3")
         parser = SchemaConfigParser(MySchema())
@@ -608,11 +611,12 @@ wham=42
 class TestLinesOfDictConfigOption(unittest.TestCase):
     def test_parse_lines_of_dict(self):
         class MySchema(Schema):
-            foo = LinesConfigOption(
-                        DictConfigOption({'bar': StringConfigOption(),
-                                          'baz': IntConfigOption(),
-                                          'bla': BoolConfigOption(),
-                                          }))
+            foo = LinesConfigOption(item=DictConfigOption(
+                spec={
+                    'bar': StringConfigOption(),
+                    'baz': IntConfigOption(),
+                    'bla': BoolConfigOption(),
+                }))
         config = StringIO("""[__main__]
 foo = mylist0
       mylist1
@@ -644,9 +648,9 @@ class TestDictWithDicts(unittest.TestCase):
                     }
         spec = {'name': StringConfigOption(),
                 'size': IntConfigOption(),
-                'options': DictConfigOption(innerspec)}
+                'options': DictConfigOption(spec=innerspec)}
         class MySchema(Schema):
-            foo = DictConfigOption(spec)
+            foo = DictConfigOption(spec=spec)
         config = StringIO("""[__main__]
 foo = outerdict
 [outerdict]
