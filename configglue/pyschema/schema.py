@@ -95,15 +95,10 @@ class Schema(object):
         # included
         merged = merge(*bases)
 
-        # override class attributes with instance attributes to correctly
-        # handle schema inheritance
-        for name, value in get_config_objects(merged):
-            setattr(self, name, deepcopy(value))
-
         self.includes = LinesConfigOption(item=StringConfigOption())
         self._sections = {}
         # add section and options to the schema
-        for name, item in get_config_objects(self.__class__):
+        for name, item in get_config_objects(merged):
             self._add_item(name, item)
 
     def _add_item(self, name, item):
@@ -116,6 +111,9 @@ class Schema(object):
             self._add_section(name, item)
         elif isinstance(item, ConfigOption):
             self._add_option(name, item)
+        # override class attributes with instance attributes to correctly
+        # handle schema inheritance
+        setattr(self, name, deepcopy(item))
 
     def _add_section(self, name, section):
         """Add a top-level section to the schema."""
