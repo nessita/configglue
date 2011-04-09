@@ -17,6 +17,7 @@
 ###############################################################################
 
 import unittest
+from copy import deepcopy
 from StringIO import StringIO
 
 from configglue.pyschema.parser import SchemaConfigParser
@@ -153,6 +154,35 @@ class TestSchemaInheritance(unittest.TestCase):
 
         # test on the other schema
         self.assertFalse(hasattr(self.other.foo, 'baz'))
+
+    def test_merge_inherited(self):
+        class SchemaA(Schema):
+            foo = ConfigSection()
+            foo.bar = IntConfigOption()
+            bar = IntConfigOption()
+
+        class SchemaB(SchemaA):
+            foo = deepcopy(SchemaA.foo)
+            foo.baz = IntConfigOption()
+
+        # SchemaB inherits attributes from SchemaA and merges its own
+        # attributes into
+        schema = SchemaB()
+        section_names = set(s.name for s in schema.sections())
+        option_names = set(o.name for o in schema.options('__main__'))
+        foo_option_names = set(o.name for o in schema.options('foo'))
+        self.assertEqual(section_names, set(['__main__', 'foo']))
+        self.assertEqual(option_names, set(['bar']))
+        self.assertEqual(foo_option_names, set(['bar', 'baz']))
+
+        # SchemaB inheritance does not affect SchemaA
+        schema = SchemaA()
+        section_names = set(s.name for s in schema.sections())
+        option_names = set(o.name for o in schema.options('__main__'))
+        foo_option_names = set(o.name for o in schema.options('foo'))
+        self.assertEqual(section_names, set(['__main__', 'foo']))
+        self.assertEqual(option_names, set(['bar']))
+        self.assertEqual(foo_option_names, set(['bar']))
 
 
 class TestStringConfigOption(unittest.TestCase):
