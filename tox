@@ -1,0 +1,6 @@
+#!/usr/bin/env python
+import urllib
+url = "https://pytox.googlecode.com/hg/toxbootstrap.py"
+d = dict(__file__='toxbootstrap.py')
+exec urllib.urlopen(url).read() in d
+d['cmdline'](['--recreate'])
