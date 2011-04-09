@@ -69,9 +69,6 @@ class Schema(object):
 
     def _add_item(self, name, item):
         """Add a top-level item to the schema."""
-        if not isinstance(item, (ConfigSection, ConfigOption)):
-            return
-
         item.name = name
         if isinstance(item, ConfigSection):
             self._add_section(name, item)
