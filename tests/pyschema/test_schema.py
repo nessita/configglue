@@ -17,6 +17,7 @@
 ###############################################################################
 
 import unittest
+from copy import deepcopy
 from StringIO import StringIO
 
 from configglue.pyschema.parser import SchemaConfigParser
@@ -29,7 +30,6 @@ from configglue.pyschema.schema import (
     Schema,
     StringConfigOption,
     TupleConfigOption,
-    merge,
 )
 
 
@@ -155,28 +155,6 @@ class TestSchemaInheritance(unittest.TestCase):
         # test on the other schema
         self.assertFalse(hasattr(self.other.foo, 'baz'))
 
-    def test_merge(self):
-        class SchemaA(Schema):
-            foo = ConfigSection()
-            foo.bar = IntConfigOption()
-            bar = IntConfigOption()
-
-        class SchemaB(Schema):
-            foo = ConfigSection()
-            foo.baz = IntConfigOption()
-
-        class SchemaC(Schema):
-            foo = ConfigSection()
-            foo.bar = IntConfigOption()
-            foo.baz = IntConfigOption()
-            bar = IntConfigOption()
-
-        expected = SchemaC()
-        merged = merge(SchemaA, SchemaB)()
-
-        self.assertEqual(merged.sections(), expected.sections())
-        self.assertEqual(merged.options(), expected.options())
-
     def test_merge_inherited(self):
         class SchemaA(Schema):
             foo = ConfigSection()
@@ -184,7 +162,7 @@ class TestSchemaInheritance(unittest.TestCase):
             bar = IntConfigOption()
 
         class SchemaB(SchemaA):
-            foo = ConfigSection()
+            foo = deepcopy(SchemaA.foo)
             foo.baz = IntConfigOption()
 
         # SchemaB inherits attributes from SchemaA and merges its own

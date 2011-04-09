@@ -42,35 +42,6 @@ def get_config_objects(obj):
     return objects
 
 
-def merge(*schemas):
-    # define result schema
-    class MergedSchema(Schema):
-        pass
-
-    def add_to_object(obj, name, value):
-        if isinstance(value, ConfigSection):
-            if not hasattr(obj, name):
-                # name not found in section, just add it
-                setattr(obj, name, value)
-            else:
-                # name found, let's merge it's children
-                parent = getattr(obj, name)
-                for child_name, child_value in get_config_objects(value):
-                    add_to_object(parent, child_name, child_value)
-        else:
-            # don't override ConfigOption objects if they already exist
-            if not hasattr(obj, name):
-                setattr(obj, name, value)
-
-    # for each schema
-    for schema in schemas:
-        # process top-level objects
-        for name, obj in get_config_objects(schema):
-            add_to_object(MergedSchema, name, obj)
-
-    return MergedSchema
-
-
 class Schema(object):
     """A complete description of a system configuration.
 
@@ -90,15 +61,10 @@ class Schema(object):
     """
 
     def __init__(self):
-        bases = (c for c in self.__class__.__mro__ if issubclass(c, Schema))
-        # get merged schema so that all inherited attributes are
-        # included
-        merged = merge(*bases)
-
         self.includes = LinesConfigOption(item=StringConfigOption())
         self._sections = {}
         # add section and options to the schema
-        for name, item in get_config_objects(merged):
+        for name, item in get_config_objects(self.__class__):
             self._add_item(name, item)
 
     def _add_item(self, name, item):
