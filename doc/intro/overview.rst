@@ -34,20 +34,6 @@ Some of the benefits of using configglue are that it allows you to:
 - override options locally by using several configuration files (useful for
   separating configuration files for different environments)
 
-configglue and django-configglue are already available in Ubuntu 10.10
-(Maverick), so they can be installed via apt-get. configglue should already be
-installed if you have the desktop edition, as it's being used by Ubuntu One's
-client.
-
-
-Who else is using configglue?
-=============================
-
-- Ubuntu Pay 
-- Ubuntu Software Center
-- Ubuntu Single Sign On
-- Ubuntu One 
-
 
 Got curious?
 ============

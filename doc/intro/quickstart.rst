@@ -24,25 +24,19 @@ will look like the following snippet, so let's look at it in detail::
                 print "%s option has default value: %s" % (opt, option.default)
 
     if __name__ == '__main__':
-        from configglue.pyschema import (
-            BoolConfigOption,
-            IntConfigOption,
-            Schema,
-            schemaconfigglue,
-            SchemaConfigParser,
-        )
+        from configglue import pyschema
 
         # create the schema
-        class MySchema(Schema):
-            foo = IntConfigOption()
-            bar = BoolConfigOption()
+        class MySchema(pyschema.Schema):
+            foo = pyschema.IntConfigOption()
+            bar = pyschema.BoolConfigOption()
 
         # read the configuration files
-        scp = SchemaConfigParser(MySchema())
+        scp = pyschema.SchemaConfigParser(MySchema())
         scp.read(['config.ini'])
 
         # support command-line integration
-        op, opts, args = schemaconfigglue(scp)
+        op, opts, args = pyschema.schemaconfigglue(scp)
 
         # validate the config (after taking into account any command-line
         # provided options
@@ -78,15 +72,15 @@ The general structure is:
 
     ::
 
-        class MySchema(Schema):
-            foo = IntConfigOption()
-            bar = BoolConfigOption()
+        class MySchema(pyschema.Schema):
+            foo = pyschema.IntConfigOption()
+            bar = pyschema.BoolConfigOption()
 
 #. Create a parser for that schema
 
     ::
 
-        scp = SchemaConfigParser(MySchema())
+        scp = pyschema.SchemaConfigParser(MySchema())
 
 #. Read the configuration files (to get the statically defined configuration
    values)
@@ -100,7 +94,7 @@ The general structure is:
 
     ::
 
-        op, opts, args = schemaconfigglue(scp)
+        op, opts, args = pyschema.schemaconfigglue(scp)
 
 #. (Optional) Validate the effective configuration (to capture any
    configuration issues)
@@ -111,11 +105,11 @@ The general structure is:
         if not is_valid:
             op.error(reasons[0])
 
-Since this code will be structured the same for any configglue-enable project
+Since this code will be structured the same for any configglue-enabled project
 you do, there is also a utility function you can use to avoid repeating
 yourself.
 
-When using that function (see :func:`~configglue.pyschema.glue.configglue`),
+When using that function (see :func:`configglue.pyschema.glue.configglue`),
 this code would look like::
 
     def main(config, opts):
@@ -131,20 +125,15 @@ this code would look like::
                 print "%s option has default value: %s" % (opt, option.default)
 
     if __name__ == '__main__':
-        from configglue.pyschema import (
-            BoolConfigOption,
-            IntConfigOption,
-            Schema,
-            configglue,
-        )
+        from configglue import pyschema
 
         # create the schema
-        class MySchema(Schema):
-            foo = IntConfigOption()
-            bar = BoolConfigOption()
+        class MySchema(pyschema.Schema):
+            foo = pyschema.IntConfigOption()
+            bar = pyschema.BoolConfigOption()
 
         # glue everything together
-        glue = configglue(MySchema, ['config.ini'])
+        glue = pyschema.configglue(MySchema, ['config.ini'])
 
         # run
         main(glue.schema_parser, glue.options)

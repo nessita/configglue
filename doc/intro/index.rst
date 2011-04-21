@@ -8,6 +8,7 @@ quickly get up and running.
    :maxdepth: 1
     
    overview
+   install
    quickstart
    whatsnext
    

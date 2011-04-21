@@ -15,7 +15,9 @@ configglue documentation contents
     intro/index
     topics/index
     howto/index
+    faq/index
     ref/index
+    misc/index
 
 Indices, glossary and tables
 ============================

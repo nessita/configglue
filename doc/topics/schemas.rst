@@ -131,13 +131,51 @@ override any attribute from the parent class.
 
 In order to allow easy extending of schemas, configglue overloads the standard
 Python inheritance model. Whenever a schema is created, it will inherit all
-its attributes from the base classes. When a section attribute is found (an
-attribute derived from :class:`~configglue.pyschema.schema.ConfigSection`)
-which was already added to the schema by a previous base class, all options
-contained in that section will be added to the existing section, effectively
-merging both sections together, instead of just overriding the previous
-section with the new one. This applies only to section attributes, whereas
-option attributes will be overridden, as expected.
+its attributes from the base classes.
+
+This poses a slight problem for attributes of type
+:class:`~configglue.pyschema.schema.ConfigSection`. Usually, you'll want to
+extend a :class:`~configglue.pyschema.schema.ConfigSection` instead of
+overriding it. In order to achieve this, in your schema subclass, copy the
+parent's attribute explicitely, to avoid modifying the parent schema class.
+Option attributes (derived from
+:class:`~configglue.pyschema.schema.ConfigOption`) will be overridden, as
+expected.
+
+For example::
+
+    from copy import deepcopy
+
+    from configglue import pyschema
+
+
+    class BaseSchema(pyschema.Schema):
+        option1 = pyschema.IntConfigOption()
+        section1 = pyschema.ConfigSection()
+        section1.option1 = pyschema.BoolConfigOption()
+
+
+    class ChildSchema(BaseSchema):
+        option2 = pyschema.IntConfigOption()
+        section1 = deepcopy(BaseSchema.section1)
+        section1.option2 = IntConfigOption()
+
+In this example :class:`ChildSchema` will have two top-level options,
+:attr:`option1` and :attr:`option2`, and one section :attr:`section1`, which
+will have also two options within in (:attr:`section1.option1` and
+:attr:`section1.option2`). So, defining :class:`ChildSchema` in this way
+produces the same result as explicitely describing each attribute, as
+expected::
+
+    from configglue import pyschema
+
+    class ChildSchema(pyschema.Schema):
+        option1 = pyschema.IntConfigOption()
+        option2 = pyschema.IntConfigOption()
+        section1 = pyschema.ConfigSection()
+        section1.option1 = pyschema.BoolConfigOption()
+        section1.option2 = IntConfigOption()
+
 
 Multiple inheritance
 --------------------

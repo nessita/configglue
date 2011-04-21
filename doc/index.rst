@@ -10,6 +10,8 @@ Getting help
 
 Having trouble? We'd like to help!
 
+* Try the :doc:`FAQ <faq/index>` -- it's got answers to many common questions.
+
 * Looking for specific information? Try the :ref:`genindex`, :ref:`modindex`
   or the :doc:`detailed table of contents <contents>`.
 
@@ -25,6 +27,7 @@ First steps
 
     * **From scratch:**
       :doc:`Overview <intro/overview>` |
+      :doc:`Installation <intro/install>` |
       :doc:`Quickstart <intro/quickstart>`
 
 The schema
@@ -48,3 +51,10 @@ The command-line
 
     * **Command-line integration:**
       :doc:`Overview <topics/command-line>`
+
+The configglue open-source project
+==================================
+
+    * **Third-party distributions:**
+      :doc:`Overview <misc/distributions>`
+
