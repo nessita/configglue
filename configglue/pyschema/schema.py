@@ -16,10 +16,10 @@
 ###############################################################################
 
 from copy import deepcopy
+from inspect import getmembers
 
 
 __all__ = [
-    'super_vars',
     'BoolConfigOption',
     'ConfigOption',
     'ConfigSection',
@@ -36,15 +36,10 @@ NO_DEFAULT = object()
 _internal = object.__dict__.keys() + ['__module__']
 
 
-def super_vars(obj):
-    """An extended version of vars() that walks all base classes."""
-    items = {}
-    if hasattr(obj, '__mro__'):
-        bases = map(vars, obj.__mro__)
-        map(items.update, bases)
-    else:
-        items = vars(obj)
-    return items
+def get_config_objects(obj):
+    objects = ((n, o) for (n, o) in getmembers(obj)
+        if isinstance(o, (ConfigSection, ConfigOption)))
+    return objects
 
 
 class Schema(object):
@@ -65,42 +60,37 @@ class Schema(object):
     configuration files.
 
     """
-    def __new__(cls):
-        instance = super(Schema, cls).__new__(cls)
-
-        # override class attributes with instance attributes to correctly
-        # handle schema inheritance
-        schema_attributes = filter(
-            lambda x: x not in _internal and
-                isinstance(getattr(cls, x), (ConfigSection, ConfigOption)),
-            super_vars(cls))
-        for attr in schema_attributes:
-            setattr(instance, attr, deepcopy(getattr(cls, attr)))
-
-        return instance
 
     def __init__(self):
         self.includes = LinesConfigOption(item=StringConfigOption())
         self._sections = {}
-        defaultSection = None
-        for attname in super_vars(self.__class__):
-            att = getattr(self, attname)
-            if isinstance(att, ConfigSection):
-                att.name = attname
-                self._sections[attname] = att
-                for optname in super_vars(att):
-                    opt = getattr(att, optname)
-                    if isinstance(opt, ConfigOption):
-                        opt.name = optname
-                        opt.section = att
-            elif isinstance(att, ConfigOption):
-                if defaultSection is None:
-                    defaultSection = ConfigSection()
-                    defaultSection.name = '__main__'
-                    self._sections['__main__'] = defaultSection
-                att.name = attname
-                att.section = defaultSection
-                setattr(defaultSection, attname, att)
+        # add section and options to the schema
+        for name, item in get_config_objects(self.__class__):
+            self._add_item(name, item)
+
+    def _add_item(self, name, item):
+        """Add a top-level item to the schema."""
+        item.name = name
+        if isinstance(item, ConfigSection):
+            self._add_section(name, item)
+        elif isinstance(item, ConfigOption):
+            self._add_option(name, item)
+        # override class attributes with instance attributes to correctly
+        # handle schema inheritance
+        setattr(self, name, deepcopy(item))
+
+    def _add_section(self, name, section):
+        """Add a top-level section to the schema."""
+        self._sections[name] = section
+        for opt_name, opt in get_config_objects(section):
+            opt.name = opt_name
+            opt.section = section
+
+    def _add_option(self, name, option):
+        """Add a top-level option to the schema."""
+        section = self._sections.setdefault('__main__', ConfigSection(name='__main__'))
+        option.section = section
+        setattr(section, name, option)
 
     def __eq__(self, other):
         return (self._sections == other._sections and
@@ -143,7 +133,8 @@ class Schema(object):
             for s in self.sections():
                 options += self.options(s)
         elif section.name == '__main__':
-            options = [getattr(self, att) for att in super_vars(self.__class__) 
+            class_config_objects = get_config_objects(self.__class__)
+            options = [getattr(self, att) for att, _ in class_config_objects
                            if isinstance(getattr(self, att), ConfigOption)]
         else:
             options = section.options()
@@ -328,10 +319,10 @@ class LinesConfigOption(ConfigOption):
 
     """
 
-    def __init__(self, item, raw=False, default=NO_DEFAULT, fatal=False,
-        help='', action='store', remove_duplicates=False):
-        super(LinesConfigOption, self).__init__(raw=raw, default=default,
-            fatal=fatal, help=help, action=action)
+    def __init__(self, name='', item=None, raw=False, default=NO_DEFAULT,
+        fatal=False, help='', action='store', remove_duplicates=False):
+        super(LinesConfigOption, self).__init__(name=name, raw=raw,
+            default=default, fatal=fatal, help=help, action=action)
         self.item = item
         self.require_parser = item.require_parser
         self.raw = item.raw
@@ -371,11 +362,11 @@ class StringConfigOption(ConfigOption):
 
     """
 
-    def __init__(self, raw=False, default=NO_DEFAULT, fatal=False, null=False,
-                 help='', action='store'):
+    def __init__(self, name='', raw=False, default=NO_DEFAULT, fatal=False,
+        null=False, help='', action='store'):
         self.null = null
-        super(StringConfigOption, self).__init__(raw=raw, default=default,
-            fatal=fatal, help=help, action=action)
+        super(StringConfigOption, self).__init__(name=name, raw=raw,
+            default=default, fatal=fatal, help=help, action=action)
 
     def _get_default(self):
         return '' if not self.null else None
@@ -405,10 +396,10 @@ class TupleConfigOption(ConfigOption):
 
     """
 
-    def __init__(self, length=0, raw=False, default=NO_DEFAULT, fatal=False,
-                 help='', action='store'):
-        super(TupleConfigOption, self).__init__(raw=raw, default=default,
-            fatal=fatal, help=help, action=action)
+    def __init__(self, name='', length=0, raw=False, default=NO_DEFAULT,
+        fatal=False, help='', action='store'):
+        super(TupleConfigOption, self).__init__(name=name, raw=raw,
+            default=default, fatal=fatal, help=help, action=action)
         self.length = length
 
     def _get_default(self):
@@ -450,7 +441,7 @@ class DictConfigOption(ConfigOption):
 
     require_parser = True
 
-    def __init__(self, spec=None, strict=False, raw=False,
+    def __init__(self, name='', spec=None, strict=False, raw=False,
                  default=NO_DEFAULT, fatal=False, help='', action='store',
                  item=None):
         if spec is None:
@@ -460,8 +451,8 @@ class DictConfigOption(ConfigOption):
         self.spec = spec
         self.strict = strict
         self.item = item
-        super(DictConfigOption, self).__init__(raw=raw, default=default,
-            fatal=fatal, help=help, action=action)
+        super(DictConfigOption, self).__init__(name=name, raw=raw,
+            default=default, fatal=fatal, help=help, action=action)
 
     def _get_default(self):
         default = {}
