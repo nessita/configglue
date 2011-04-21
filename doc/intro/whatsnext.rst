@@ -48,7 +48,3 @@ different needs:
       where you'll turn to find the details of a particular function or
       whathaveyou.
 
-    * Finally, there's some "specialized" documentation not usually relevant to
-      most developers. This includes the :doc:`release notes </releases/index>`.
-
-
