@@ -15,4 +15,6 @@
 # 
 ###############################################################################
 
-from configglue.pyschema.schema import *
+from .glue import *
+from .schema import *
+from .parser import *
