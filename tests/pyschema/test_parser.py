@@ -21,6 +21,7 @@ import shutil
 import tempfile
 import unittest
 from ConfigParser import (
+    DEFAULTSECT,
     InterpolationDepthError,
     InterpolationMissingOptionError,
     InterpolationSyntaxError,
@@ -718,21 +719,50 @@ class TestSchemaConfigParser(unittest.TestCase):
             self.assertEqual(self.parser._dirty,
                 {f.name: {'__main__': {'foo': '2'}}})
 
+    def test_write(self):
+        class MySchema(Schema):
+            foo = StringConfigOption()
+            DEFAULTSECT = ConfigSection()
+        parser = SchemaConfigParser(MySchema())
+        expected = u"[{0}]\nbaz = 2\n\n[__main__]\nfoo = bar".format(DEFAULTSECT)
+        config = StringIO(expected)
+        parser.readfp(config)
+
+        # create config file
+        fp, filename = tempfile.mkstemp()
+        try:
+            parser.write(open(filename, 'w'))
+            result = open(filename, 'r').read().strip()
+            self.assertEqual(result, expected)
+        finally:
+            # remove the file
+            os.unlink(filename)
+
     def test_save_config(self):
-        expected_output = u'[__main__]\nfoo = 42\n\n'
-        config = StringIO(u'[__main__]\nfoo=42')
+        expected = u'[__main__]\nfoo = 42'
+        self._check_save_file(expected)
+
+    def test_save_config_non_ascii(self):
+        expected = u'[__main__]\nfoo = fóobâr'
+        self._check_save_file(expected)
+
+    def _check_save_file(self, expected):
+        config = StringIO(expected.encode(CONFIG_FILE_ENCODING))
         self.parser.readfp(config)
 
         # create config file
         fp, filename = tempfile.mkstemp()
-        self.parser.save(open(filename, 'w'))
-        self.assertEqual(open(filename, 'r').read(), expected_output)
+        try:
+            self.parser.save(open(filename, 'w'))
+            result = open(filename, 'r').read().strip()
+            self.assertEqual(result.decode(CONFIG_FILE_ENCODING), expected)
 
-        self.parser.save(filename)
-        self.assertEqual(open(filename, 'r').read(), expected_output)
-
-        # remove the file
-        os.unlink(filename)
+            self.parser.save(filename)
+            result = open(filename, 'r').read().strip()
+            self.assertEqual(result.decode(CONFIG_FILE_ENCODING), expected)
+        finally:
+            # remove the file
+            os.unlink(filename)
 
     def test_save_config_same_files(self):
         def setup_config():
