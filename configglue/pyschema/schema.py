@@ -58,6 +58,7 @@ class Schema(object):
     One ConfigOption comes already defined in Schema, 'includes' in the
     '__main__' section, that allows configuration files to include other
     configuration files.
+
     """
 
     def __init__(self):
@@ -96,12 +97,14 @@ class Schema(object):
                 self.includes == other.includes)
 
     def is_valid(self):
+        """Return whether the schema has a valid structure."""
         explicit_default_section = isinstance(getattr(self, '__main__', None),
                                               ConfigSection)
         is_valid = not explicit_default_section
         return is_valid
 
     def has_section(self, name):
+        """Return whether the schema as a given section."""
         """Return True if a ConfigSection with the given name is available"""
         return name in self._sections.keys()
 
@@ -121,6 +124,7 @@ class Schema(object):
         If section is omitted, returns all the options in the configuration
         file, flattening out any sections.
         To get options from the default section, specify section='__main__'
+
         """
         if isinstance(section, basestring):
             section = self.section(section)
@@ -144,6 +148,7 @@ class ConfigSection(object):
 
     After instantiating the Schema, each ConfigSection will know its own
     name.
+
     """
     def __init__(self, name=''):
         self.name = name
@@ -202,6 +207,7 @@ class ConfigOption(object):
 
     In runtime, after instantiating the Schema, each ConfigOption will also
     know its own name and to which section it belongs.
+
     """
 
     require_parser = False
@@ -252,6 +258,7 @@ class ConfigOption(object):
         return None
 
     def parse(self, value):
+        """Parse the given value."""
         raise NotImplementedError()
 
 
@@ -262,6 +269,11 @@ class BoolConfigOption(ConfigOption):
         return False
 
     def parse(self, value, raw=False):
+        """Parse the given value.
+
+        If *raw* is *True*, return the value unparsed.
+
+        """
         if raw:
             return value
 
@@ -280,6 +292,11 @@ class IntConfigOption(ConfigOption):
         return 0
 
     def parse(self, value, raw=False):
+        """Parse the given value.
+
+        If *raw* is *True*, return the value unparsed.
+
+        """
         if raw:
             return value
 
@@ -299,12 +316,28 @@ class LinesConfigOption(ConfigOption):
     if remove_duplicates == True, duplicate elements in the lines will be
     removed.  Only the first occurrence of any item will be kept,
     otherwise the general order of the list will be preserved.
+
     """
+
+    def __init__(self, name='', item=None, raw=False, default=NO_DEFAULT,
+        fatal=False, help='', action='store', remove_duplicates=False):
+        super(LinesConfigOption, self).__init__(name=name, raw=raw,
+            default=default, fatal=fatal, help=help, action=action)
+        self.item = item
+        self.require_parser = item.require_parser
+        self.raw = item.raw
+        self.remove_duplicates = remove_duplicates
 
     def _get_default(self):
         return []
 
     def parse(self, value, parser=None, raw=False):
+        """Parse the given value.
+
+        A *parser* object is used to parse individual list items.
+        If *raw* is *True*, return the value unparsed.
+
+        """
         def _parse_item(value):
             if self.require_parser:
                 value = self.item.parse(value, parser=parser, raw=raw)
@@ -320,27 +353,30 @@ class LinesConfigOption(ConfigOption):
             items = filtered_items
         return items
 
-    def __init__(self, name='', item=None, raw=False, default=NO_DEFAULT,
-        fatal=False, help='', action='store', remove_duplicates=False):
-        super(LinesConfigOption, self).__init__(name=name, raw=raw,
-            default=default, fatal=fatal, help=help, action=action)
-        self.item = item
-        self.require_parser = item.require_parser
-        self.raw = item.raw
-        self.remove_duplicates = remove_duplicates
-
 
 class StringConfigOption(ConfigOption):
     """A ConfigOption that is parsed into a string.
 
     If null==True, a value of 'None' will be parsed in to None instead of
     just leaving it as the string 'None'.
+
     """
+
+    def __init__(self, name='', raw=False, default=NO_DEFAULT, fatal=False,
+        null=False, help='', action='store'):
+        self.null = null
+        super(StringConfigOption, self).__init__(name=name, raw=raw,
+            default=default, fatal=fatal, help=help, action=action)
 
     def _get_default(self):
         return '' if not self.null else None
 
     def parse(self, value, raw=False):
+        """Parse the given value.
+
+        If *raw* is *True*, return the value unparsed.
+
+        """
         if raw:
             result = value
         elif self.null:
@@ -351,18 +387,13 @@ class StringConfigOption(ConfigOption):
             result = repr(value)
         return result
 
-    def __init__(self, name='', raw=False, default=NO_DEFAULT, fatal=False,
-        null=False, help='', action='store'):
-        self.null = null
-        super(StringConfigOption, self).__init__(name=name, raw=raw,
-            default=default, fatal=fatal, help=help, action=action)
-
 
 class TupleConfigOption(ConfigOption):
     """A ConfigOption that is parsed into a fixed-size tuple of strings.
 
     The number of items in the tuple should be specified with the 'length'
     constructor argument.
+
     """
 
     def __init__(self, name='', length=0, raw=False, default=NO_DEFAULT,
@@ -375,6 +406,11 @@ class TupleConfigOption(ConfigOption):
         return ()
 
     def parse(self, value, raw=False):
+        """Parse the given value.
+
+        If *raw* is *True*, return the value unparsed.
+
+        """
         parts = [part.strip() for part in value.split(',')]
         if parts == ['()']:
             result = ()
@@ -400,7 +436,9 @@ class DictConfigOption(ConfigOption):
     argument, that should be in turn a dictionary.  spec's keys are the
     available keys for the config file, and spec's values should be
     ConfigOptions that will be used to parse the values in the config file.
+
     """
+
     require_parser = True
 
     def __init__(self, name='', spec=None, strict=False, raw=False,
@@ -423,6 +461,12 @@ class DictConfigOption(ConfigOption):
         return default
 
     def parse(self, section, parser=None, raw=False):
+        """Parse the given value.
+
+        A *parser* object is used to parse individual dict items.
+        If *raw* is *True*, return the value unparsed.
+
+        """
         parsed = dict(parser.items(section))
         result = {}
 

@@ -28,14 +28,17 @@ __all__ = [
 ]
 
 
-SchemaGlue = namedtuple("SchemaGlue", "schema_parser option_parser options args")
+SchemaGlue = namedtuple("SchemaGlue",
+    "schema_parser option_parser options args")
 
 
 def schemaconfigglue(parser, op=None, argv=None):
-    """Populate an OptionParser with options and defaults taken from a
-    fully loaded SchemaConfigParser.
-    """
+    """Glue an OptionParser with a SchemaConfigParser.
+    
+    The OptionParser is populated with options and defaults taken from the
+    SchemaConfigParser.
 
+    """
     def long_name(option):
         if option.section.name == '__main__':
             return option.name
@@ -79,6 +82,14 @@ def schemaconfigglue(parser, op=None, argv=None):
 
 
 def configglue(schema_class, configs, usage=None):
+    """Parse configuration files using a provided schema.
+
+    The standard workflow for configglue is to instantiate a schema class,
+    feed it with some config files, and validate the parser state afterwards.
+    This utility function executes this standard worfklow so you don't have
+    to repeat yourself.
+
+    """
     scp = SchemaConfigParser(schema_class())
     scp.read(configs)
     if usage is not None:

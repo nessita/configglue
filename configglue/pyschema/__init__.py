@@ -14,3 +14,7 @@
 # For bug reports, support, and new releases: http://launchpad.net/configglue
 # 
 ###############################################################################
+
+from .glue import *
+from .schema import *
+from .parser import *
