@@ -119,7 +119,7 @@ latest bug fixes and improvements, follow these instructions:
 
    .. code-block:: bash
 
-       bzr branch https://code.launchpad.net/~configglue/configglue/trunk configglue-trunk
+       bzr branch lp:configglue configglue-trunk
 
 3. Next, make sure that the Python interpreter can load configglue's code. The most
    convenient way to do this is to use setuptools' develop target.

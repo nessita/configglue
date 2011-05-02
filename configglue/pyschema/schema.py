@@ -97,7 +97,7 @@ class Schema(object):
                 self.includes == other.includes)
 
     def is_valid(self):
-        """Return wether the schema has a valid structure."""
+        """Return whether the schema has a valid structure."""
         explicit_default_section = isinstance(getattr(self, '__main__', None),
                                               ConfigSection)
         is_valid = not explicit_default_section

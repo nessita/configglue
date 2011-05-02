@@ -193,7 +193,7 @@ A dictionary.
 
     *Optional*.
 
-    Any not explicitelly defined attributes will be parsed as being
+    Any not explicitly defined attributes will be parsed as being
     of this type. This should be an instance of a subclass of
     :class:`~configglue.pyschema.schema.ConfigOption`.
 
