@@ -103,6 +103,9 @@ class Schema(object):
         return (self._sections == other._sections and
                 self.includes == other.includes)
 
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def is_valid(self):
         """Return whether the schema has a valid structure."""
         explicit_default_section = isinstance(getattr(self, '__main__', None),
@@ -163,6 +166,9 @@ class ConfigSection(object):
     def __eq__(self, other):
         return (self.name == other.name and
                 self.options() == other.options())
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __repr__(self):
         if self.name:
@@ -247,6 +253,9 @@ class ConfigOption(object):
             equal = False
 
         return equal
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __repr__(self):
         extra = ' raw' if self.raw else ''

@@ -116,6 +116,36 @@ class TestSchema(unittest.TestCase):
         self.assertNotEqual(MySchema(), OtherSchema())
 
 
+class TestConfigOption(unittest.TestCase):
+    def test_equal(self):
+        opt1 = IntConfigOption(name='opt1')
+        opt2 = IntConfigOption(name='opt2')
+        opt3 = StringConfigOption(name='opt1')
+        self.assertEqual(opt1, opt1)
+        self.assertNotEqual(opt1, opt2)
+        self.assertNotEqual(opt1, opt3)
+
+    def test_equal_when_in_section(self):
+        sect1 = ConfigSection(name='sect1')
+        sect2 = ConfigSection(name='sect2')
+        opt1 = IntConfigOption()
+        opt2 = IntConfigOption()
+
+        self.assertEqual(opt1, opt2)
+
+        opt1.section = sect1
+        opt2.section = sect2
+        self.assertNotEqual(opt1, opt2)
+
+    def test_equal_when_error(self):
+        opt1 = IntConfigOption()
+        opt2 = IntConfigOption()
+
+        # make sure an attribute error is raised
+        del opt2.name
+        self.assertNotEqual(opt1, opt2)
+
+
 class TestSchemaInheritance(unittest.TestCase):
     def setUp(self):
         class SchemaA(Schema):
