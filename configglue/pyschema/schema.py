@@ -20,15 +20,15 @@ from inspect import getmembers
 
 
 __all__ = [
-    'BoolConfigOption',
-    'ConfigOption',
-    'ConfigSection',
-    'DictConfigOption',
-    'IntConfigOption',
-    'LinesConfigOption',
+    'BoolOption',
+    'Option',
+    'Section',
+    'DictOption',
+    'IntOption',
+    'ListOption',
     'Schema',
-    'StringConfigOption',
-    'TupleConfigOption',
+    'StringOption',
+    'TupleOption',
 ]
 
 NO_DEFAULT = object()
@@ -39,9 +39,9 @@ _internal = object.__dict__.keys() + ['__module__']
 def get_config_objects(obj):
     objects = []
     for name, obj in getmembers(obj):
-        if isinstance(obj, (ConfigSection, ConfigOption)):
+        if isinstance(obj, (Section, Option)):
             objects.append((name, obj))
-        elif type(obj) == type and issubclass(obj, ConfigSection):
+        elif type(obj) == type and issubclass(obj, Section):
             instance = obj()
             for key, value in get_config_objects(obj):
                 setattr(instance, key, value)
@@ -54,22 +54,22 @@ class Schema(object):
 
     To define your own configuration schema you should:
      1- Inherit from Schema
-     2- Add ConfigOptions and ConfigSections as class attributes.
+     2- Add Options and Sections as class attributes.
 
     With that your whole configuration schema is defined, and you can now
     load configuration files.
 
-    ConfigOptions that don't go in a ConfigSection will belong in the
+    Options that don't go in a Section will belong in the
     '__main__' section of the configuration files.
 
-    One ConfigOption comes already defined in Schema, 'includes' in the
+    One Option comes already defined in Schema, 'includes' in the
     '__main__' section, that allows configuration files to include other
     configuration files.
 
     """
 
     def __init__(self):
-        self.includes = LinesConfigOption(item=StringConfigOption())
+        self.includes = ListOption(item=StringOption())
         self._sections = {}
         # add section and options to the schema
         for name, item in get_config_objects(self.__class__):
@@ -78,9 +78,9 @@ class Schema(object):
     def _add_item(self, name, item):
         """Add a top-level item to the schema."""
         item.name = name
-        if isinstance(item, ConfigSection):
+        if isinstance(item, Section):
             self._add_section(name, item)
-        elif isinstance(item, ConfigOption):
+        elif isinstance(item, Option):
             self._add_option(name, item)
         # override class attributes with instance attributes to correctly
         # handle schema inheritance
@@ -95,7 +95,7 @@ class Schema(object):
 
     def _add_option(self, name, option):
         """Add a top-level option to the schema."""
-        section = self._sections.setdefault('__main__', ConfigSection(name='__main__'))
+        section = self._sections.setdefault('__main__', Section(name='__main__'))
         option.section = section
         setattr(section, name, option)
 
@@ -109,27 +109,27 @@ class Schema(object):
     def is_valid(self):
         """Return whether the schema has a valid structure."""
         explicit_default_section = isinstance(getattr(self, '__main__', None),
-                                              ConfigSection)
+                                              Section)
         is_valid = not explicit_default_section
         return is_valid
 
     def has_section(self, name):
         """Return whether the schema as a given section."""
-        """Return True if a ConfigSection with the given name is available"""
+        """Return True if a Section with the given name is available"""
         return name in self._sections.keys()
 
     def section(self, name):
-        """Return a ConfigSection by name"""
+        """Return a Section by name"""
         section = self._sections.get(name)
-        assert section is not None, "Invalid ConfigSection name '%s'" % name
+        assert section is not None, "Invalid Section name '%s'" % name
         return section
 
     def sections(self):
-        """Returns the list of available ConfigSections"""
+        """Returns the list of available Sections"""
         return self._sections.values()
 
     def options(self, section=None):
-        """Return all the ConfigOptions within a given section.
+        """Return all the Options within a given section.
 
         If section is omitted, returns all the options in the configuration
         file, flattening out any sections.
@@ -145,18 +145,18 @@ class Schema(object):
         elif section.name == '__main__':
             class_config_objects = get_config_objects(self.__class__)
             options = [getattr(self, att) for att, _ in class_config_objects
-                           if isinstance(getattr(self, att), ConfigOption)]
+                           if isinstance(getattr(self, att), Option)]
         else:
             options = section.options()
         return options
 
 
-class ConfigSection(object):
+class Section(object):
     """A group of options.
 
-    This class is just a bag you can dump ConfigOptions in.
+    This class is just a bag you can dump Options in.
 
-    After instantiating the Schema, each ConfigSection will know its own
+    After instantiating the Schema, each Section will know its own
     name.
 
     """
@@ -175,30 +175,30 @@ class ConfigSection(object):
             name = " %s" % self.name
         else:
             name = ''
-        value = "<ConfigSection%s>" % name
+        value = "<Section%s>" % name
         return value
 
     def has_option(self, name):
-        """Return True if a ConfigOption with the given name is available"""
+        """Return True if a Option with the given name is available"""
         opt = getattr(self, name, None)
-        return isinstance(opt, ConfigOption)
+        return isinstance(opt, Option)
 
     def option(self, name):
-        """Return a ConfigOption by name"""
+        """Return a Option by name"""
         opt = getattr(self, name, None)
-        assert opt is not None, "Invalid ConfigOption name '%s'" % name
+        assert opt is not None, "Invalid Option name '%s'" % name
         return opt
 
     def options(self):
-        """Return a list of all available ConfigOptions within this section"""
+        """Return a list of all available Options within this section"""
         return [getattr(self, att) for att in vars(self)
-                if isinstance(getattr(self, att), ConfigOption)]
+                if isinstance(getattr(self, att), Option)]
 
 
-class ConfigOption(object):
+class Option(object):
     """Base class for Config Options.
 
-    ConfigOptions are never bound to a particular conguration file, and
+    Options are never bound to a particular conguration file, and
     simply describe one particular available option.
 
     They also know how to parse() the content of a config file in to the right
@@ -211,14 +211,14 @@ class ConfigOption(object):
     argument, parser, that should receive the whole SchemaConfigParser to
     do the parsing.  This is needed for config options that need to look at
     other parts of the config file to be able to carry out their parsing,
-    like DictConfigOptions.
+    like DictOptions.
 
     If self.fatal == True, SchemaConfigParser's parse_all will raise an
     exception if no value for this option is provided in the configuration
     file.  Otherwise, the self.default value will be used if the option is
     omitted.
 
-    In runtime, after instantiating the Schema, each ConfigOption will also
+    In runtime, after instantiating the Schema, each Option will also
     know its own name and to which section it belongs.
 
     """
@@ -267,7 +267,7 @@ class ConfigOption(object):
             name = " %s" % self.name
         else:
             name = ''
-        value = "<ConfigOption%s%s>" % (name, extra)
+        value = "<Option%s%s>" % (name, extra)
         return value
 
     def _get_default(self):
@@ -278,8 +278,8 @@ class ConfigOption(object):
         raise NotImplementedError()
 
 
-class BoolConfigOption(ConfigOption):
-    """A ConfigOption that is parsed into a bool"""
+class BoolOption(Option):
+    """A Option that is parsed into a bool"""
 
     def _get_default(self):
         return False
@@ -301,8 +301,8 @@ class BoolConfigOption(ConfigOption):
             raise ValueError("Unable to determine boolosity of %r" % value)
 
 
-class IntConfigOption(ConfigOption):
-    """A ConfigOption that is parsed into an int"""
+class IntOption(Option):
+    """A Option that is parsed into an int"""
 
     def _get_default(self):
         return 0
@@ -319,12 +319,12 @@ class IntConfigOption(ConfigOption):
         return int(value)
 
 
-class LinesConfigOption(ConfigOption):
-    """A ConfigOption that is parsed into a list of objects
+class ListOption(Option):
+    """A Option that is parsed into a list of objects
 
     All items in the list need to be of the same type.  The 'item' constructor
     argument determines the type of the list items. item should be another
-    child of ConfigOption.
+    child of Option.
 
     self.require_parser will be True if the item provided in turn has
     require_parser == True.
@@ -337,7 +337,7 @@ class LinesConfigOption(ConfigOption):
 
     def __init__(self, name='', item=None, raw=False, default=NO_DEFAULT,
         fatal=False, help='', action='store', remove_duplicates=False):
-        super(LinesConfigOption, self).__init__(name=name, raw=raw,
+        super(ListOption, self).__init__(name=name, raw=raw,
             default=default, fatal=fatal, help=help, action=action)
         self.item = item
         self.require_parser = item.require_parser
@@ -370,8 +370,8 @@ class LinesConfigOption(ConfigOption):
         return items
 
 
-class StringConfigOption(ConfigOption):
-    """A ConfigOption that is parsed into a string.
+class StringOption(Option):
+    """A Option that is parsed into a string.
 
     If null==True, a value of 'None' will be parsed in to None instead of
     just leaving it as the string 'None'.
@@ -381,7 +381,7 @@ class StringConfigOption(ConfigOption):
     def __init__(self, name='', raw=False, default=NO_DEFAULT, fatal=False,
         null=False, help='', action='store'):
         self.null = null
-        super(StringConfigOption, self).__init__(name=name, raw=raw,
+        super(StringOption, self).__init__(name=name, raw=raw,
             default=default, fatal=fatal, help=help, action=action)
 
     def _get_default(self):
@@ -404,8 +404,8 @@ class StringConfigOption(ConfigOption):
         return result
 
 
-class TupleConfigOption(ConfigOption):
-    """A ConfigOption that is parsed into a fixed-size tuple of strings.
+class TupleOption(Option):
+    """A Option that is parsed into a fixed-size tuple of strings.
 
     The number of items in the tuple should be specified with the 'length'
     constructor argument.
@@ -414,7 +414,7 @@ class TupleConfigOption(ConfigOption):
 
     def __init__(self, name='', length=0, raw=False, default=NO_DEFAULT,
         fatal=False, help='', action='store'):
-        super(TupleConfigOption, self).__init__(name=name, raw=raw,
+        super(TupleOption, self).__init__(name=name, raw=raw,
             default=default, fatal=fatal, help=help, action=action)
         self.length = length
 
@@ -442,8 +442,8 @@ class TupleConfigOption(ConfigOption):
         return result
 
 
-class DictConfigOption(ConfigOption):
-    """A ConfigOption that is parsed into a dictionary.
+class DictOption(Option):
+    """A Option that is parsed into a dictionary.
 
     In the configuration file you'll need to specify the name of a section,
     and all that section's items will be parsed as a dictionary.
@@ -451,7 +451,7 @@ class DictConfigOption(ConfigOption):
     The available keys for the dict are specified with the 'spec' constructor
     argument, that should be in turn a dictionary.  spec's keys are the
     available keys for the config file, and spec's values should be
-    ConfigOptions that will be used to parse the values in the config file.
+    Options that will be used to parse the values in the config file.
 
     """
 
@@ -463,11 +463,11 @@ class DictConfigOption(ConfigOption):
         if spec is None:
             spec = {}
         if item is None:
-            item = StringConfigOption()
+            item = StringOption()
         self.spec = spec
         self.strict = strict
         self.item = item
-        super(DictConfigOption, self).__init__(name=name, raw=raw,
+        super(DictOption, self).__init__(name=name, raw=raw,
             default=default, fatal=fatal, help=help, action=action)
 
     def _get_default(self):
@@ -524,9 +524,9 @@ class DictConfigOption(ConfigOption):
         sections = []
         for option in parser.options(section):
             option_obj = self.spec.get(option, self.item)
-            is_dict_item = isinstance(option_obj, DictConfigOption)
+            is_dict_item = isinstance(option_obj, DictOption)
             is_dict_lines_item = (hasattr(option_obj, 'item') and
-                isinstance(option_obj.item, DictConfigOption))
+                isinstance(option_obj.item, DictOption))
 
             if is_dict_item:
                 base = option_obj

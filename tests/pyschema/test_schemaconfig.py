@@ -28,77 +28,77 @@ from configglue.pyschema.glue import (
 )
 from configglue.pyschema.parser import SchemaConfigParser
 from configglue.pyschema.schema import (
-    ConfigOption,
-    ConfigSection,
-    IntConfigOption,
+    Option,
+    Section,
+    IntOption,
     Schema,
-    StringConfigOption,
+    StringOption,
 )
 
 
-class TestConfigOption(unittest.TestCase):
+class TestOption(unittest.TestCase):
     def test_repr_name(self):
-        opt = ConfigOption()
-        expected = "<ConfigOption>"
+        opt = Option()
+        expected = "<Option>"
         self.assertEqual(repr(opt), expected)
 
-        opt = ConfigOption(name='name')
-        expected = "<ConfigOption name>"
+        opt = Option(name='name')
+        expected = "<Option name>"
         self.assertEqual(repr(opt), expected)
 
-        sect = ConfigSection(name='sect')
-        opt = ConfigOption(name='name', section=sect)
-        expected = "<ConfigOption sect.name>"
+        sect = Section(name='sect')
+        opt = Option(name='name', section=sect)
+        expected = "<Option sect.name>"
         self.assertEqual(repr(opt), expected)
 
     def test_repr_extra(self):
-        opt = ConfigOption(name='name', raw=True)
-        expected = "<ConfigOption name raw>"
+        opt = Option(name='name', raw=True)
+        expected = "<Option name raw>"
         self.assertEqual(repr(opt), expected)
 
-        opt = ConfigOption(name='name', fatal=True)
-        expected = "<ConfigOption name fatal>"
+        opt = Option(name='name', fatal=True)
+        expected = "<Option name fatal>"
         self.assertEqual(repr(opt), expected)
 
-        opt = ConfigOption(name='name', raw=True, fatal=True)
-        expected = "<ConfigOption name raw fatal>"
+        opt = Option(name='name', raw=True, fatal=True)
+        expected = "<Option name raw fatal>"
         self.assertEqual(repr(opt), expected)
 
     def test_parse(self):
-        opt = ConfigOption()
+        opt = Option()
         self.assertRaises(NotImplementedError, opt.parse, '')
 
     def test_equal(self):
-        opt1 = ConfigOption()
-        opt2 = ConfigOption(name='name', raw=True)
+        opt1 = Option()
+        opt2 = Option(name='name', raw=True)
 
-        self.assertEqual(opt1, ConfigOption())
-        self.assertEqual(opt2, ConfigOption(name='name', raw=True))
+        self.assertEqual(opt1, Option())
+        self.assertEqual(opt2, Option(name='name', raw=True))
         self.assertNotEqual(opt1, opt2)
         self.assertNotEqual(opt1, None)
 
 
-class TestConfigSection(unittest.TestCase):
+class TestSection(unittest.TestCase):
     def test_repr_name(self):
-        sect = ConfigSection()
-        expected = "<ConfigSection>"
+        sect = Section()
+        expected = "<Section>"
         self.assertEqual(repr(sect), expected)
 
-        sect = ConfigSection(name='sect')
-        expected = "<ConfigSection sect>"
+        sect = Section(name='sect')
+        expected = "<Section sect>"
         self.assertEqual(repr(sect), expected)
 
     def test_equal(self):
-        sec1 = ConfigSection()
-        sec2 = ConfigSection(name='sec2')
+        sec1 = Section()
+        sec2 = Section(name='sec2')
 
-        self.assertEqual(sec1, ConfigSection())
-        self.assertEqual(sec2, ConfigSection(name='sec2'))
+        self.assertEqual(sec1, Section())
+        self.assertEqual(sec2, Section(name='sec2'))
         self.assertNotEqual(sec1, sec2)
 
     def test_has_option(self):
-        class sec1(ConfigSection):
-            foo = IntConfigOption()
+        class sec1(Section):
+            foo = IntOption()
 
         sec1 = sec1()
         self.assertTrue(sec1.has_option('foo'))
@@ -108,10 +108,10 @@ class TestConfigSection(unittest.TestCase):
 class TestSchemaConfigGlue(unittest.TestCase):
     def setUp(self):
         class MySchema(Schema):
-            class foo(ConfigSection):
-                bar = IntConfigOption()
+            class foo(Section):
+                bar = IntOption()
 
-            baz = IntConfigOption(help='The baz option')
+            baz = IntOption(help='The baz option')
 
         self.parser = SchemaConfigParser(MySchema())
 
@@ -153,11 +153,11 @@ class TestSchemaConfigGlue(unittest.TestCase):
 
     def test_ambiguous_option(self):
         class MySchema(Schema):
-            class foo(ConfigSection):
-                baz = IntConfigOption()
+            class foo(Section):
+                baz = IntOption()
 
-            class bar(ConfigSection):
-                baz = IntConfigOption()
+            class bar(Section):
+                baz = IntOption()
 
         config = StringIO("[foo]\nbaz=1")
         parser = SchemaConfigParser(MySchema())
@@ -193,7 +193,7 @@ class TestSchemaConfigGlue(unittest.TestCase):
 
     def test_parser_set_with_encoding(self):
         class MySchema(Schema):
-            foo = StringConfigOption()
+            foo = StringOption()
 
         parser = SchemaConfigParser(MySchema())
         op, options, args = schemaconfigglue(
@@ -219,7 +219,7 @@ class ConfigglueTestCase(unittest.TestCase):
 
         # define the inputs
         class MySchema(Schema):
-            foo = IntConfigOption()
+            foo = IntOption()
 
         configs = ['config.ini']
 
@@ -252,7 +252,7 @@ class ConfigglueTestCase(unittest.TestCase):
 
         # define the inputs
         class MySchema(Schema):
-            foo = IntConfigOption()
+            foo = IntOption()
 
         configs = ['config.ini']
 
@@ -288,7 +288,7 @@ class ConfigglueTestCase(unittest.TestCase):
 
         # define the inputs
         class MySchema(Schema):
-            foo = IntConfigOption()
+            foo = IntOption()
 
         configs = ['config.ini']
 
