@@ -225,11 +225,11 @@ class TestInterpolation(unittest.TestCase):
 
     def test_interpolate_across_sections(self):
         class MySchema(Schema):
-            foo = ConfigSection()
-            foo.bar = IntConfigOption()
+            class foo(ConfigSection):
+                bar = IntConfigOption()
 
-            baz = ConfigSection()
-            baz.wham = IntConfigOption()
+            class baz(ConfigSection):
+                wham = IntConfigOption()
 
         config = StringIO("[foo]\nbar=%(wham)s\n[baz]\nwham=42")
         parser = SchemaConfigParser(MySchema())
@@ -239,11 +239,11 @@ class TestInterpolation(unittest.TestCase):
 
     def test_interpolate_invalid_key(self):
         class MySchema(Schema):
-            foo = ConfigSection()
-            foo.bar = IntConfigOption()
+            class foo(ConfigSection):
+                bar = IntConfigOption()
 
-            baz = ConfigSection()
-            baz.wham = IntConfigOption()
+            class baz(ConfigSection):
+                wham = IntConfigOption()
 
         config = StringIO("[foo]\nbar=%(wham)s\n[baz]\nwham=42")
         parser = SchemaConfigParser(MySchema())
@@ -406,7 +406,8 @@ class TestSchemaConfigParser(unittest.TestCase):
 
     def test_init_invalid_schema(self):
         class MyInvalidSchema(Schema):
-            __main__ = ConfigSection()
+            class __main__(ConfigSection):
+                pass
 
         self.assertRaises(SchemaValidationError, SchemaConfigParser,
                           MyInvalidSchema())
@@ -434,8 +435,9 @@ class TestSchemaConfigParser(unittest.TestCase):
     def test_items_interpolate(self):
         class MySchema(Schema):
             foo = StringConfigOption()
-            baz = ConfigSection()
-            baz.bar = StringConfigOption()
+
+            class baz(ConfigSection):
+                bar = StringConfigOption()
 
         parser = SchemaConfigParser(MySchema())
         config = StringIO('[__main__]\nfoo=%(bar)s\n[baz]\nbar=42')
@@ -465,11 +467,11 @@ class TestSchemaConfigParser(unittest.TestCase):
 
     def test_values_many_sections_same_option(self):
         class MySchema(Schema):
-            foo = ConfigSection()
-            foo.bar = IntConfigOption()
+            class foo(ConfigSection):
+                bar = IntConfigOption()
 
-            baz = ConfigSection()
-            baz.bar = IntConfigOption()
+            class baz(ConfigSection):
+                bar = IntConfigOption()
 
         config = StringIO("[foo]\nbar=3\n[baz]\nbar=4")
         expected_values = {'foo': {'bar': 3}, 'baz': {'bar': 4}}
@@ -482,11 +484,11 @@ class TestSchemaConfigParser(unittest.TestCase):
 
     def test_values_many_sections_different_options(self):
         class MySchema(Schema):
-            foo = ConfigSection()
-            foo.bar = IntConfigOption()
+            class foo(ConfigSection):
+                bar = IntConfigOption()
 
-            bar = ConfigSection()
-            bar.baz = IntConfigOption()
+            class bar(ConfigSection):
+                baz = IntConfigOption()
 
         config = StringIO("[foo]\nbar=3\n[bar]\nbaz=4")
         expected_values = {'foo': {'bar': 3}, 'bar': {'baz': 4}}
@@ -499,8 +501,8 @@ class TestSchemaConfigParser(unittest.TestCase):
 
     def test_parse_option(self):
         class MyOtherSchema(Schema):
-            foo = ConfigSection()
-            foo.bar = StringConfigOption()
+            class foo(ConfigSection):
+                bar = StringConfigOption()
 
         expected_value = 'baz'
         config = StringIO("[foo]\nbar = baz")
@@ -515,9 +517,9 @@ class TestSchemaConfigParser(unittest.TestCase):
     def test_default_values(self):
         class MySchema(Schema):
             foo = BoolConfigOption(default=True)
-            bar = ConfigSection()
-            bar.baz = IntConfigOption()
-            bar.bla = StringConfigOption(default='hello')
+            class bar(ConfigSection):
+                baz = IntConfigOption()
+                bla = StringConfigOption(default='hello')
         schema = MySchema()
         config = StringIO("[bar]\nbaz=123")
         expected_values = {'__main__': {'foo': True},
@@ -592,8 +594,8 @@ class TestSchemaConfigParser(unittest.TestCase):
 
     def test_get_default_from_section(self):
         class MySchema(Schema):
-            foo = ConfigSection()
-            foo.bar = IntConfigOption()
+            class foo(ConfigSection):
+                bar = IntConfigOption()
         config = StringIO("[__main__]\n")
         expected = '0'
 
@@ -722,7 +724,8 @@ class TestSchemaConfigParser(unittest.TestCase):
     def test_write(self):
         class MySchema(Schema):
             foo = StringConfigOption()
-            DEFAULTSECT = ConfigSection()
+            class DEFAULTSECT(ConfigSection):
+                pass
         parser = SchemaConfigParser(MySchema())
         expected = u"[{0}]\nbaz = 2\n\n[__main__]\nfoo = bar".format(DEFAULTSECT)
         config = StringIO(expected)

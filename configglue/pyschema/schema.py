@@ -37,8 +37,15 @@ _internal = object.__dict__.keys() + ['__module__']
 
 
 def get_config_objects(obj):
-    objects = ((n, o) for (n, o) in getmembers(obj)
-        if isinstance(o, (ConfigSection, ConfigOption)))
+    objects = []
+    for name, obj in getmembers(obj):
+        if isinstance(obj, (ConfigSection, ConfigOption)):
+            objects.append((name, obj))
+        elif type(obj) == type and issubclass(obj, ConfigSection):
+            instance = obj()
+            for key, value in get_config_objects(obj):
+                setattr(instance, key, value)
+            objects.append((name, instance))
     return objects
 
 

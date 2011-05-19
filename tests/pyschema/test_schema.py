@@ -17,7 +17,6 @@
 ###############################################################################
 
 import unittest
-from copy import deepcopy
 from StringIO import StringIO
 
 from configglue.pyschema.parser import SchemaConfigParser
@@ -39,15 +38,15 @@ class TestSchema(unittest.TestCase):
             foo = BoolConfigOption()
 
         class MyOtherSchema(Schema):
-            web = ConfigSection()
-            web.bar = IntConfigOption()
-            froo = ConfigSection()
-            froo.twaddle = LinesConfigOption(item=BoolConfigOption())
+            class web(ConfigSection):
+                bar = IntConfigOption()
+            class froo(ConfigSection):
+                twaddle = LinesConfigOption(item=BoolConfigOption())
 
         class MyThirdSchema(Schema):
             bar = IntConfigOption()
-            froo = ConfigSection()
-            froo.twaddle = LinesConfigOption(item=BoolConfigOption())
+            class froo(ConfigSection):
+                twaddle = LinesConfigOption(item=BoolConfigOption())
 
         schema = MySchema()
         names = set(s.name for s in schema.sections())
@@ -63,11 +62,12 @@ class TestSchema(unittest.TestCase):
 
     def test_schema_validation(self):
         class BorkenSchema(Schema):
-            __main__ = ConfigSection()
-            __main__.foo = BoolConfigOption()
+            class __main__(ConfigSection):
+                foo = BoolConfigOption()
 
         class SomeSchema(Schema):
-            mysection = ConfigSection()
+            class mysection(ConfigSection):
+                pass
 
         schema = BorkenSchema()
         self.assertFalse(schema.is_valid())
@@ -78,8 +78,8 @@ class TestSchema(unittest.TestCase):
     def test_names(self):
         class MySchema(Schema):
             foo = BoolConfigOption()
-            bar = ConfigSection()
-            bar.baz = IntConfigOption()
+            class bar(ConfigSection):
+                baz = IntConfigOption()
 
         schema = MySchema()
         self.assertEquals('foo', schema.foo.name)
@@ -91,8 +91,8 @@ class TestSchema(unittest.TestCase):
     def test_options(self):
         class MySchema(Schema):
             foo = BoolConfigOption()
-            bar = ConfigSection()
-            bar.baz = IntConfigOption()
+            class bar(ConfigSection):
+                baz = IntConfigOption()
 
         schema = MySchema()
         names = set(s.name for s in schema.options())
@@ -119,14 +119,14 @@ class TestSchema(unittest.TestCase):
 class TestSchemaInheritance(unittest.TestCase):
     def setUp(self):
         class SchemaA(Schema):
-            foo = ConfigSection()
-            foo.bar = IntConfigOption()
+            class foo(ConfigSection):
+                bar = IntConfigOption()
         class SchemaB(SchemaA):
-            baz = ConfigSection()
-            baz.wham = IntConfigOption()
+            class baz(ConfigSection):
+                wham = IntConfigOption()
         class SchemaC(SchemaA):
-            bar = ConfigSection()
-            bar.woof = IntConfigOption()
+            class bar(ConfigSection):
+                woof = IntConfigOption()
 
         self.schema = SchemaB()
         self.other = SchemaC()
@@ -157,13 +157,13 @@ class TestSchemaInheritance(unittest.TestCase):
 
     def test_merge_inherited(self):
         class SchemaA(Schema):
-            foo = ConfigSection()
-            foo.bar = IntConfigOption()
+            class foo(ConfigSection):
+                bar = IntConfigOption()
             bar = IntConfigOption()
 
         class SchemaB(SchemaA):
-            foo = deepcopy(SchemaA.foo)
-            foo.baz = IntConfigOption()
+            class foo(SchemaA.foo):
+                baz = IntConfigOption()
 
         # SchemaB inherits attributes from SchemaA and merges its own
         # attributes into
