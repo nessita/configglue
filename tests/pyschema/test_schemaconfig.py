@@ -131,14 +131,13 @@ class TestSchemaConfigGlue(unittest.TestCase):
         self.assertEqual(self.parser.values(),
             {'foo': {'bar': 0}, '__main__': {'baz': 1}})
 
-        _argv = sys.argv
-        sys.argv = []
-
-        op, options, args = schemaconfigglue(self.parser)
-        self.assertEqual(self.parser.values(),
-            {'foo': {'bar': 0}, '__main__': {'baz': 1}})
-
-        sys.argv = _argv
+        _argv, sys.argv = sys.argv, []
+        try:
+            op, options, args = schemaconfigglue(self.parser)
+            self.assertEqual(self.parser.values(),
+                {'foo': {'bar': 0}, '__main__': {'baz': 1}})
+        finally:
+            sys.argv = _argv
 
     def test_glue_section_option(self):
         config = StringIO("[foo]\nbar=1")
@@ -150,6 +149,20 @@ class TestSchemaConfigGlue(unittest.TestCase):
                                              argv=['--foo_bar', '2'])
         self.assertEqual(self.parser.values(),
                          {'foo': {'bar': 2}, '__main__': {'baz': 0}})
+
+    @patch('configglue.pyschema.glue.os')
+    def test_glue_environ(self, mock_os):
+        mock_os.environ = {'CONFIGGLUE_FOO_BAR': '42', 'CONFIGGLUE_BAZ': 3}
+        config = StringIO("[foo]\nbar=1")
+        self.parser.readfp(config)
+
+        _argv, sys.argv = sys.argv, ['prognam']
+        try:
+            op, options, args = schemaconfigglue(self.parser)
+            self.assertEqual(self.parser.values(),
+                {'foo': {'bar': 42}, '__main__': {'baz': 3}})
+        finally:
+            sys.argv = _argv
 
     def test_ambiguous_option(self):
         class MySchema(Schema):
