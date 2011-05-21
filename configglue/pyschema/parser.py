@@ -19,6 +19,7 @@ import codecs
 import collections
 import copy
 import os
+import re
 import string
 
 from ConfigParser import (
@@ -435,6 +436,14 @@ class SchemaConfigParser(BaseConfigParser, object):
         assert isinstance(result, basestring)
         return result
 
+    def interpolate_environment(self, rawval, raw=False):
+        if not raw:
+            # interpolate environment variables
+            rawval = re.sub(r'\${([A-Z_]+)}', r'%(\1)s', rawval)
+            rawval = re.sub(r'\$([A-Z_]+)', r'%(\1)s', rawval)
+            rawval = rawval % os.environ
+        return rawval
+
     def _get_default(self, section, option):
         # mark the value as not initialized to be able to have a None default
         marker = object()
@@ -510,6 +519,9 @@ class SchemaConfigParser(BaseConfigParser, object):
                 # about sections called '__main__'
                 self._sections[section] = {}
             self.set(section, option, value)
+
+        # interpolate environment variables
+        value = self.interpolate_environment(value, raw=raw)
 
         if parse:
             value = self.parse(section, option, value)

@@ -31,6 +31,7 @@ from StringIO import StringIO
 
 from mock import (
     Mock,
+    patch,
     patch_object,
 )
 
@@ -250,6 +251,33 @@ class TestInterpolation(unittest.TestCase):
         parser.readfp(config)
         self.assertRaises(InterpolationMissingOptionError, parser.get,
                           'foo', 'bar')
+
+    @patch('configglue.pyschema.parser.os')
+    def test_interpolate_environment_basic_syntax(self, mock_os):
+        mock_os.environ = {'PATH': 'foo'}
+        parser = SchemaConfigParser(Schema())
+        result = parser.interpolate_environment("$PATH")
+        self.assertEqual(result, 'foo')
+
+    @patch('configglue.pyschema.parser.os')
+    def test_interpolate_environment_extended_syntax(self, mock_os):
+        mock_os.environ = {'PATH': 'foo'}
+        parser = SchemaConfigParser(Schema())
+        result = parser.interpolate_environment("${PATH}")
+        self.assertEqual(result, 'foo')
+
+    @patch('configglue.pyschema.parser.os')
+    def test_interpolate_environment_in_config(self, mock_os):
+        mock_os.environ = {'PYTHONPATH': 'foo', 'PATH': 'bar'}
+        class MySchema(Schema):
+            pythonpath = StringOption()
+            path = StringOption()
+
+        config = StringIO("[__main__]\npythonpath=${PYTHONPATH}\npath=$PATH")
+        parser = SchemaConfigParser(MySchema())
+        parser.readfp(config)
+        self.assertEqual(parser.values('__main__'),
+            {'pythonpath': 'foo', 'path': 'bar'})
 
     def test_get_interpolation_keys_string(self):
         class MySchema(Schema):
