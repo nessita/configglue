@@ -151,14 +151,14 @@ For example::
 
     class BaseSchema(pyschema.Schema):
         option1 = pyschema.IntConfigOption()
-        section1 = pyschema.ConfigSection()
-        section1.option1 = pyschema.BoolConfigOption()
+        class section1(pyschema.ConfigSection):
+            option1 = pyschema.BoolConfigOption()
 
 
     class ChildSchema(BaseSchema):
         option2 = pyschema.IntConfigOption()
-        section1 = deepcopy(BaseSchema.section1)
-        section1.option2 = IntConfigOption()
+        class section1(BaseSchema.section1):
+            option2 = IntConfigOption()
 
 In this example :class:`ChildSchema` will have two top-level options,
 :attr:`option1` and :attr:`option2`, and one section :attr:`section1`, which
@@ -172,9 +172,9 @@ expected::
     class ChildSchema(pyschema.Schema):
         option1 = pyschema.IntConfigOption()
         option2 = pyschema.IntConfigOption()
-        section1 = pyschema.ConfigSection()
-        section1.option1 = pyschema.BoolConfigOption()
-        section1.option2 = IntConfigOption()
+        class section1(pyschema.ConfigSection):
+            option1 = pyschema.BoolConfigOption()
+            option2 = IntConfigOption()
 
 
 Multiple inheritance
