@@ -23,8 +23,8 @@ So, a very simple configuration file could look like::
 This configuration file would match with a schema like the following::
 
     class MySchema(pyschema.Schema):
-        my_section = pyschema.Section()
-        my_section.my_option = pyschema.StringOption()
+        class my_section(pyschema.Section):
+            my_option = pyschema.StringOption()
 
 ======================
 Special considerations
