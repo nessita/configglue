@@ -29,6 +29,7 @@ from configglue.pyschema.schema import (
     Schema,
     StringConfigOption,
     TupleConfigOption,
+    get_config_objects,
 )
 
 
@@ -114,6 +115,28 @@ class TestSchema(unittest.TestCase):
 
         self.assertEqual(MySchema(), MySchema())
         self.assertNotEqual(MySchema(), OtherSchema())
+
+
+class TestSchemaHelpers(unittest.TestCase):
+    def test_get_config_objects(self):
+        class MySchema(Schema):
+            foo = IntConfigOption()
+            class one(ConfigSection):
+                bar = IntConfigOption()
+            two = ConfigSection()
+            two.bam = IntConfigOption()
+
+        expected = {
+            'foo': MySchema.foo,
+            'one': MySchema.one(),
+            'two': MySchema.two,
+        }
+        objects = dict(get_config_objects(MySchema))
+        self.assertEqual(objects.keys(), expected.keys())
+        # cannot compare for just equal as inner classes are
+        # instantiated when get_config_objects is called
+        for key, value in expected.items():
+            self.assertEqual(type(objects[key]), type(value))
 
 
 class TestConfigOption(unittest.TestCase):
