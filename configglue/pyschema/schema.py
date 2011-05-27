@@ -37,8 +37,15 @@ _internal = object.__dict__.keys() + ['__module__']
 
 
 def get_config_objects(obj):
-    objects = ((n, o) for (n, o) in getmembers(obj)
-        if isinstance(o, (ConfigSection, ConfigOption)))
+    objects = []
+    for name, obj in getmembers(obj):
+        if isinstance(obj, (ConfigSection, ConfigOption)):
+            objects.append((name, obj))
+        elif type(obj) == type and issubclass(obj, ConfigSection):
+            instance = obj()
+            for key, value in get_config_objects(obj):
+                setattr(instance, key, value)
+            objects.append((name, instance))
     return objects
 
 
@@ -95,6 +102,9 @@ class Schema(object):
     def __eq__(self, other):
         return (self._sections == other._sections and
                 self.includes == other.includes)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def is_valid(self):
         """Return whether the schema has a valid structure."""
@@ -156,6 +166,9 @@ class ConfigSection(object):
     def __eq__(self, other):
         return (self.name == other.name and
                 self.options() == other.options())
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __repr__(self):
         if self.name:
@@ -240,6 +253,9 @@ class ConfigOption(object):
             equal = False
 
         return equal
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __repr__(self):
         extra = ' raw' if self.raw else ''

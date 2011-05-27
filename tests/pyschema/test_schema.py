@@ -17,7 +17,6 @@
 ###############################################################################
 
 import unittest
-from copy import deepcopy
 from StringIO import StringIO
 
 from configglue.pyschema.parser import SchemaConfigParser
@@ -30,6 +29,7 @@ from configglue.pyschema.schema import (
     Schema,
     StringConfigOption,
     TupleConfigOption,
+    get_config_objects,
 )
 
 
@@ -39,15 +39,15 @@ class TestSchema(unittest.TestCase):
             foo = BoolConfigOption()
 
         class MyOtherSchema(Schema):
-            web = ConfigSection()
-            web.bar = IntConfigOption()
-            froo = ConfigSection()
-            froo.twaddle = LinesConfigOption(item=BoolConfigOption())
+            class web(ConfigSection):
+                bar = IntConfigOption()
+            class froo(ConfigSection):
+                twaddle = LinesConfigOption(item=BoolConfigOption())
 
         class MyThirdSchema(Schema):
             bar = IntConfigOption()
-            froo = ConfigSection()
-            froo.twaddle = LinesConfigOption(item=BoolConfigOption())
+            class froo(ConfigSection):
+                twaddle = LinesConfigOption(item=BoolConfigOption())
 
         schema = MySchema()
         names = set(s.name for s in schema.sections())
@@ -63,11 +63,12 @@ class TestSchema(unittest.TestCase):
 
     def test_schema_validation(self):
         class BorkenSchema(Schema):
-            __main__ = ConfigSection()
-            __main__.foo = BoolConfigOption()
+            class __main__(ConfigSection):
+                foo = BoolConfigOption()
 
         class SomeSchema(Schema):
-            mysection = ConfigSection()
+            class mysection(ConfigSection):
+                pass
 
         schema = BorkenSchema()
         self.assertFalse(schema.is_valid())
@@ -78,8 +79,8 @@ class TestSchema(unittest.TestCase):
     def test_names(self):
         class MySchema(Schema):
             foo = BoolConfigOption()
-            bar = ConfigSection()
-            bar.baz = IntConfigOption()
+            class bar(ConfigSection):
+                baz = IntConfigOption()
 
         schema = MySchema()
         self.assertEquals('foo', schema.foo.name)
@@ -91,8 +92,8 @@ class TestSchema(unittest.TestCase):
     def test_options(self):
         class MySchema(Schema):
             foo = BoolConfigOption()
-            bar = ConfigSection()
-            bar.baz = IntConfigOption()
+            class bar(ConfigSection):
+                baz = IntConfigOption()
 
         schema = MySchema()
         names = set(s.name for s in schema.options())
@@ -116,17 +117,69 @@ class TestSchema(unittest.TestCase):
         self.assertNotEqual(MySchema(), OtherSchema())
 
 
+class TestSchemaHelpers(unittest.TestCase):
+    def test_get_config_objects(self):
+        class MySchema(Schema):
+            foo = IntConfigOption()
+            class one(ConfigSection):
+                bar = IntConfigOption()
+            two = ConfigSection()
+            two.bam = IntConfigOption()
+
+        expected = {
+            'foo': MySchema.foo,
+            'one': MySchema.one(),
+            'two': MySchema.two,
+        }
+        objects = dict(get_config_objects(MySchema))
+        self.assertEqual(objects.keys(), expected.keys())
+        # cannot compare for just equal as inner classes are
+        # instantiated when get_config_objects is called
+        for key, value in expected.items():
+            self.assertEqual(type(objects[key]), type(value))
+
+
+class TestConfigOption(unittest.TestCase):
+    def test_equal(self):
+        opt1 = IntConfigOption(name='opt1')
+        opt2 = IntConfigOption(name='opt2')
+        opt3 = StringConfigOption(name='opt1')
+        self.assertEqual(opt1, opt1)
+        self.assertNotEqual(opt1, opt2)
+        self.assertNotEqual(opt1, opt3)
+
+    def test_equal_when_in_section(self):
+        sect1 = ConfigSection(name='sect1')
+        sect2 = ConfigSection(name='sect2')
+        opt1 = IntConfigOption()
+        opt2 = IntConfigOption()
+
+        self.assertEqual(opt1, opt2)
+
+        opt1.section = sect1
+        opt2.section = sect2
+        self.assertNotEqual(opt1, opt2)
+
+    def test_equal_when_error(self):
+        opt1 = IntConfigOption()
+        opt2 = IntConfigOption()
+
+        # make sure an attribute error is raised
+        del opt2.name
+        self.assertNotEqual(opt1, opt2)
+
+
 class TestSchemaInheritance(unittest.TestCase):
     def setUp(self):
         class SchemaA(Schema):
-            foo = ConfigSection()
-            foo.bar = IntConfigOption()
+            class foo(ConfigSection):
+                bar = IntConfigOption()
         class SchemaB(SchemaA):
-            baz = ConfigSection()
-            baz.wham = IntConfigOption()
+            class baz(ConfigSection):
+                wham = IntConfigOption()
         class SchemaC(SchemaA):
-            bar = ConfigSection()
-            bar.woof = IntConfigOption()
+            class bar(ConfigSection):
+                woof = IntConfigOption()
 
         self.schema = SchemaB()
         self.other = SchemaC()
@@ -157,13 +210,13 @@ class TestSchemaInheritance(unittest.TestCase):
 
     def test_merge_inherited(self):
         class SchemaA(Schema):
-            foo = ConfigSection()
-            foo.bar = IntConfigOption()
+            class foo(ConfigSection):
+                bar = IntConfigOption()
             bar = IntConfigOption()
 
         class SchemaB(SchemaA):
-            foo = deepcopy(SchemaA.foo)
-            foo.baz = IntConfigOption()
+            class foo(SchemaA.foo):
+                baz = IntConfigOption()
 
         # SchemaB inherits attributes from SchemaA and merges its own
         # attributes into
