@@ -97,9 +97,10 @@ class TestConfigSection(unittest.TestCase):
         self.assertNotEqual(sec1, sec2)
 
     def test_has_option(self):
-        sec1 = ConfigSection()
-        sec1.foo = IntConfigOption()
+        class sec1(ConfigSection):
+            foo = IntConfigOption()
 
+        sec1 = sec1()
         self.assertTrue(sec1.has_option('foo'))
         self.assertFalse(sec1.has_option('bar'))
 
@@ -107,8 +108,8 @@ class TestConfigSection(unittest.TestCase):
 class TestSchemaConfigGlue(unittest.TestCase):
     def setUp(self):
         class MySchema(Schema):
-            foo = ConfigSection()
-            foo.bar = IntConfigOption()
+            class foo(ConfigSection):
+                bar = IntConfigOption()
 
             baz = IntConfigOption(help='The baz option')
 
@@ -152,11 +153,11 @@ class TestSchemaConfigGlue(unittest.TestCase):
 
     def test_ambiguous_option(self):
         class MySchema(Schema):
-            foo = ConfigSection()
-            foo.baz = IntConfigOption()
+            class foo(ConfigSection):
+                baz = IntConfigOption()
 
-            bar = ConfigSection()
-            bar.baz = IntConfigOption()
+            class bar(ConfigSection):
+                baz = IntConfigOption()
 
         config = StringIO("[foo]\nbaz=1")
         parser = SchemaConfigParser(MySchema())
