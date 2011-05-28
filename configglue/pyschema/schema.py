@@ -18,6 +18,8 @@
 from copy import deepcopy
 from inspect import getmembers
 
+from .parser import SchemaValidationError
+
 
 __all__ = [
     'BoolConfigOption',
@@ -29,11 +31,10 @@ __all__ = [
     'Schema',
     'StringConfigOption',
     'TupleConfigOption',
+    'merge',
 ]
 
 NO_DEFAULT = object()
-
-_internal = object.__dict__.keys() + ['__module__']
 
 
 def get_config_objects(obj):
@@ -47,6 +48,46 @@ def get_config_objects(obj):
                 setattr(instance, key, value)
             objects.append((name, instance))
     return objects
+
+
+def merge(*schemas):
+    # define result schema
+    class MergedSchema(Schema):
+        pass
+
+    # for each schema
+    for schema in schemas:
+        instance = schema()
+        # iterate over the schema sections
+        for section in instance.sections():
+            # create the appropriate section object
+            section_name = section.name
+            if section_name == '__main__':
+                # section is special __main__ section
+                sect = MergedSchema
+            elif not hasattr(MergedSchema, section_name):
+                # section is not present in schema, just copy it over
+                # completely
+                setattr(MergedSchema, section_name, section)
+                continue
+            else:
+                # section is present in schema, do the merge
+                sect = getattr(MergedSchema, section_name)
+
+            # do the merge
+
+            # iterate over the section options
+            for option in section.options():
+                opt = getattr(sect, option.name, None)
+                if opt is not None:
+                    if option != opt:
+                        raise SchemaValidationError("Conflicting option "
+                            "'%s.%s' while merging schemas." % (
+                            section_name, option.name))
+                else:
+                    setattr(sect, option.name, option)
+
+    return MergedSchema
 
 
 class Schema(object):
