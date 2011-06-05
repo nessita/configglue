@@ -18,8 +18,6 @@
 from copy import deepcopy
 from inspect import getmembers
 
-from .parser import SchemaValidationError
-
 
 __all__ = [
     'BoolConfigOption',
@@ -51,6 +49,9 @@ def get_config_objects(obj):
 
 
 def merge(*schemas):
+    # import here to avoid circular imports
+    from .parser import SchemaValidationError
+
     # define result schema
     class MergedSchema(Schema):
         pass
@@ -141,8 +142,11 @@ class Schema(object):
         setattr(section, name, option)
 
     def __eq__(self, other):
-        return (self._sections == other._sections and
-                self.includes == other.includes)
+        return (
+            type(self) == type(other) and
+            self._sections == other._sections and
+            self.includes == other.includes
+        )
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -205,8 +209,11 @@ class ConfigSection(object):
         self.name = name
 
     def __eq__(self, other):
-        return (self.name == other.name and
-                self.options() == other.options())
+        return (
+            type(self) == type(other) and
+            self.name == other.name and
+            self.options() == other.options()
+        )
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -280,11 +287,14 @@ class ConfigOption(object):
 
     def __eq__(self, other):
         try:
-            equal = (self.name == other.name and
-                     self.raw == other.raw and
-                     self.fatal == other.fatal and
-                     self.default == other.default and
-                     self.help == other.help)
+            equal = (
+                type(self) == type(other) and
+                self.name == other.name and
+                self.raw == other.raw and
+                self.fatal == other.fatal and
+                self.default == other.default and
+                self.help == other.help
+            )
             if self.section is not None and other.section is not None:
                 # only test for section name to avoid recursion
                 equal &= self.section.name == other.section.name
@@ -569,12 +579,13 @@ class DictConfigOption(ConfigOption):
             is_dict_lines_item = (hasattr(option_obj, 'item') and
                 isinstance(option_obj.item, DictConfigOption))
 
+            if not (is_dict_item or is_dict_lines_item):
+                continue
+
             if is_dict_item:
                 base = option_obj
-            elif is_dict_lines_item:
-                base = option_obj.item
             else:
-                continue
+                base = option_obj.item
 
             value = parser.get(section, option, parse=False)
             names = value.split()
