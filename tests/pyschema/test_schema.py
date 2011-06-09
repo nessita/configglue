@@ -22,6 +22,7 @@ from StringIO import StringIO
 from configglue.pyschema.parser import SchemaConfigParser
 from configglue.pyschema.schema import (
     BoolConfigOption,
+    ConfigOption,
     ConfigSection,
     DictConfigOption,
     IntConfigOption,
@@ -168,6 +169,10 @@ class TestConfigOption(unittest.TestCase):
         del opt2.name
         self.assertNotEqual(opt1, opt2)
 
+    def test_validate(self):
+        opt = ConfigOption()
+        self.assertRaises(NotImplementedError, opt.validate, 0)
+
 
 class TestSchemaInheritance(unittest.TestCase):
     def setUp(self):
@@ -287,6 +292,14 @@ class TestStringConfigOption(unittest.TestCase):
         opt = StringConfigOption(null=True)
         self.assertEqual(opt.default, None)
 
+    def test_validate_string(self):
+        opt = StringConfigOption()
+        self.assertEqual(opt.validate(''), True)
+
+    def test_validate_nonstring(self):
+        opt = StringConfigOption()
+        self.assertEqual(opt.validate(0), False)
+
 
 class TestIntConfigOption(unittest.TestCase):
     def test_parse_int(self):
@@ -312,6 +325,14 @@ class TestIntConfigOption(unittest.TestCase):
     def test_default(self):
         opt = IntConfigOption()
         self.assertEqual(opt.default, 0)
+
+    def test_validate_int(self):
+        opt = IntConfigOption()
+        self.assertEqual(opt.validate(0), True)
+
+    def test_validate_nonint(self):
+        opt = IntConfigOption()
+        self.assertEqual(opt.validate(''), False)
 
 
 class TestBoolConfigOption(unittest.TestCase):
@@ -343,6 +364,14 @@ class TestBoolConfigOption(unittest.TestCase):
     def test_default(self):
         opt = BoolConfigOption()
         self.assertEqual(opt.default, False)
+
+    def test_validate_bool(self):
+        opt = BoolConfigOption()
+        self.assertEqual(opt.validate(False), True)
+
+    def test_validate_nonbool(self):
+        opt = BoolConfigOption()
+        self.assertEqual(opt.validate(''), False)
 
 
 class TestLinesConfigOption(unittest.TestCase):
@@ -417,6 +446,15 @@ class TestLinesConfigOption(unittest.TestCase):
         self.assertEquals({'__main__': {'foo': [{'bar': 'baz'}]}},
                           parser.values())
 
+    def test_validate_list(self):
+        opt = LinesConfigOption(item=IntConfigOption())
+        self.assertEqual(opt.validate([]), True)
+
+    def test_validate_nonlist(self):
+        opt = LinesConfigOption(item=IntConfigOption())
+        self.assertEqual(opt.validate(''), False)
+
+
 class TestTupleConfigOption(unittest.TestCase):
     def test_init(self):
         opt = TupleConfigOption(length=2)
@@ -460,6 +498,14 @@ class TestTupleConfigOption(unittest.TestCase):
     def test_default(self):
         opt = TupleConfigOption(length=2)
         self.assertEqual(opt.default, ())
+
+    def test_validate_tuple(self):
+        opt = TupleConfigOption(length=2)
+        self.assertEqual(opt.validate(()), True)
+
+    def test_validate_nontuple(self):
+        opt = TupleConfigOption(length=2)
+        self.assertEqual(opt.validate(0), False)
 
 
 class TestDictConfigOption(unittest.TestCase):
@@ -637,6 +683,14 @@ wham=42
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
         self.assertRaises(ValueError, parser.parse_all)
+
+    def test_validate_dict(self):
+        opt = DictConfigOption()
+        self.assertEqual(opt.validate({}), True)
+
+    def test_validate_nondict(self):
+        opt = DictConfigOption()
+        self.assertEqual(opt.validate(0), False)
 
 
 class TestLinesOfDictConfigOption(unittest.TestCase):

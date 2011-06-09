@@ -597,7 +597,7 @@ class TestSchemaConfigParser(unittest.TestCase):
             class foo(ConfigSection):
                 bar = IntConfigOption()
         config = StringIO("[__main__]\n")
-        expected = '0'
+        expected = 0
 
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
@@ -720,6 +720,24 @@ class TestSchemaConfigParser(unittest.TestCase):
             self.assertEqual(self.parser.get('__main__', 'foo'), '2')
             self.assertEqual(self.parser._dirty,
                 {f.name: {'__main__': {'foo': '2'}}})
+
+    def test_set_non_string(self):
+        class MySchema(Schema):
+            foo = IntConfigOption()
+            bar = BoolConfigOption()
+        parser = SchemaConfigParser(MySchema())
+        parser.parse_all()
+
+        parser.set('__main__', 'foo', 2)
+        parser.set('__main__', 'bar', False)
+        self.assertEqual(parser.get('__main__', 'foo'), 2)
+        self.assertEqual(parser._sections['__main__']['foo'], '2')
+        self.assertEqual(parser.get('__main__', 'bar'), False)
+        self.assertEqual(parser._sections['__main__']['bar'], 'False')
+
+    def test_set_invalid_type(self):
+        self.parser.parse_all()
+        self.assertRaises(TypeError, self.parser.set, '__main__', 'foo', 2)
 
     def test_write(self):
         class MySchema(Schema):

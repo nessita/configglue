@@ -349,7 +349,7 @@ class SchemaConfigParser(BaseConfigParser, object):
 
             if is_default_value:
                 value = option_obj.default
-            else:
+            elif isinstance(value, basestring):
                 try:
                     value = option_obj.parse(value, **kwargs)
                 except ValueError, e:
@@ -464,9 +464,7 @@ class SchemaConfigParser(BaseConfigParser, object):
             #    raise NoSectionError(section)
             return None
         else:
-            # we want to return a non-parsed value
-            # a unicode of the value is the closest we can get
-            return unicode(value)
+            return value
 
     def get(self, section, option, raw=False, vars=None, parse=True):
         """Return the parsed value of an option.
@@ -482,8 +480,7 @@ class SchemaConfigParser(BaseConfigParser, object):
         try:
             # get option's raw mode setting
             try:
-                section_obj = self.schema.section(section)
-                option_obj = section_obj.option(option)
+                option_obj = self._get_option(section, option)
                 raw = option_obj.raw or raw
             except:
                 pass
@@ -515,11 +512,24 @@ class SchemaConfigParser(BaseConfigParser, object):
             value = self.parse(section, option, value)
         return value
 
+    def _get_option(self, section, option):
+        section_obj = self.schema.section(section)
+        option_obj = section_obj.option(option)
+        return option_obj
+
     def set(self, section, option, value):
         """Set an option's raw value."""
-        super(SchemaConfigParser, self).set(section, option, value)
+        option_obj = self._get_option(section, option)
+        # make sure the value is of the right type for the option
+        if not option_obj.validate(value):
+            raise TypeError("{0} is not a valid {1} value.".format(
+                value, type(option_obj).__name__))
+        # cast value to a string because SafeConfigParser only allows
+        # strings to be set
+        str_value = option_obj.to_string(value)
+        super(SchemaConfigParser, self).set(section, option, str_value)
         filename = self.locate(option)
-        self._dirty[filename][section][option] = value
+        self._dirty[filename][section][option] = str_value
 
     def write(self, fp):
         """Write an .ini-format representation of the configuration state."""

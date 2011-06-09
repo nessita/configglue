@@ -277,6 +277,13 @@ class ConfigOption(object):
         """Parse the given value."""
         raise NotImplementedError()
 
+    def validate(self, value):
+        raise NotImplementedError()
+
+    def to_string(self, value):
+        """Return a string representation of the value."""
+        return str(value)
+
 
 class BoolConfigOption(ConfigOption):
     """A ConfigOption that is parsed into a bool"""
@@ -300,6 +307,9 @@ class BoolConfigOption(ConfigOption):
         else:
             raise ValueError("Unable to determine boolosity of %r" % value)
 
+    def validate(self, value):
+        return isinstance(value, bool)
+
 
 class IntConfigOption(ConfigOption):
     """A ConfigOption that is parsed into an int"""
@@ -317,6 +327,9 @@ class IntConfigOption(ConfigOption):
             return value
 
         return int(value)
+
+    def validate(self, value):
+        return isinstance(value, int)
 
 
 class LinesConfigOption(ConfigOption):
@@ -369,6 +382,9 @@ class LinesConfigOption(ConfigOption):
             items = filtered_items
         return items
 
+    def validate(self, value):
+        return isinstance(value, list)
+
 
 class StringConfigOption(ConfigOption):
     """A ConfigOption that is parsed into a string.
@@ -402,6 +418,12 @@ class StringConfigOption(ConfigOption):
         else:
             result = repr(value)
         return result
+
+    def to_string(self, value):
+        return value
+
+    def validate(self, value):
+        return isinstance(value, basestring)
 
 
 class TupleConfigOption(ConfigOption):
@@ -440,6 +462,9 @@ class TupleConfigOption(ConfigOption):
             result = tuple(parts)
             # length is 0, so no length validation
         return result
+
+    def validate(self, value):
+        return isinstance(value, tuple)
 
 
 class DictConfigOption(ConfigOption):
@@ -520,6 +545,9 @@ class DictConfigOption(ConfigOption):
                     result[key] = value
         return result
 
+    def validate(self, value):
+        return isinstance(value, dict)
+
     def get_extra_sections(self, section, parser):
         sections = []
         for option in parser.options(section):
@@ -545,4 +573,3 @@ class DictConfigOption(ConfigOption):
                 sections.extend(extra)
 
         return sections
-
