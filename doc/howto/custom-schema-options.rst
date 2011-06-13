@@ -18,28 +18,28 @@ entirely different from those shipped with configglue.
 configglue's built-in option types don't cover every possible data type --
 only the common types, such as ``bool`` and ``int``. For more obscure data
 types, such as complex numbers or even user-created types you can define your
-own configglue :class:`~configglue.pyschema.schema.ConfigOption` subclasses.
+own configglue :class:`~configglue.pyschema.schema.Option` subclasses.
 
 Writing an option subclass
 ==========================
 
-When planning your :class:`~configglue.pyschema.schema.ConfigOption` subclass,
+When planning your :class:`~configglue.pyschema.schema.Option` subclass,
 first give some thought to which existing
-:class:`~configglue.pyschema.schema.ConfigOption` class your new option
+:class:`~configglue.pyschema.schema.Option` class your new option
 is most similar to. Can you subclass an existing configglue option and save
 yourself some work? If not, you should subclass the
-:class:`~configglue.pyschema.schema.ConfigOption` class, from which everything
+:class:`~configglue.pyschema.schema.Option` class, from which everything
 is descended.
 
 Initializing your new option is a matter of separating out any arguments that are
 specific to your case from the common arguments and passing the latter to the
-:meth:`~configglue.pyschema.schema.ConfigOption.__init__` method of
-:class:`~configglue.pyschema.schema.ConfigOption` (or your parent class).
+:meth:`~configglue.pyschema.schema.Option.__init__` method of
+:class:`~configglue.pyschema.schema.Option` (or your parent class).
 
 In our example, we'll call our option ``UpperCaseDictOption``. (It's a
-good idea to call your :class:`~configglue.pyschema.schema.ConfigOption`
-subclass ``<Something>ConfigOption``, so it's easily identifiable as a
-:class:`~configglue.pyschema.schema.ConfigOption` subclass.) It behaves
+good idea to call your :class:`~configglue.pyschema.schema.Option`
+subclass ``<Something>Option``, so it's easily identifiable as a
+:class:`~configglue.pyschema.schema.Option` subclass.) It behaves
 mostly like a :class:`~configglue.pyschema.schema.DictOption`, so we'll
 subclass from that::
 

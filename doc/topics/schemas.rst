@@ -15,7 +15,7 @@ The basics:
 
     * Each attribute of the schema represents either a configuration section
       (see :class:`~configglue.pyschema.schema.ConfigSection`) or
-      option (see :class:`~configglue.pyschema.schema.ConfigOption`).
+      option (see :class:`~configglue.pyschema.schema.Option`).
 
 Quick example
 =============
@@ -58,7 +58,7 @@ Option types
 ------------
 
 Each option in your schema should be an instance of the appropriate
-:class:`~configglue.pyschema.schema.ConfigOption` class.
+:class:`~configglue.pyschema.schema.Option` class.
 
 configglue ships with a couple of built-in option types; you can find the
 complete list in the :ref:`schema option reference <schema-option-types>`. You
@@ -79,17 +79,17 @@ optional. They're fully explained in the :ref:`reference
 <common-schema-option-attributes>`, but here's a quick summary of the most
 often-used ones:
 
-    :attr:`~ConfigOption.default`
+    :attr:`~Option.default`
         The default value for this option, if none is provided in the config file.
         Default is :attr:`configglue.pyschema.schema.NO_DEFAULT`.
 
-    :attr:`~ConfigOption.fatal`
+    :attr:`~Option.fatal`
         If ``True``, :func:`SchemaConfigParser.parse_all` will raise an exception if no
         value is provided in the configuration file for this option. Otherwise,
         :attr:`self.default` will be used. 
         Default is ``False``.
 
-    :attr:`~ConfigOption.help`
+    :attr:`~Option.help`
         The help text describing this option. This text will be used as the
         :class:`optparse.OptParser` help text.
         Default is ``''``.
@@ -139,7 +139,7 @@ extend a :class:`~configglue.pyschema.schema.ConfigSection` instead of
 overriding it. In order to achieve this, in your schema subclass, copy the
 parent's attribute explicitely, to avoid modifying the parent schema class.
 Option attributes (derived from
-:class:`~configglue.pyschema.schema.ConfigOption`) will be overridden, as
+:class:`~configglue.pyschema.schema.Option`) will be overridden, as
 expected.
 
 For example::

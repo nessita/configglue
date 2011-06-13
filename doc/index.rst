@@ -35,7 +35,7 @@ The schema
 
     * **Schemas:**
       :doc:`Schema syntax <topics/schemas>` |
-      :doc:`ConfigOption types <ref/schemas/options>`
+      :doc:`Option types <ref/schemas/options>`
 
     * **Advanced:**
       :doc:`Custom options <howto/custom-schema-options>`
