@@ -41,7 +41,7 @@ defined section called ``__main__``.
 Therefore, if you have a schema like::
 
     class MySchema(pyschema.Schema):
-        foo = IntConfigOption()
+        foo = IntOption()
 
 and you want to write a configuration file to match it, it would have to look
 like::
@@ -105,7 +105,7 @@ and the schema::
 
     class MySchema(pyschema.Schema):
         my_dict = pyschema.DictConfigOption(
-            spec={'foo': pyschema.IntConfigOption(),
+            spec={'foo': pyschema.IntOption(),
                   'bar': pyschema.BoolConfigOption()})
 
 `my_dict` would be parsed as::

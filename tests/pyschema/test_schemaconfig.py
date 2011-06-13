@@ -30,7 +30,7 @@ from configglue.pyschema.parser import SchemaConfigParser
 from configglue.pyschema.schema import (
     ConfigOption,
     ConfigSection,
-    IntConfigOption,
+    IntOption,
     Schema,
     StringOption,
 )
@@ -98,7 +98,7 @@ class TestConfigSection(unittest.TestCase):
 
     def test_has_option(self):
         class sec1(ConfigSection):
-            foo = IntConfigOption()
+            foo = IntOption()
 
         sec1 = sec1()
         self.assertTrue(sec1.has_option('foo'))
@@ -109,9 +109,9 @@ class TestSchemaConfigGlue(unittest.TestCase):
     def setUp(self):
         class MySchema(Schema):
             class foo(ConfigSection):
-                bar = IntConfigOption()
+                bar = IntOption()
 
-            baz = IntConfigOption(help='The baz option')
+            baz = IntOption(help='The baz option')
 
         self.parser = SchemaConfigParser(MySchema())
 
@@ -154,10 +154,10 @@ class TestSchemaConfigGlue(unittest.TestCase):
     def test_ambiguous_option(self):
         class MySchema(Schema):
             class foo(ConfigSection):
-                baz = IntConfigOption()
+                baz = IntOption()
 
             class bar(ConfigSection):
-                baz = IntConfigOption()
+                baz = IntOption()
 
         config = StringIO("[foo]\nbaz=1")
         parser = SchemaConfigParser(MySchema())
@@ -220,7 +220,7 @@ class ConfigglueTestCase(unittest.TestCase):
 
         # define the inputs
         class MySchema(Schema):
-            foo = IntConfigOption()
+            foo = IntOption()
 
         configs = ['config.ini']
 
@@ -255,7 +255,7 @@ class ConfigglueTestCase(unittest.TestCase):
 
         # define the inputs
         class MySchema(Schema):
-            foo = IntConfigOption()
+            foo = IntOption()
 
         configs = ['config.ini']
 
@@ -292,7 +292,7 @@ class ConfigglueTestCase(unittest.TestCase):
 
         # define the inputs
         class MySchema(Schema):
-            foo = IntConfigOption()
+            foo = IntOption()
 
         configs = ['config.ini']
 

@@ -10,7 +10,7 @@ Introduction
 The :doc:`schema reference </topics/schemas>` documentation explains how to
 use configglue's standard option classes --
 :class:`~configglue.pyschema.schema.BoolConfigOption`,
-:class:`~configglue.pyschema.schema.IntConfigOption`, etc. For many purposes,
+:class:`~configglue.pyschema.schema.IntOption`, etc. For many purposes,
 those classes are all you'll need. Sometimes, though, the configglue version
 won't meet your precise requirements, or you'll want to use a option that is
 entirely different from those shipped with configglue.

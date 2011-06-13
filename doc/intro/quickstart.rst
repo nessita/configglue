@@ -28,7 +28,7 @@ will look like the following snippet, so let's look at it in detail::
 
         # create the schema
         class MySchema(pyschema.Schema):
-            foo = pyschema.IntConfigOption()
+            foo = pyschema.IntOption()
             bar = pyschema.BoolConfigOption()
 
         # read the configuration files
@@ -73,7 +73,7 @@ The general structure is:
     ::
 
         class MySchema(pyschema.Schema):
-            foo = pyschema.IntConfigOption()
+            foo = pyschema.IntOption()
             bar = pyschema.BoolConfigOption()
 
 #. Create a parser for that schema
@@ -129,7 +129,7 @@ this code would look like::
 
         # create the schema
         class MySchema(pyschema.Schema):
-            foo = pyschema.IntConfigOption()
+            foo = pyschema.IntOption()
             bar = pyschema.BoolConfigOption()
 
         # glue everything together

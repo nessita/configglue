@@ -29,7 +29,7 @@ from configglue.pyschema.parser import SchemaConfigParser
 from configglue.pyschema.schema import (
     BoolConfigOption,
     ConfigSection,
-    IntConfigOption,
+    IntOption,
     LinesConfigOption,
     Schema,
     StringOption,
@@ -59,7 +59,7 @@ def ini2schema(fd, p=None):
     p.parse_all()
 
     parser2option = {'unicode': StringOption,
-                     'int': IntConfigOption,
+                     'int': IntOption,
                      'bool': BoolConfigOption,
                      'lines': LinesConfigOption}
 
