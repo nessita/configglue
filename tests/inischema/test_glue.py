@@ -1,18 +1,18 @@
 ###############################################################################
-# 
+#
 # configglue -- glue for your apps' configuration
-# 
+#
 # A library for simple, DRY configuration of applications
-# 
+#
 # (C) 2009--2010 by Canonical Ltd.
 # originally by John R. Lenton <john.lenton@canonical.com>
 # incorporating schemaconfig as configglue.pyschema
 # schemaconfig originally by Ricardo Kirkner <ricardo.kirkner@canonical.com>
-# 
+#
 # Released under the BSD License (see the file LICENSE)
-# 
+#
 # For bug reports, support, and new releases: http://launchpad.net/configglue
-# 
+#
 ###############################################################################
 
 # in testfiles, putting docstrings on methods messes up with the
@@ -24,6 +24,7 @@ from StringIO import StringIO
 
 from configglue.inischema.glue import configglue
 
+
 class TestBase(unittest.TestCase):
     """ Base class to keep common set-up """
     def setUp(self):
@@ -33,6 +34,7 @@ class TestBase(unittest.TestCase):
 
     def tearDown(self):
         sys.argv = self.old_sys_argv
+
 
 class TestGlue(TestBase):
     ini = '''
@@ -57,6 +59,7 @@ foo = 2
                                            args=['', self.arg + '=5'])
         self.assertEqual(vars(options),
                          {self.opt: '5'})
+
     def test_help_is_displayed(self):
         sys.stdout = StringIO()
         try:
@@ -65,6 +68,7 @@ foo = 2
             output = sys.stdout.getvalue()
             sys.stdout = sys.__stdout__
         self.assertTrue('yadda yadda yadda yadda' in output)
+
 
 class TestCrazyGlue(TestGlue):
     ini = '''
@@ -79,6 +83,7 @@ foo = 2
     arg = '--bl-ah_foo'
     opt = 'bl_ah_foo'
 
+
 class TestNoValue(TestGlue):
     ini = '''
 [blah]
@@ -90,14 +95,18 @@ foo = 3
 '''
     val = 3
 
+
 class TestGlue2(TestBase):
     ini = '[__main__]\na=1\n'
+
     def test_main(self):
         parser, options, args = configglue(self.file)
         self.assertEqual(options.a, '1')
 
+
 class TestGlue3(TestBase):
     ini = '[x]\na.help=hi\n'
+
     def test_empty(self):
         parser, options, args = configglue(self.file)
         self.assertEqual(options.x_a, '')
@@ -106,6 +115,7 @@ class TestGlue3(TestBase):
         parser, options, args = configglue(self.file, 'dummy',
                                            args=['', '--x_a=1'])
         self.assertEqual(options.x_a, '1')
+
 
 class TestGlueBool(TestBase):
     ini = '''[__main__]
@@ -116,6 +126,7 @@ bar.default = True
 bar.parser = bool
 bar.action = store_false
 '''
+
     def test_store_true(self):
         parser, options, args = configglue(self.file, args=['', '--foo'])
         self.assertEqual(options.foo, True)
@@ -135,6 +146,7 @@ bar = a
 bar.parser = lines
 bar.action = append
 '''
+
     def test_nothing(self):
         parser, options, args = configglue(self.file)
         self.assertEqual(options.foo, [])
@@ -150,4 +162,3 @@ bar.action = append
     def test_append(self):
         parser, options, args = configglue(self.file, args=['', '--bar=x'])
         self.assertEqual(options.bar, ['a', 'b', 'x'])
-

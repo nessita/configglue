@@ -1,18 +1,18 @@
 ###############################################################################
-# 
+#
 # configglue -- glue for your apps' configuration
-# 
+#
 # A library for simple, DRY configuration of applications
-# 
+#
 # (C) 2009--2010 by Canonical Ltd.
 # originally by John R. Lenton <john.lenton@canonical.com>
 # incorporating schemaconfig as configglue.pyschema
 # schemaconfig originally by Ricardo Kirkner <ricardo.kirkner@canonical.com>
-# 
+#
 # Released under the BSD License (see the file LICENSE)
-# 
+#
 # For bug reports, support, and new releases: http://launchpad.net/configglue
-# 
+#
 ###############################################################################
 
 import codecs
@@ -365,8 +365,8 @@ class SchemaConfigParser(BaseConfigParser, object):
         If any options are omitted from the config file, provide the
         default value from the schema.
 
-        In the case of an NoSectionError or NoOptionError, raise it if the option
-        has *fatal* set to *True*.
+        In the case of an NoSectionError or NoOptionError, raise it if the
+        option has *fatal* set to *True*.
 
         """
         for section in self.schema.sections():
@@ -578,4 +578,3 @@ class SchemaConfigParser(BaseConfigParser, object):
                     os.rename(filename, "%s.old" % filename)
                 # rename new file
                 os.rename("%s.new" % filename, filename)
-

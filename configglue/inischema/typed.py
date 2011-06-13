@@ -1,18 +1,18 @@
 ###############################################################################
-# 
+#
 # configglue -- glue for your apps' configuration
-# 
+#
 # A library for simple, DRY configuration of applications
-# 
+#
 # (C) 2009--2010 by Canonical Ltd.
 # originally by John R. Lenton <john.lenton@canonical.com>
 # incorporating schemaconfig as configglue.pyschema
 # schemaconfig originally by Ricardo Kirkner <ricardo.kirkner@canonical.com>
-# 
+#
 # Released under the BSD License (see the file LICENSE)
-# 
+#
 # For bug reports, support, and new releases: http://launchpad.net/configglue
-# 
+#
 ###############################################################################
 
 """ TypedConfigParser lives here """
@@ -22,6 +22,7 @@ import os
 
 from . import parsers
 from .attributed import AttributedConfigParser
+
 
 class TypedConfigParser(AttributedConfigParser):
     """Building on AttributedConfigParser, handle the idea of having a
@@ -78,7 +79,7 @@ class TypedConfigParser(AttributedConfigParser):
 
         if value.is_empty:
             if 'default' in value.attrs:
-                value.value =  value.attrs['default']
+                value.value = value.attrs['default']
             else:
                 value.value = None
 

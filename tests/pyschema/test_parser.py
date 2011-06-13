@@ -1,24 +1,25 @@
 # -*- coding: utf-8 -*-
 ###############################################################################
-# 
+#
 # configglue -- glue for your apps' configuration
-# 
+#
 # A library for simple, DRY configuration of applications
-# 
+#
 # (C) 2009--2010 by Canonical Ltd.
 # originally by John R. Lenton <john.lenton@canonical.com>
 # incorporating schemaconfig as configglue.pyschema
 # schemaconfig originally by Ricardo Kirkner <ricardo.kirkner@canonical.com>
-# 
+#
 # Released under the BSD License (see the file LICENSE)
-# 
+#
 # For bug reports, support, and new releases: http://launchpad.net/configglue
-# 
+#
 ###############################################################################
 
 import os
 import shutil
 import tempfile
+import textwrap
 import unittest
 from ConfigParser import (
     DEFAULTSECT,
@@ -148,7 +149,8 @@ class TestIncludes(unittest.TestCase):
             f.write("[__main__]\nbaz=3")
             f.close()
 
-            config = StringIO("[__main__]\nfoo=4\nincludes=%s/first.cfg" % folder)
+            config = StringIO(
+                "[__main__]\nfoo=4\nincludes=%s/first.cfg" % folder)
             return config, folder
 
         class MySchema(Schema):
@@ -220,8 +222,8 @@ class TestInterpolation(unittest.TestCase):
         rawval = '%(bar)'
         vars = {'foo': '%(bar)s', 'bar': 'pepe'}
         parser = SchemaConfigParser(MySchema())
-        self.assertRaises(InterpolationSyntaxError, parser._interpolate, section, option,
-                          rawval, vars)
+        self.assertRaises(InterpolationSyntaxError, parser._interpolate,
+            section, option, rawval, vars)
 
     def test_interpolate_across_sections(self):
         class MySchema(Schema):
@@ -309,7 +311,8 @@ class TestInterpolation(unittest.TestCase):
     def test_get_interpolation_keys_tuple_lines(self):
         class MySchema(Schema):
             foo = LinesConfigOption(item=TupleConfigOption(2))
-        config = StringIO("[__main__]\nfoo=%(bar)s,%(bar)s\n    %(baz)s,%(baz)s")
+        config = StringIO(
+            "[__main__]\nfoo=%(bar)s,%(bar)s\n    %(baz)s,%(baz)s")
         expected = ('%(bar)s,%(bar)s\n%(baz)s,%(baz)s',
                     set(['bar', 'baz']))
 
@@ -321,7 +324,14 @@ class TestInterpolation(unittest.TestCase):
     def test_get_interpolation_keys_dict(self):
         class MySchema(Schema):
             foo = DictConfigOption(spec={'a': IntConfigOption()})
-        config = StringIO("[__noschema__]\nbar=4\n[__main__]\nfoo=mydict\n[mydict]\na=%(bar)s")
+        config = StringIO(textwrap.dedent("""
+            [__noschema__]
+            bar=4
+            [__main__]
+            foo=mydict
+            [mydict]
+            a=%(bar)s
+            """))
         expected = ('mydict', set([]))
 
         parser = SchemaConfigParser(MySchema())
@@ -332,7 +342,8 @@ class TestInterpolation(unittest.TestCase):
     def test_interpolate_value_duplicate_key(self):
         class MySchema(Schema):
             foo = TupleConfigOption(2)
-        config = StringIO("[__noschema__]\nbar=4\n[__main__]\nfoo=%(bar)s,%(bar)s")
+        config = StringIO(
+            "[__noschema__]\nbar=4\n[__main__]\nfoo=%(bar)s,%(bar)s")
         expected_value = '4,4'
 
         parser = SchemaConfigParser(MySchema())
@@ -366,7 +377,6 @@ class TestInterpolation(unittest.TestCase):
             value = parser._interpolate_value('__main__', 'foo')
             self.assertEqual(value, None)
 
-
     def test_get_with_raw_value(self):
         class MySchema(Schema):
             foo = StringConfigOption(raw=True)
@@ -381,7 +391,14 @@ class TestInterpolation(unittest.TestCase):
     def test_interpolate_parse_dict(self):
         class MySchema(Schema):
             foo = DictConfigOption(spec={'a': IntConfigOption()})
-        config = StringIO("[__noschema__]\nbar=4\n[__main__]\nfoo=mydict\n[mydict]\na=%(bar)s")
+        config = StringIO(textwrap.dedent("""
+            [__noschema__]
+            bar=4
+            [__main__]
+            foo=mydict
+            [mydict]
+            a=%(bar)s
+            """))
         expected = {'__main__': {'foo': {'a': 4}}}
 
         parser = SchemaConfigParser(MySchema())
@@ -512,14 +529,17 @@ class TestSchemaConfigParser(unittest.TestCase):
         self.assertEqual(value, expected_value)
 
     def test_parse_invalid_section(self):
-        self.assertRaises(NoSectionError, self.parser.parse, 'bar', 'baz', '1')
+        self.assertRaises(NoSectionError, self.parser.parse,
+            'bar', 'baz', '1')
 
     def test_default_values(self):
         class MySchema(Schema):
             foo = BoolConfigOption(default=True)
+
             class bar(ConfigSection):
                 baz = IntConfigOption()
                 bla = StringConfigOption(default='hello')
+
         schema = MySchema()
         config = StringIO("[bar]\nbaz=123")
         expected_values = {'__main__': {'foo': True},
@@ -529,7 +549,9 @@ class TestSchemaConfigParser(unittest.TestCase):
         self.assertEquals(expected_values, parser.values())
 
         config = StringIO("[bar]\nbla=123")
-        expected = {'__main__': {'foo': True}, 'bar': {'baz': 0, 'bla': '123'}}
+        expected = {
+            '__main__': {'foo': True},
+            'bar': {'baz': 0, 'bla': '123'}}
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
         self.assertEquals(expected, parser.values())
@@ -698,7 +720,8 @@ class TestSchemaConfigParser(unittest.TestCase):
             f.close()
 
             self.parser.read(filename)
-            self.assertEqual(self.parser.values(), {'__main__': {'foo': u'€'}})
+            self.assertEqual(self.parser.values(),
+                {'__main__': {'foo': u'€'}})
         finally:
             # destroy config file
             os.remove(filename)
@@ -742,10 +765,13 @@ class TestSchemaConfigParser(unittest.TestCase):
     def test_write(self):
         class MySchema(Schema):
             foo = StringConfigOption()
+
             class DEFAULTSECT(ConfigSection):
                 pass
+
         parser = SchemaConfigParser(MySchema())
-        expected = u"[{0}]\nbaz = 2\n\n[__main__]\nfoo = bar".format(DEFAULTSECT)
+        expected = u"[{0}]\nbaz = 2\n\n[__main__]\nfoo = bar".format(
+            DEFAULTSECT)
         config = StringIO(expected)
         parser.readfp(config)
 
@@ -873,7 +899,8 @@ class TestParserIsValid(unittest.TestCase):
             foo = IntConfigOption()
 
         config = StringIO("[__main__]\nfoo=5\nbar=6")
-        errors = ["Configuration includes invalid options for section '__main__': bar"]
+        errors = ["Configuration includes invalid options for "
+                  "section '__main__': bar"]
         expected = (False, errors)
 
         parser = SchemaConfigParser(MySchema())
@@ -972,7 +999,8 @@ baz=42
 
     def test_extra_sections_with_nested_dicts_strict(self):
         class MySchema(Schema):
-            foo = DictConfigOption(spec={'bar': DictConfigOption()}, strict=True)
+            foo = DictConfigOption(spec={'bar': DictConfigOption()},
+                strict=True)
 
         config = StringIO("""
 [__main__]
@@ -1015,8 +1043,7 @@ whaz = 2
         self.assertEqual(parser.values(),
             {'__main__': {'foo': [
                 {'bar': {'wham': '1'}},
-                {'baz': {'whaz': '2'}}
-            ]}})
+                {'baz': {'whaz': '2'}}]}})
         self.assertTrue(parser.is_valid())
 
     def test_extra_sections_when_dict_with_nested_lines_dicts(self):
@@ -1075,8 +1102,7 @@ swoosh = 4
         self.assertEqual(parser.values(),
             {'__main__': {'foo': [
                 {'bar': [{'wham': '1'}, {'whaz': '2'}]},
-                {'baz': [{'whoosh': '3'}, {'swoosh': '4'}]}
-            ]}})
+                {'baz': [{'whoosh': '3'}, {'swoosh': '4'}]}]}})
         self.assertTrue(parser.is_valid())
 
     def test_multiple_extra_sections(self):
@@ -1093,7 +1119,8 @@ swoosh = 4
         self.assertTrue(parser.is_valid())
 
     def test_noschema_section(self):
-        config = StringIO("[__main__]\nfoo=%(bar)s\n[__noschema__]\nbar=hello")
+        config = StringIO(
+            "[__main__]\nfoo=%(bar)s\n[__noschema__]\nbar=hello")
         parser = SchemaConfigParser(self.schema)
         parser.readfp(config)
         parser.parse_all()

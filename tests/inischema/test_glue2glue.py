@@ -1,22 +1,23 @@
 # -*- coding: utf-8 -*-
 ###############################################################################
-# 
+#
 # configglue -- glue for your apps' configuration
-# 
+#
 # A library for simple, DRY configuration of applications
-# 
+#
 # (C) 2009--2010 by Canonical Ltd.
 # originally by John R. Lenton <john.lenton@canonical.com>
 # incorporating schemaconfig as configglue.pyschema
 # schemaconfig originally by Ricardo Kirkner <ricardo.kirkner@canonical.com>
-# 
+#
 # Released under the BSD License (see the file LICENSE)
-# 
+#
 # For bug reports, support, and new releases: http://launchpad.net/configglue
-# 
+#
 ###############################################################################
 
 import sys
+import textwrap
 import unittest
 from StringIO import StringIO
 
@@ -64,7 +65,12 @@ class TestGlueConvertor(unittest.TestCase):
         self.assertEqual(vars(cg), vars(sg))
 
     def test_parser_unicode(self):
-        s = "[__main__]\nbar = zátrapa\nbar.parser = unicode\nbar.parser.args = utf-8"
+        s = textwrap.dedent("""
+            [__main__]
+            bar = zátrapa
+            bar.parser = unicode
+            bar.parser.args = utf-8
+        """)
         _, cg, _ = configglue(StringIO(s))
         _, sg, _ = schemaconfigglue(ini2schema(StringIO(s)))
         self.assertEqual(vars(cg), vars(sg))
