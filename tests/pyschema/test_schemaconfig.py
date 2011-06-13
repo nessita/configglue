@@ -94,6 +94,7 @@ class TestSection(unittest.TestCase):
     cls = Section
 
     def test_repr_name(self):
+        """Test Section repr method."""
         sect = self.cls()
         expected = "<{0}>".format(self.cls.__name__)
         self.assertEqual(repr(sect), expected)
@@ -103,6 +104,7 @@ class TestSection(unittest.TestCase):
         self.assertEqual(repr(sect), expected)
 
     def test_equal(self):
+        """Test Section equality."""
         sec1 = self.cls()
         sec2 = self.cls(name='sec2')
 
@@ -111,7 +113,7 @@ class TestSection(unittest.TestCase):
         self.assertNotEqual(sec1, sec2)
 
     def test_has_option(self):
-        """Test ConfigSection has_option."""
+        """Test Section has_option method."""
         class MySection(self.cls):
             foo = IntOption()
 

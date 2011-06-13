@@ -912,14 +912,17 @@ class TestSection(unittest.TestCase):
     cls = Section
 
     def test_default_name(self):
+        """Test Section default name."""
         section = self.cls()
         self.assertEqual(section.name, '')
 
     def test_custom_name(self):
+        """Test Section custom name."""
         section = self.cls(name='foo')
         self.assertEqual(section.name, 'foo')
 
     def test_equality(self):
+        """Test Section equality."""
         section1 = self.cls()
         section2 = self.cls()
         section3 = self.cls(name='foo')
@@ -932,6 +935,7 @@ class TestSection(unittest.TestCase):
         self.assertNotEqual(section1, section4)
 
     def test_repr(self):
+        """Test Section repr."""
         section1 = self.cls()
         section2 = self.cls(name='foo')
 
@@ -940,6 +944,7 @@ class TestSection(unittest.TestCase):
             '<{0} foo>'.format(self.cls.__name__))
 
     def test_has_option(self):
+        """Test Section has_option method."""
         section = self.cls()
         section.foo = IntOption()
         section.bar = 4
@@ -948,6 +953,7 @@ class TestSection(unittest.TestCase):
         self.assertEqual(section.has_option('bar'), False)
 
     def test_option(self):
+        """Test Section option method."""
         section = self.cls()
         section.foo = IntOption()
 
@@ -955,6 +961,7 @@ class TestSection(unittest.TestCase):
         self.assertRaises(AssertionError, section.option, 'bar')
 
     def test_options(self):
+        """Test Section options method."""
         section = self.cls()
         section.foo = IntOption()
         section.bar = 4
