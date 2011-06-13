@@ -22,6 +22,7 @@ from warnings import warn
 
 __all__ = [
     'BoolConfigOption',
+    'BoolOption',
     'ConfigOption',
     'ConfigSection',
     'DictConfigOption',
@@ -289,7 +290,7 @@ class ConfigOption(object):
         return str(value)
 
 
-class BoolConfigOption(ConfigOption):
+class BoolOption(ConfigOption):
     """A ConfigOption that is parsed into a bool"""
 
     def _get_default(self):
@@ -595,4 +596,8 @@ class StringConfigOption(StringOption):
 
 
 class IntConfigOption(IntOption):
+    __metaclass__ = DeprecatedOption
+
+
+class BoolConfigOption(BoolOption):
     __metaclass__ = DeprecatedOption

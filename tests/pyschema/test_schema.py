@@ -22,6 +22,7 @@ from StringIO import StringIO
 from configglue.pyschema.parser import SchemaConfigParser
 from configglue.pyschema.schema import (
     BoolConfigOption,
+    BoolOption,
     ConfigOption,
     ConfigSection,
     DictConfigOption,
@@ -39,20 +40,20 @@ from configglue.pyschema.schema import (
 class TestSchema(unittest.TestCase):
     def test_sections(self):
         class MySchema(Schema):
-            foo = BoolConfigOption()
+            foo = BoolOption()
 
         class MyOtherSchema(Schema):
             class web(ConfigSection):
                 bar = IntOption()
 
             class froo(ConfigSection):
-                twaddle = LinesConfigOption(item=BoolConfigOption())
+                twaddle = LinesConfigOption(item=BoolOption())
 
         class MyThirdSchema(Schema):
             bar = IntOption()
 
             class froo(ConfigSection):
-                twaddle = LinesConfigOption(item=BoolConfigOption())
+                twaddle = LinesConfigOption(item=BoolOption())
 
         schema = MySchema()
         names = set(s.name for s in schema.sections())
@@ -69,7 +70,7 @@ class TestSchema(unittest.TestCase):
     def test_schema_validation(self):
         class BorkenSchema(Schema):
             class __main__(ConfigSection):
-                foo = BoolConfigOption()
+                foo = BoolOption()
 
         class SomeSchema(Schema):
             class mysection(ConfigSection):
@@ -83,7 +84,7 @@ class TestSchema(unittest.TestCase):
 
     def test_names(self):
         class MySchema(Schema):
-            foo = BoolConfigOption()
+            foo = BoolOption()
 
             class bar(ConfigSection):
                 baz = IntOption()
@@ -97,7 +98,7 @@ class TestSchema(unittest.TestCase):
 
     def test_options(self):
         class MySchema(Schema):
-            foo = BoolConfigOption()
+            foo = BoolOption()
 
             class bar(ConfigSection):
                 baz = IntOption()
@@ -356,10 +357,12 @@ class TestIntConfigOption(TestIntOption):
     cls = IntConfigOption
 
 
-class TestBoolConfigOption(unittest.TestCase):
+class TestBoolOption(unittest.TestCase):
+    cls = BoolOption
+
     def test_parse_bool(self):
         class MySchema(Schema):
-            foo = BoolConfigOption()
+            foo = self.cls()
 
         config = StringIO("[__main__]\nfoo = Yes")
         expected_values = {'__main__': {'foo': True}}
@@ -384,16 +387,20 @@ class TestBoolConfigOption(unittest.TestCase):
         self.assertRaises(ValueError, parser.values)
 
     def test_default(self):
-        opt = BoolConfigOption()
+        opt = self.cls()
         self.assertEqual(opt.default, False)
 
     def test_validate_bool(self):
-        opt = BoolConfigOption()
+        opt = self.cls()
         self.assertEqual(opt.validate(False), True)
 
     def test_validate_nonbool(self):
-        opt = BoolConfigOption()
+        opt = self.cls()
         self.assertEqual(opt.validate(''), False)
+
+
+class TestBoolConfigOption(TestBoolOption):
+    cls = BoolConfigOption
 
 
 class TestLinesConfigOption(unittest.TestCase):
@@ -410,7 +417,7 @@ class TestLinesConfigOption(unittest.TestCase):
 
     def test_parse_bool_lines(self):
         class MySchema(Schema):
-            foo = LinesConfigOption(item=BoolConfigOption())
+            foo = LinesConfigOption(item=BoolOption())
 
         schema = MySchema()
         config = StringIO("[__main__]\nfoo = tRuE\n No\n 0\n 1")
@@ -421,7 +428,7 @@ class TestLinesConfigOption(unittest.TestCase):
 
     def test_parse_bool_empty_lines(self):
         class MySchema(Schema):
-            foo = LinesConfigOption(item=BoolConfigOption())
+            foo = LinesConfigOption(item=BoolOption())
 
         schema = MySchema()
         config = StringIO("[__main__]\nfoo =")
@@ -432,7 +439,7 @@ class TestLinesConfigOption(unittest.TestCase):
 
     def test_parse_bool_invalid_lines(self):
         class MySchema(Schema):
-            foo = LinesConfigOption(item=BoolConfigOption())
+            foo = LinesConfigOption(item=BoolOption())
 
         schema = MySchema()
         config = StringIO("[__main__]\nfoo = bla")
@@ -542,7 +549,7 @@ class TestDictConfigOption(unittest.TestCase):
         self.assertEqual(opt.spec, {})
         self.assertEqual(opt.strict, False)
 
-        spec = {'a': IntOption(), 'b': BoolConfigOption()}
+        spec = {'a': IntOption(), 'b': BoolOption()}
         opt = DictConfigOption(spec=spec)
         self.assertEqual(opt.spec, spec)
         self.assertEqual(opt.strict, False)
@@ -576,7 +583,7 @@ baz=42
             foo = DictConfigOption(spec={
                 'bar': StringOption(),
                 'baz': IntOption(),
-                'bla': BoolConfigOption(),
+                'bla': BoolOption(),
             })
 
         config = StringIO("""[__main__]
@@ -600,7 +607,7 @@ bla=Yes
             foo = DictConfigOption(spec={
                 'bar': StringOption(),
                 'baz': IntOption(),
-                'bla': BoolConfigOption(),
+                'bla': BoolOption(),
             })
 
         config = StringIO("""[__main__]
@@ -728,7 +735,7 @@ class TestLinesOfDictConfigOption(unittest.TestCase):
                 spec={
                     'bar': StringOption(),
                     'baz': IntOption(),
-                    'bla': BoolConfigOption(),
+                    'bla': BoolOption(),
                 }))
 
         config = StringIO("""[__main__]
@@ -758,7 +765,7 @@ class TestDictWithDicts(unittest.TestCase):
     def test_parse_dict_with_dicts(self):
         innerspec = {'bar': StringOption(),
                      'baz': IntOption(),
-                     'bla': BoolConfigOption(),
+                     'bla': BoolOption(),
                     }
         spec = {'name': StringOption(),
                 'size': IntOption(),

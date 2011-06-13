@@ -42,7 +42,7 @@ from configglue.pyschema.parser import (
     SchemaValidationError,
 )
 from configglue.pyschema.schema import (
-    BoolConfigOption,
+    BoolOption,
     ConfigSection,
     DictConfigOption,
     IntOption,
@@ -179,7 +179,7 @@ class TestInterpolation(unittest.TestCase):
     def test_basic_interpolate(self):
         class MySchema(Schema):
             foo = StringOption()
-            bar = BoolConfigOption()
+            bar = BoolOption()
         config = StringIO('[__main__]\nbar=%(foo)s\nfoo=True')
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config, 'my.cfg')
@@ -189,7 +189,7 @@ class TestInterpolation(unittest.TestCase):
     def test_interpolate_missing_option(self):
         class MySchema(Schema):
             foo = StringOption()
-            bar = BoolConfigOption()
+            bar = BoolOption()
 
         section = '__main__'
         option = 'foo'
@@ -202,7 +202,7 @@ class TestInterpolation(unittest.TestCase):
     def test_interpolate_too_deep(self):
         class MySchema(Schema):
             foo = StringOption()
-            bar = BoolConfigOption()
+            bar = BoolOption()
 
         section = '__main__'
         option = 'foo'
@@ -215,7 +215,7 @@ class TestInterpolation(unittest.TestCase):
     def test_interpolate_incomplete_format(self):
         class MySchema(Schema):
             foo = StringOption()
-            bar = BoolConfigOption()
+            bar = BoolOption()
 
         section = '__main__'
         option = 'foo'
@@ -277,7 +277,7 @@ class TestInterpolation(unittest.TestCase):
 
     def test_get_interpolation_keys_bool(self):
         class MySchema(Schema):
-            foo = BoolConfigOption()
+            foo = BoolOption()
         config = StringIO("[__main__]\nfoo=%(bar)s")
         expected = ('%(bar)s', set(['bar']))
 
@@ -534,7 +534,7 @@ class TestSchemaConfigParser(unittest.TestCase):
 
     def test_default_values(self):
         class MySchema(Schema):
-            foo = BoolConfigOption(default=True)
+            foo = BoolOption(default=True)
 
             class bar(ConfigSection):
                 baz = IntOption()
@@ -747,7 +747,7 @@ class TestSchemaConfigParser(unittest.TestCase):
     def test_set_non_string(self):
         class MySchema(Schema):
             foo = IntOption()
-            bar = BoolConfigOption()
+            bar = BoolOption()
         parser = SchemaConfigParser(MySchema())
         parser.parse_all()
 

@@ -104,10 +104,10 @@ Option types
 
 .. currentmodule:: configglue.pyschema.schema
 
-``BoolConfigOption``
+``BoolOption``
 --------------------
 
-.. class:: BoolConfigOption([**attributes])
+.. class:: BoolOption([**attributes])
 
 A true/false option.
 
