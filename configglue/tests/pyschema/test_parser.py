@@ -321,6 +321,7 @@ class TestInterpolation(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_get_interpolation_keys_tuple_lines(self):
+        """Test get_interpolation_keys for a list of tuples."""
         class MySchema(Schema):
             foo = ListOption(item=TupleOption(2))
         config = StringIO(
