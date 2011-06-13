@@ -492,7 +492,7 @@ class TestListOption(unittest.TestCase):
         self.assertEqual(opt.validate(''), False)
 
 
-class LinesConfigOption(ListOption):
+class TestLinesConfigOption(TestListOption):
     cls = LinesConfigOption
 
 
