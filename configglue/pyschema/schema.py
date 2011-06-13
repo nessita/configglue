@@ -560,6 +560,13 @@ class DictOption(Option):
         return isinstance(value, dict)
 
     def get_extra_sections(self, section, parser):
+        """Return the list of implicit sections.
+
+        Implicit sections are sections defined in the configuration file
+        that are not defined in the schema, but used as helper sections for
+        defining a dictionary.
+
+        """
         sections = []
         for option in parser.options(section):
             option_obj = self.spec.get(option, self.item)
