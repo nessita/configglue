@@ -151,19 +151,21 @@ For example::
 
     class BaseSchema(pyschema.Schema):
         option1 = pyschema.IntOption()
-        class section1(pyschema.Section):
+
+        class MySection(pyschema.Section):
             option1 = pyschema.BoolOption()
 
 
     class ChildSchema(BaseSchema):
         option2 = pyschema.IntOption()
-        class section1(BaseSchema.section1):
+
+        class MySection(BaseSchema.MySection):
             option2 = IntOption()
 
 In this example :class:`ChildSchema` will have two top-level options,
-:attr:`option1` and :attr:`option2`, and one section :attr:`section1`, which
-will have also two options within in (:attr:`section1.option1` and
-:attr:`section1.option2`). So, defining :class:`ChildSchema` in this way
+:attr:`option1` and :attr:`option2`, and one section :attr:`MySection`, which
+will have also two options within in (:attr:`MySection.option1` and
+:attr:`MySection.option2`). So, defining :class:`ChildSchema` in this way
 produces the same result as explicitely describing each attribute, as
 expected::
 
@@ -172,7 +174,8 @@ expected::
     class ChildSchema(pyschema.Schema):
         option1 = pyschema.IntOption()
         option2 = pyschema.IntOption()
-        class section1(pyschema.Section):
+
+        class MySection(pyschema.Section):
             option1 = pyschema.BoolOption()
             option2 = IntOption()
 

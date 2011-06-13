@@ -107,10 +107,10 @@ class TestSection(unittest.TestCase):
         self.assertNotEqual(sec1, sec2)
 
     def test_has_option(self):
-        class sec1(self.cls):
+        class MySection(self.cls):
             foo = IntOption()
 
-        sec1 = sec1()
+        sec1 = MySection()
         self.assertTrue(sec1.has_option('foo'))
         self.assertFalse(sec1.has_option('bar'))
 
