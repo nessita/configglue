@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 ###############################################################################
-# 
+#
 # configglue -- glue for your apps' configuration
-# 
+#
 # A library for simple, DRY configuration of applications
-# 
+#
 # (C) 2009--2010 by Canonical Ltd.
 # originally by John R. Lenton <john.lenton@canonical.com>
 # incorporating schemaconfig as configglue.pyschema
 # schemaconfig originally by Ricardo Kirkner <ricardo.kirkner@canonical.com>
-# 
+#
 # Released under the BSD License (see the file LICENSE)
-# 
+#
 # For bug reports, support, and new releases: http://launchpad.net/configglue
-# 
+#
 ###############################################################################
 
 import unittest
@@ -206,7 +206,8 @@ class TestSchemaConfigGlue(unittest.TestCase):
 class ConfigglueTestCase(unittest.TestCase):
     @patch('configglue.pyschema.glue.SchemaConfigParser')
     @patch('configglue.pyschema.glue.schemaconfigglue')
-    def test_configglue_no_errors(self, mock_schemaconfigglue, mock_schema_parser):
+    def test_configglue_no_errors(self, mock_schemaconfigglue,
+        mock_schema_parser):
         # prepare mocks
         expected_schema_parser = Mock()
         expected_schema_parser.is_valid.return_value = (True, None)
@@ -232,14 +233,16 @@ class ConfigglueTestCase(unittest.TestCase):
         mock_schema_parser.assert_called_with(MySchema())
         mock_schema_parser.return_value.read.assert_called_with(configs)
         # the other attributes are the result of calling schemaconfigglue
-        mock_schemaconfigglue.assert_called_with(expected_schema_parser, op=None)
+        mock_schemaconfigglue.assert_called_with(expected_schema_parser,
+            op=None)
         self.assertEqual(glue.option_parser, expected_option_parser)
         self.assertEqual(glue.options, expected_options)
         self.assertEqual(glue.args, expected_args)
 
     @patch('configglue.pyschema.glue.SchemaConfigParser')
     @patch('configglue.pyschema.glue.schemaconfigglue')
-    def test_configglue_with_errors(self, mock_schemaconfigglue, mock_schema_parser):
+    def test_configglue_with_errors(self, mock_schemaconfigglue,
+        mock_schema_parser):
         # prepare mocks
         expected_schema_parser = Mock()
         expected_schema_parser.is_valid.return_value = (False, ['some error'])
@@ -265,7 +268,8 @@ class ConfigglueTestCase(unittest.TestCase):
         mock_schema_parser.assert_called_with(MySchema())
         mock_schema_parser.return_value.read.assert_called_with(configs)
         # the other attributes are the result of calling schemaconfigglue
-        mock_schemaconfigglue.assert_called_with(expected_schema_parser, op=None)
+        mock_schemaconfigglue.assert_called_with(expected_schema_parser,
+            op=None)
         self.assertEqual(glue.option_parser, expected_option_parser)
         expected_option_parser.error.assert_called_with('some error')
         self.assertEqual(glue.options, expected_options)
@@ -282,8 +286,8 @@ class ConfigglueTestCase(unittest.TestCase):
         expected_option_parser = mock_option_parser.return_value
         expected_options = Mock()
         expected_args = Mock()
-        mock_schemaconfigglue.return_value = (expected_option_parser, expected_options,
-            expected_args)
+        mock_schemaconfigglue.return_value = (expected_option_parser,
+            expected_options, expected_args)
         mock_schema_parser.return_value = expected_schema_parser
 
         # define the inputs
@@ -307,4 +311,3 @@ class ConfigglueTestCase(unittest.TestCase):
         self.assertEqual(glue.option_parser, expected_option_parser)
         self.assertEqual(glue.options, expected_options)
         self.assertEqual(glue.args, expected_args)
-

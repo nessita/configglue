@@ -1,18 +1,18 @@
 ###############################################################################
-# 
+#
 # configglue -- glue for your apps' configuration
-# 
+#
 # A library for simple, DRY configuration of applications
-# 
+#
 # (C) 2009--2010 by Canonical Ltd.
 # originally by John R. Lenton <john.lenton@canonical.com>
 # incorporating schemaconfig as configglue.pyschema
 # schemaconfig originally by Ricardo Kirkner <ricardo.kirkner@canonical.com>
-# 
+#
 # Released under the BSD License (see the file LICENSE)
-# 
+#
 # For bug reports, support, and new releases: http://launchpad.net/configglue
-# 
+#
 ###############################################################################
 
 # in testfiles, putting docstrings on methods messes up with the
@@ -23,6 +23,7 @@ from ConfigParser import RawConfigParser
 from StringIO import StringIO
 
 from configglue.inischema.attributed import AttributedConfigParser
+
 
 class BaseTest(unittest.TestCase):
     """ Base class to keep common set-up """
@@ -39,6 +40,7 @@ bar.blah    = 23
         self.config = AttributedConfigParser()
         self.config.readfp(StringIO(self.config_string))
 
+
 class TestAttributed(BaseTest):
     """ pretty basic tests of AttributedConfigParser """
     def test_config_before_parsing_is_plain(self):
@@ -48,6 +50,7 @@ class TestAttributed(BaseTest):
                           for section in self.config.sections()],
                          [(section, sorted(rawConfig.items(section)))
                           for section in rawConfig.sections()])
+
     def test_config_after_parsing_is_attributed(self):
         self.config.parse_all()
         self.assertEqual(self.config.get('xyzzy',

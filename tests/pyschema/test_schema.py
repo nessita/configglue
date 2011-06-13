@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 ###############################################################################
-# 
+#
 # configglue -- glue for your apps' configuration
-# 
+#
 # A library for simple, DRY configuration of applications
-# 
+#
 # (C) 2009--2010 by Canonical Ltd.
 # originally by John R. Lenton <john.lenton@canonical.com>
 # incorporating schemaconfig as configglue.pyschema
 # schemaconfig originally by Ricardo Kirkner <ricardo.kirkner@canonical.com>
-# 
+#
 # Released under the BSD License (see the file LICENSE)
-# 
+#
 # For bug reports, support, and new releases: http://launchpad.net/configglue
-# 
+#
 ###############################################################################
 
 import unittest
@@ -42,11 +42,13 @@ class TestSchema(unittest.TestCase):
         class MyOtherSchema(Schema):
             class web(ConfigSection):
                 bar = IntConfigOption()
+
             class froo(ConfigSection):
                 twaddle = LinesConfigOption(item=BoolConfigOption())
 
         class MyThirdSchema(Schema):
             bar = IntConfigOption()
+
             class froo(ConfigSection):
                 twaddle = LinesConfigOption(item=BoolConfigOption())
 
@@ -80,6 +82,7 @@ class TestSchema(unittest.TestCase):
     def test_names(self):
         class MySchema(Schema):
             foo = BoolConfigOption()
+
             class bar(ConfigSection):
                 baz = IntConfigOption()
 
@@ -93,6 +96,7 @@ class TestSchema(unittest.TestCase):
     def test_options(self):
         class MySchema(Schema):
             foo = BoolConfigOption()
+
             class bar(ConfigSection):
                 baz = IntConfigOption()
 
@@ -111,6 +115,7 @@ class TestSchema(unittest.TestCase):
     def test_equal(self):
         class MySchema(Schema):
             foo = IntConfigOption()
+
         class OtherSchema(Schema):
             bar = IntConfigOption()
 
@@ -122,8 +127,10 @@ class TestSchemaHelpers(unittest.TestCase):
     def test_get_config_objects(self):
         class MySchema(Schema):
             foo = IntConfigOption()
+
             class one(ConfigSection):
                 bar = IntConfigOption()
+
             two = ConfigSection()
             two.bam = IntConfigOption()
 
@@ -179,9 +186,11 @@ class TestSchemaInheritance(unittest.TestCase):
         class SchemaA(Schema):
             class foo(ConfigSection):
                 bar = IntConfigOption()
+
         class SchemaB(SchemaA):
             class baz(ConfigSection):
                 wham = IntConfigOption()
+
         class SchemaC(SchemaA):
             class bar(ConfigSection):
                 woof = IntConfigOption()
@@ -217,6 +226,7 @@ class TestSchemaInheritance(unittest.TestCase):
         class SchemaA(Schema):
             class foo(ConfigSection):
                 bar = IntConfigOption()
+
             bar = IntConfigOption()
 
         class SchemaB(SchemaA):
@@ -305,6 +315,7 @@ class TestIntConfigOption(unittest.TestCase):
     def test_parse_int(self):
         class MySchema(Schema):
             foo = IntConfigOption()
+
         config = StringIO("[__main__]\nfoo = 42")
         expected_values = {'__main__': {'foo': 42}}
         schema = MySchema()
@@ -339,6 +350,7 @@ class TestBoolConfigOption(unittest.TestCase):
     def test_parse_bool(self):
         class MySchema(Schema):
             foo = BoolConfigOption()
+
         config = StringIO("[__main__]\nfoo = Yes")
         expected_values = {'__main__': {'foo': True}}
         schema = MySchema()
@@ -389,6 +401,7 @@ class TestLinesConfigOption(unittest.TestCase):
     def test_parse_bool_lines(self):
         class MySchema(Schema):
             foo = LinesConfigOption(item=BoolConfigOption())
+
         schema = MySchema()
         config = StringIO("[__main__]\nfoo = tRuE\n No\n 0\n 1")
         expected_values = {'__main__': {'foo': [True, False, False, True]}}
@@ -399,6 +412,7 @@ class TestLinesConfigOption(unittest.TestCase):
     def test_parse_bool_empty_lines(self):
         class MySchema(Schema):
             foo = LinesConfigOption(item=BoolConfigOption())
+
         schema = MySchema()
         config = StringIO("[__main__]\nfoo =")
         parser = SchemaConfigParser(schema)
@@ -409,6 +423,7 @@ class TestLinesConfigOption(unittest.TestCase):
     def test_parse_bool_invalid_lines(self):
         class MySchema(Schema):
             foo = LinesConfigOption(item=BoolConfigOption())
+
         schema = MySchema()
         config = StringIO("[__main__]\nfoo = bla")
         parser = SchemaConfigParser(schema)
@@ -428,6 +443,7 @@ class TestLinesConfigOption(unittest.TestCase):
         class MySchema(Schema):
             foo = LinesConfigOption(item=StringConfigOption(),
                                     remove_duplicates=True)
+
         schema = MySchema()
         config = StringIO("[__main__]\nfoo = bla\n blah\n bla")
         parser = SchemaConfigParser(schema)
@@ -439,6 +455,7 @@ class TestLinesConfigOption(unittest.TestCase):
         class MyOtherSchema(Schema):
             foo = LinesConfigOption(item=DictConfigOption(),
                                     remove_duplicates=True)
+
         schema = MyOtherSchema()
         config = StringIO("[__main__]\nfoo = bla\n bla\n[bla]\nbar = baz")
         parser = SchemaConfigParser(schema)
@@ -478,6 +495,7 @@ class TestTupleConfigOption(unittest.TestCase):
     def test_parse_tuple(self):
         class MySchema(Schema):
             foo = TupleConfigOption(length=4)
+
         config = StringIO('[__main__]\nfoo = 1, 2, 3, 4')
         expected_values = {'__main__': {'foo': ('1', '2', '3', '4')}}
         schema = MySchema()
@@ -550,6 +568,7 @@ baz=42
                 'baz': IntConfigOption(),
                 'bla': BoolConfigOption(),
             })
+
         config = StringIO("""[__main__]
 foo = mydict
 [mydict]
@@ -559,9 +578,7 @@ bla=Yes
 """)
         expected_values = {
             '__main__': {
-                'foo': {'bar': 'baz', 'baz': 42, 'bla': True}
-            }
-        }
+                'foo': {'bar': 'baz', 'baz': 42, 'bla': True}}}
 
         schema = MySchema()
         parser = SchemaConfigParser(schema)
@@ -575,6 +592,7 @@ bla=Yes
                 'baz': IntConfigOption(),
                 'bla': BoolConfigOption(),
             })
+
         config = StringIO("""[__main__]
 foo = mydict
 [mydict]
@@ -702,6 +720,7 @@ class TestLinesOfDictConfigOption(unittest.TestCase):
                     'baz': IntConfigOption(),
                     'bla': BoolConfigOption(),
                 }))
+
         config = StringIO("""[__main__]
 foo = mylist0
       mylist1
@@ -734,8 +753,10 @@ class TestDictWithDicts(unittest.TestCase):
         spec = {'name': StringConfigOption(),
                 'size': IntConfigOption(),
                 'options': DictConfigOption(spec=innerspec)}
+
         class MySchema(Schema):
             foo = DictConfigOption(spec=spec)
+
         config = StringIO("""[__main__]
 foo = outerdict
 [outerdict]
@@ -758,6 +779,7 @@ class TestListOfTuples(unittest.TestCase):
     def setUp(self):
         class MySchema(Schema):
             foo = LinesConfigOption(item=TupleConfigOption(length=3))
+
         schema = MySchema()
         self.parser = SchemaConfigParser(schema)
 
@@ -778,4 +800,3 @@ class TestListOfTuples(unittest.TestCase):
         expected_values = {'__main__': {'foo': [()]}}
         self.parser.readfp(config)
         self.assertEqual(self.parser.values(), expected_values)
-

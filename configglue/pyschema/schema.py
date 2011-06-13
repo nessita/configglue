@@ -1,18 +1,18 @@
 ###############################################################################
-# 
+#
 # configglue -- glue for your apps' configuration
-# 
+#
 # A library for simple, DRY configuration of applications
-# 
+#
 # (C) 2009--2010 by Canonical Ltd.
 # originally by John R. Lenton <john.lenton@canonical.com>
 # incorporating schemaconfig as configglue.pyschema
 # schemaconfig originally by Ricardo Kirkner <ricardo.kirkner@canonical.com>
-# 
+#
 # Released under the BSD License (see the file LICENSE)
-# 
+#
 # For bug reports, support, and new releases: http://launchpad.net/configglue
-# 
+#
 ###############################################################################
 
 from copy import deepcopy
@@ -95,7 +95,8 @@ class Schema(object):
 
     def _add_option(self, name, option):
         """Add a top-level option to the schema."""
-        section = self._sections.setdefault('__main__', ConfigSection(name='__main__'))
+        section = self._sections.setdefault('__main__',
+            ConfigSection(name='__main__'))
         option.section = section
         setattr(section, name, option)
 
@@ -225,8 +226,8 @@ class ConfigOption(object):
 
     require_parser = False
 
-    def __init__(self, name='', raw=False, default=NO_DEFAULT, fatal=False, help='',
-                 section=None, action='store'):
+    def __init__(self, name='', raw=False, default=NO_DEFAULT, fatal=False,
+                 help='', section=None, action='store'):
         self.name = name
         self.raw = raw
         self.fatal = fatal
@@ -457,7 +458,8 @@ class TupleConfigOption(ConfigOption):
             if len(parts) == self.length:
                 result = tuple(parts)
             else:
-                raise ValueError("Tuples need to be %d items long" % self.length)
+                raise ValueError(
+                    "Tuples need to be %d items long" % self.length)
         else:
             result = tuple(parts)
             # length is 0, so no length validation
