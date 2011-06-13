@@ -455,7 +455,7 @@ class TestListOption(unittest.TestCase):
         self.assertEqual(parser.values(), expected_values)
 
     def test_parse_bool_lines(self):
-        """Test LinesConfigOption parse a list of booleans."""
+        """Test ListOption parse a list of booleans."""
         class MySchema(Schema):
             foo = self.cls(item=BoolOption())
 
@@ -467,7 +467,7 @@ class TestListOption(unittest.TestCase):
         self.assertEqual(expected_values, parser.values())
 
     def test_parse_bool_empty_lines(self):
-        """Test LinesConfigOption parse an empty list of booleans."""
+        """Test ListOption parse an empty list of booleans."""
         class MySchema(Schema):
             foo = self.cls(item=BoolOption())
 
@@ -479,7 +479,7 @@ class TestListOption(unittest.TestCase):
         self.assertEqual(expected_values, parser.values())
 
     def test_parse_bool_invalid_lines(self):
-        """Test LinesConfigOption parse an invalid list of booleans."""
+        """Test ListOption parse an invalid list of booleans."""
         class MySchema(Schema):
             foo = self.cls(item=BoolOption())
 
@@ -512,7 +512,7 @@ class TestListOption(unittest.TestCase):
                           parser.values())
 
     def test_remove_dict_duplicates(self):
-        """Test LinesConfigOption remove_duplicates with DictOption."""
+        """Test ListOption remove_duplicates with DictOption."""
         class MyOtherSchema(Schema):
             foo = self.cls(item=DictOption(), remove_duplicates=True)
 
