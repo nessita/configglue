@@ -46,7 +46,7 @@ _internal = object.__dict__.keys() + ['__module__']
 
 
 def get_config_objects(obj):
-    """Return the list of ConfigSection- and Option-derived objects."""
+    """Return the list of Section- and Option-derived objects."""
     objects = []
     for name, obj in getmembers(obj):
         if isinstance(obj, (Section, Option)):
@@ -125,7 +125,6 @@ class Schema(object):
         return is_valid
 
     def has_section(self, name):
-        """Return whether the schema as a given section."""
         """Return True if a Section with the given name is available"""
         return name in self._sections.keys()
 
