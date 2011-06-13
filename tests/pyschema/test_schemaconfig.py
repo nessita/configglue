@@ -41,6 +41,7 @@ class TestOption(unittest.TestCase):
     cls = Option
 
     def test_repr_name(self):
+        """Test Option repr with name."""
         opt = self.cls()
         expected = "<{0}>".format(self.cls.__name__)
         self.assertEqual(repr(opt), expected)
@@ -55,6 +56,7 @@ class TestOption(unittest.TestCase):
         self.assertEqual(repr(opt), expected)
 
     def test_repr_extra(self):
+        """Test Option repr with other attributes."""
         opt = self.cls(name='name', raw=True)
         expected = "<{0} name raw>".format(self.cls.__name__)
         self.assertEqual(repr(opt), expected)
@@ -68,10 +70,12 @@ class TestOption(unittest.TestCase):
         self.assertEqual(repr(opt), expected)
 
     def test_parse(self):
+        """Test Option parse."""
         opt = self.cls()
         self.assertRaises(NotImplementedError, opt.parse, '')
 
     def test_equal(self):
+        """Test Option equality."""
         opt1 = self.cls()
         opt2 = self.cls(name='name', raw=True)
 
