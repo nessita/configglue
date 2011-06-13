@@ -40,6 +40,7 @@ from configglue.pyschema.schema import (
 
 class TestSchema(unittest.TestCase):
     def test_sections(self):
+        """Test Schema sections."""
         class MySchema(Schema):
             foo = BoolOption()
 
@@ -84,6 +85,7 @@ class TestSchema(unittest.TestCase):
         self.assertTrue(schema.is_valid())
 
     def test_names(self):
+        """Test Schema section/option names."""
         class MySchema(Schema):
             foo = BoolOption()
 
@@ -98,6 +100,7 @@ class TestSchema(unittest.TestCase):
         self.assertEquals('bar', schema.bar.baz.section.name)
 
     def test_options(self):
+        """Test Schema options."""
         class MySchema(Schema):
             foo = BoolOption()
 
@@ -117,6 +120,7 @@ class TestSchema(unittest.TestCase):
         self.assertTrue(hasattr(schema, 'includes'))
 
     def test_equal(self):
+        """Test Schema equality."""
         class MySchema(Schema):
             foo = IntOption()
 
@@ -129,6 +133,7 @@ class TestSchema(unittest.TestCase):
 
 class TestSchemaHelpers(unittest.TestCase):
     def test_get_config_objects(self):
+        """Test get_config_objects."""
         class MySchema(Schema):
             foo = IntOption()
 
@@ -162,6 +167,7 @@ class TestConfigOption(unittest.TestCase):
         self.assertNotEqual(opt1, opt3)
 
     def test_equal_when_in_section(self):
+        """Test option equality for section options."""
         sect1 = ConfigSection(name='sect1')
         sect2 = ConfigSection(name='sect2')
         opt1 = IntOption()
@@ -174,6 +180,7 @@ class TestConfigOption(unittest.TestCase):
         self.assertNotEqual(opt1, opt2)
 
     def test_equal_when_error(self):
+        """Test option equality when errors."""
         opt1 = IntOption()
         opt2 = IntOption()
 
@@ -204,6 +211,7 @@ class TestSchemaInheritance(unittest.TestCase):
         self.other = SchemaC()
 
     def test_basic_inheritance(self):
+        """Test basic schema inheritance."""
         names = [('foo', ['bar']), ('baz', ['wham'])]
         for section, options in names:
             section_obj = getattr(self.schema, section)
@@ -221,6 +229,7 @@ class TestSchemaInheritance(unittest.TestCase):
         self.assertEqual(set(['bar', 'wham']), names)
 
     def test_mutable_inherited(self):
+        """Test modifying inherited attribute doesn't affect parent."""
         # modify one inherited attribute
         self.schema.foo.baz = IntOption()
 
@@ -228,6 +237,7 @@ class TestSchemaInheritance(unittest.TestCase):
         self.assertFalse(hasattr(self.other.foo, 'baz'))
 
     def test_merge_inherited(self):
+        """Test inherited schema overrides attributes as expected."""
         class SchemaA(Schema):
             class foo(ConfigSection):
                 bar = IntOption()
@@ -335,6 +345,7 @@ class TestIntOption(unittest.TestCase):
     cls = IntOption
 
     def test_parse_int(self):
+        """Test IntOption parse an integer."""
         class MySchema(Schema):
             foo = self.cls()
 
@@ -356,14 +367,17 @@ class TestIntOption(unittest.TestCase):
         self.assertRaises(ValueError, parser.values)
 
     def test_default(self):
+        """Test IntOption default value."""
         opt = self.cls()
         self.assertEqual(opt.default, 0)
 
     def test_validate_int(self):
+        """Test IntOption validate an integer value."""
         opt = self.cls()
         self.assertEqual(opt.validate(0), True)
 
     def test_validate_nonint(self):
+        """Test IntOption validate a non-integer value."""
         opt = self.cls()
         self.assertEqual(opt.validate(''), False)
 
@@ -420,6 +434,7 @@ class TestBoolConfigOption(TestBoolOption):
 
 class TestLinesConfigOption(unittest.TestCase):
     def test_parse_int_lines(self):
+        """Test LinesConfigOption parse a list of integers."""
         class MySchema(Schema):
             foo = LinesConfigOption(item=IntOption())
 
@@ -468,6 +483,7 @@ class TestLinesConfigOption(unittest.TestCase):
         self.assertRaises(ValueError, parser.values)
 
     def test_default(self):
+        """Test LinesConfigOption default value."""
         opt = LinesConfigOption(item=IntOption())
         self.assertEqual(opt.default, [])
 
@@ -497,10 +513,12 @@ class TestLinesConfigOption(unittest.TestCase):
                           parser.values())
 
     def test_validate_list(self):
+        """Test LinesConfigOption validate a list value."""
         opt = LinesConfigOption(item=IntOption())
         self.assertEqual(opt.validate([]), True)
 
     def test_validate_nonlist(self):
+        """Test LinesConfigOption validate a non-list value."""
         opt = LinesConfigOption(item=IntOption())
         self.assertEqual(opt.validate(''), False)
 
@@ -563,6 +581,7 @@ class TestDictOption(unittest.TestCase):
     cls = DictOption
 
     def test_init(self):
+        """Test default values for DictConfigOption attributes."""
         opt = self.cls()
         self.assertEqual(opt.spec, {})
         self.assertEqual(opt.strict, False)
@@ -644,6 +663,7 @@ baz=42
         self.assertEqual(parsed, expected)
 
     def test_parse_invalid_key_in_parsed(self):
+        """Test DictConfigOption parse with an invalid key in the config."""
         class MySchema(Schema):
             foo = self.cls(spec={'bar': IntOption()})
 
@@ -654,6 +674,7 @@ baz=42
         self.assertEqual(parser.values(), expected_values)
 
     def test_parse_invalid_key_in_spec(self):
+        """Test DictConfigOption parse with an invalid key in the spec."""
         class MySchema(Schema):
             foo = self.cls(spec={
                 'bar': IntOption(),
@@ -669,6 +690,7 @@ baz=42
         self.assertEqual(opt.default, {})
 
     def test_parse_no_strict_missing_args(self):
+        """Test DictConfigOption parse a missing key in non-strict mode."""
         class MySchema(Schema):
             foo = self.cls(spec={'bar': IntOption()})
 
@@ -689,6 +711,7 @@ baz=42
         self.assertEqual(parser.values(), expected_values)
 
     def test_parse_no_strict_with_item(self):
+        """Test DictConfigOption parse in non-strict mode with an item spec."""
         class MySchema(Schema):
             foo = self.cls(
                       item=self.cls(
@@ -707,6 +730,7 @@ wham=42
         self.assertEqual(parser.values(), expected_values)
 
     def test_parse_strict(self):
+        """Test DictConfigOption parse in strict mode."""
         class MySchema(Schema):
             spec = {'bar': IntOption()}
             foo = self.cls(spec=spec, strict=True)
@@ -718,6 +742,7 @@ wham=42
         self.assertEqual(parser.values(), expected_values)
 
     def test_parse_strict_missing_vars(self):
+        """Test DictConfigOption parse in strict mode with missing values."""
         class MySchema(Schema):
             spec = {'bar': IntOption(),
                     'baz': IntOption()}
@@ -730,6 +755,7 @@ wham=42
         self.assertEqual(parser.values(), expected_values)
 
     def test_parse_strict_extra_vars(self):
+        """Test DictConfigOption parse in strict mode with extra values."""
         class MySchema(Schema):
             spec = {'bar': IntOption()}
             foo = self.cls(spec=spec, strict=True)
