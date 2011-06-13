@@ -104,6 +104,7 @@ class TestConfigSection(unittest.TestCase):
         self.assertNotEqual(sec1, sec2)
 
     def test_has_option(self):
+        """Test ConfigSection has_option."""
         class MySection(ConfigSection):
             foo = IntOption()
 
@@ -221,6 +222,7 @@ class ConfigglueTestCase(unittest.TestCase):
     @patch('configglue.pyschema.glue.schemaconfigglue')
     def test_configglue_no_errors(self, mock_schemaconfigglue,
         mock_schema_parser):
+        """Test configglue when no errors occur."""
         # prepare mocks
         expected_schema_parser = Mock()
         expected_schema_parser.is_valid.return_value = (True, None)
@@ -256,6 +258,7 @@ class ConfigglueTestCase(unittest.TestCase):
     @patch('configglue.pyschema.glue.schemaconfigglue')
     def test_configglue_with_errors(self, mock_schemaconfigglue,
         mock_schema_parser):
+        """Test configglue when an error happens."""
         # prepare mocks
         expected_schema_parser = Mock()
         expected_schema_parser.is_valid.return_value = (False, ['some error'])
@@ -293,6 +296,7 @@ class ConfigglueTestCase(unittest.TestCase):
     @patch('configglue.pyschema.glue.schemaconfigglue')
     def test_configglue_with_usage(self, mock_schemaconfigglue,
         mock_schema_parser, mock_option_parser):
+        """Test configglue with the 'usage' parameter set."""
         # prepare mocks
         expected_schema_parser = Mock()
         expected_schema_parser.is_valid.return_value = (True, None)
