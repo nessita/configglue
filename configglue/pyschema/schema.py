@@ -589,7 +589,8 @@ class DictOption(Option):
 # deprecated
 #
 
-class DeprecatedOption(type):
+
+class Deprecated(type):
     def __init__(cls, name, bases, attrs):
         warn('{0} is deprecated; use {1} instead.'.format(
             name, bases[0].__name__), DeprecationWarning)
@@ -597,32 +598,32 @@ class DeprecatedOption(type):
 
 
 class StringConfigOption(StringOption):
-    __metaclass__ = DeprecatedOption
+    __metaclass__ = Deprecated
 
 
 class IntConfigOption(IntOption):
-    __metaclass__ = DeprecatedOption
+    __metaclass__ = Deprecated
 
 
 class BoolConfigOption(BoolOption):
-    __metaclass__ = DeprecatedOption
+    __metaclass__ = Deprecated
 
 
 class DictConfigOption(DictOption):
-    __metaclass__ = DeprecatedOption
+    __metaclass__ = Deprecated
 
 
 class LinesConfigOption(ListOption):
-    __metaclass__ = DeprecatedOption
+    __metaclass__ = Deprecated
 
 
 class TupleConfigOption(TupleOption):
-    __metaclass__ = DeprecatedOption
+    __metaclass__ = Deprecated
 
 
 class ConfigOption(Option):
-    __metaclass__ = DeprecatedOption
+    __metaclass__ = Deprecated
 
 
 class ConfigSection(Section):
-    __metaclass__ = DeprecatedOption
+    __metaclass__ = Deprecated
