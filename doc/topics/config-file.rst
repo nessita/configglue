@@ -66,7 +66,7 @@ a few syntactic conventions you should be aware of.
 Tuples
 ------
 
-For specifying the value of a :class:`~configglue.pyschema.schema.TupleConfigOption`,
+For specifying the value of a :class:`~configglue.pyschema.schema.TupleOption`,
 you just put all the values in the same line, separated by `,`, as shown::
 
     my_tuple = 1, 2, 3

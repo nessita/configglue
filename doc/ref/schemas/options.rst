@@ -154,14 +154,14 @@ A string.
     instead of just leaving it as the string 'None'.
 
 
-``TupleConfigOption``
+``TupleOption``
 ---------------------
 
-.. class:: TupleConfigOption([length=0, **attributes])
+.. class:: TupleOption([length=0, **attributes])
 
 A tuple of elements.
 
-.. attribute:: TupleConfigOption.length
+.. attribute:: TupleOption.length
 
     *Optional*.
 
