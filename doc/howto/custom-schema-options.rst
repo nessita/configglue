@@ -36,20 +36,20 @@ specific to your case from the common arguments and passing the latter to the
 :meth:`~configglue.pyschema.schema.ConfigOption.__init__` method of
 :class:`~configglue.pyschema.schema.ConfigOption` (or your parent class).
 
-In our example, we'll call our option ``UpperCaseDictConfigOption``. (It's a
+In our example, we'll call our option ``UpperCaseDictOption``. (It's a
 good idea to call your :class:`~configglue.pyschema.schema.ConfigOption`
 subclass ``<Something>ConfigOption``, so it's easily identifiable as a
 :class:`~configglue.pyschema.schema.ConfigOption` subclass.) It behaves
-mostly like a :class:`~configglue.pyschema.schema.DictConfigOption`, so we'll
+mostly like a :class:`~configglue.pyschema.schema.DictOption`, so we'll
 subclass from that::
 
     from configglue import pyschema
 
-    class UpperCaseDictConfigOption(pyschema.DictConfigOption):
-        """ A DictConfigOption with all upper-case keys. """
+    class UpperCaseDictOption(pyschema.DictOption):
+        """ A DictOption with all upper-case keys. """
 
         def parse(self, section, parser=None, raw=False):
-            parsed = super(UpperCaseDictConfigOption, self).parse(
+            parsed = super(UpperCaseDictOption, self).parse(
                 section, parser, raw)
             result = {}
             for k, v in parsed.items():
@@ -57,7 +57,7 @@ subclass from that::
             return result
 
 
-Our ``UpperCaseDictConfigOption`` will represent a dictionary with all-uppercase
+Our ``UpperCaseDictOption`` will represent a dictionary with all-uppercase
 keys.
 
 So, let's assume we have a configuration file (see documentation on 
@@ -73,7 +73,7 @@ So, let's assume we have a configuration file (see documentation on
 and a schema like::
 
     class MySchema(pyschema.Schema):
-        mydict = UpperCaseDictConfigOption()
+        mydict = UpperCaseDictOption()
 
 When parsing this configuration file, the parser will contain the following
 value for the ``mydict`` attribute::
@@ -82,6 +82,6 @@ value for the ``mydict`` attribute::
 
 .. note::
     Note that the dictionary values are strings because we didn't specify an
-    item type for the ``UpperCaseDictConfigOption``, and so it defaulted to
+    item type for the ``UpperCaseDictOption``, and so it defaulted to
     :class:`~configglue.pyschema.schema.StringOption`.
 

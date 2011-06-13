@@ -29,7 +29,7 @@ from ConfigParser import (
     NoSectionError,
 )
 
-from configglue.pyschema.schema import DictConfigOption
+from configglue.pyschema.schema import DictOption
 
 
 __all__ = [
@@ -327,9 +327,9 @@ class SchemaConfigParser(BaseConfigParser, object):
                 kwargs = {'parser': self}
 
             # hook to save extra sections
-            is_dict_option = isinstance(option_obj, DictConfigOption)
+            is_dict_option = isinstance(option_obj, DictOption)
             is_dict_lines_option = (hasattr(option_obj, 'item') and
-                isinstance(option_obj.item, DictConfigOption))
+                isinstance(option_obj.item, DictOption))
             is_default_value = unicode(option_obj.default) == value
 
             # avoid adding implicit sections for dict default value

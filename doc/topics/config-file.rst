@@ -88,9 +88,9 @@ This will be parsed as the list `[1, 2, 3]`.
 Dictionaries
 ------------
 
-For specifying the value of a :class:`~configglue.pyschema.schema.DictConfigOption`,
+For specifying the value of a :class:`~configglue.pyschema.schema.DictOption`,
 a special syntax convention was defined. The value of a 
-:class:`~configglue.pyschema.schema.DictConfigOption` is the name of a section
+:class:`~configglue.pyschema.schema.DictOption` is the name of a section
 describing the structure of that dictionary.
 
 For example, given the configuration file::
@@ -104,7 +104,7 @@ For example, given the configuration file::
 and the schema::
 
     class MySchema(pyschema.Schema):
-        my_dict = pyschema.DictConfigOption(
+        my_dict = pyschema.DictOption(
             spec={'foo': pyschema.IntOption(),
                   'bar': pyschema.BoolOption()})
 

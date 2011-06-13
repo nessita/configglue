@@ -167,14 +167,14 @@ A tuple of elements.
 
     If not 0, the tuple has to have exactly this number of elements.
 
-``DictConfigOption``
+``DictOption``
 --------------------
 
-.. class:: DictConfigOption([spec=None, strict=False, item=None, **attributes])
+.. class:: DictOption([spec=None, strict=False, item=None, **attributes])
 
 A dictionary.
 
-.. attribute:: DictConfigOption.spec
+.. attribute:: DictOption.spec
 
     *Optional*.
 
@@ -182,14 +182,14 @@ A dictionary.
     are instances of a subclass of
     :class:`~configglue.pyschema.schema.ConfigOption`.
 
-.. attribute:: DictConfigOption.strict
+.. attribute:: DictOption.strict
 
     *Optional*.
 
     If ``True``, no keys will be allowed other than those specified
-    in the :attr:`~DictConfigOption.spec`.
+    in the :attr:`~DictOption.spec`.
 
-.. attribute:: DictConfigOption.item
+.. attribute:: DictOption.item
 
     *Optional*.
 
