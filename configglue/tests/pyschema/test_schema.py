@@ -550,15 +550,18 @@ class TestTupleOption(unittest.TestCase):
     cls = TupleOption
 
     def test_init(self):
+        """Test TupleOption constructor."""
         opt = self.cls(length=2)
         self.assertEqual(opt.length, 2)
 
     def test_init_no_length(self):
+        """Test TupleOption default attribute values."""
         opt = self.cls()
         self.assertEqual(opt.length, 0)
         self.assertEqual(opt.default, ())
 
     def test_parse_no_length(self):
+        """Test TupleOption parse without length."""
         class MySchema(Schema):
             foo = self.cls()
 
@@ -569,6 +572,7 @@ class TestTupleOption(unittest.TestCase):
         self.assertEqual(parser.values(), expected_values)
 
     def test_parse_tuple(self):
+        """Test TupleOption parse with length."""
         class MySchema(Schema):
             foo = self.cls(length=4)
 
@@ -590,14 +594,17 @@ class TestTupleOption(unittest.TestCase):
         self.assertRaises(ValueError, parser.values)
 
     def test_default(self):
+        """Test TupleOption default value."""
         opt = self.cls(length=2)
         self.assertEqual(opt.default, ())
 
     def test_validate_tuple(self):
+        """Test TupleOption validate a tuple value."""
         opt = self.cls(length=2)
         self.assertEqual(opt.validate(()), True)
 
     def test_validate_nontuple(self):
+        """Test TupleOption validate a non-tuple value."""
         opt = self.cls(length=2)
         self.assertEqual(opt.validate(0), False)
 

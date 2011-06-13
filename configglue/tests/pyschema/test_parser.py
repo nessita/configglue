@@ -298,6 +298,7 @@ class TestInterpolation(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_get_interpolation_keys_tuple(self):
+        """Test get_interpolation_keys for a tuple."""
         class MySchema(Schema):
             foo = TupleOption(2)
         config = StringIO("[__main__]\nfoo=%(bar)s,%(baz)s")
@@ -354,6 +355,7 @@ class TestInterpolation(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_interpolate_value_duplicate_key(self):
+        """Test interpolate_value for a duplicate key."""
         class MySchema(Schema):
             foo = TupleOption(2)
         config = StringIO(
@@ -366,6 +368,7 @@ class TestInterpolation(unittest.TestCase):
         self.assertEqual(value, expected_value)
 
     def test_interpolate_value_invalid_key(self):
+        """Test interpolate_value with an invalid key."""
         class MySchema(Schema):
             foo = TupleOption(2)
         config = StringIO("[other]\nbar=4\n[__main__]\nfoo=%(bar)s,%(bar)s")
@@ -377,6 +380,7 @@ class TestInterpolation(unittest.TestCase):
         self.assertEqual(value, expected_value)
 
     def test_interpolate_value_no_keys(self):
+        """Test interpolate_value with no keys."""
         class MySchema(Schema):
             foo = TupleOption(2)
         config = StringIO("[__main__]\nfoo=%(bar)s,%(bar)s")
