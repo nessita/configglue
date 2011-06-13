@@ -1015,6 +1015,7 @@ class TestParserIsValid(unittest.TestCase):
         self.assertTrue(parser.is_valid())
 
     def test_extra_sections_when_dict_with_nested_dicts(self):
+        """Test parser.is_valid with extra sections in a nested dict."""
         class MySchema(Schema):
             foo = DictOption(item=DictOption())
 
@@ -1035,6 +1036,7 @@ baz=42
         self.assertTrue(parser.is_valid())
 
     def test_extra_sections_with_nested_dicts_strict(self):
+        """Test parser.is_valid w/ extra sections in a nested dict (strict)."""
         class MySchema(Schema):
             foo = DictOption(spec={'bar': DictOption()},
                 strict=True)
@@ -1056,6 +1058,7 @@ baz=42
         self.assertTrue(parser.is_valid())
 
     def test_extra_sections_when_lines_dict_with_nested_dicts(self):
+        """Test parser.is_valid w/ extra section in list of nested dicts."""
         class MySchema(Schema):
             foo = ListOption(
                 item=DictOption(item=DictOption()))
@@ -1084,6 +1087,7 @@ whaz = 2
         self.assertTrue(parser.is_valid())
 
     def test_extra_sections_when_dict_with_nested_lines_dicts(self):
+        """Test parser.is_valid in dict of nested list lists."""
         class MySchema(Schema):
             foo = DictOption(
                 item=ListOption(item=DictOption()))
@@ -1108,6 +1112,7 @@ wham = 2
         self.assertTrue(parser.is_valid())
 
     def test_extra_sections_when_lines_dict_with_nested_lines_dicts(self):
+        """Test parser.is_valid in dict of nested dict lists."""
         class MySchema(Schema):
             foo = ListOption(
                 item=DictOption(
