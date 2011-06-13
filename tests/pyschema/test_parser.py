@@ -176,6 +176,7 @@ class TestIncludes(unittest.TestCase):
 
 
 class TestInterpolation(unittest.TestCase):
+    """Test basic interpolation."""
     def test_basic_interpolate(self):
         class MySchema(Schema):
             foo = StringOption()
@@ -187,6 +188,7 @@ class TestInterpolation(unittest.TestCase):
                           parser.values())
 
     def test_interpolate_missing_option(self):
+        """Test interpolation with a missing option."""
         class MySchema(Schema):
             foo = StringOption()
             bar = BoolOption()
@@ -200,6 +202,7 @@ class TestInterpolation(unittest.TestCase):
             parser._interpolate, section, option, rawval, vars)
 
     def test_interpolate_too_deep(self):
+        """Test too deeply recursive interpolation."""
         class MySchema(Schema):
             foo = StringOption()
             bar = BoolOption()
@@ -213,6 +216,7 @@ class TestInterpolation(unittest.TestCase):
             parser._interpolate, section, option, rawval, vars)
 
     def test_interpolate_incomplete_format(self):
+        """Test interpolation with incomplete format key."""
         class MySchema(Schema):
             foo = StringOption()
             bar = BoolOption()
@@ -254,6 +258,7 @@ class TestInterpolation(unittest.TestCase):
                           'foo', 'bar')
 
     def test_get_interpolation_keys_string(self):
+        """Test get_interpolation_keys for a string."""
         class MySchema(Schema):
             foo = StringOption()
         config = StringIO("[__main__]\nfoo=%(bar)s")
@@ -298,6 +303,7 @@ class TestInterpolation(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_get_interpolation_keys_lines(self):
+        """Test get_interpolation_keys for a list."""
         class MySchema(Schema):
             foo = ListOption(item=StringOption())
         config = StringIO("[__main__]\nfoo=%(bar)s\n    %(baz)s")
@@ -378,6 +384,7 @@ class TestInterpolation(unittest.TestCase):
             self.assertEqual(value, None)
 
     def test_get_with_raw_value(self):
+        """Test get using a raw value."""
         class MySchema(Schema):
             foo = StringOption(raw=True)
         config = StringIO('[__main__]\nfoo=blah%(asd)##$@@dddf2kjhkjs')
@@ -450,6 +457,7 @@ class TestSchemaConfigParser(unittest.TestCase):
         self.assertEqual(set(items), set([('foo', '42'), ('baz', '42')]))
 
     def test_items_interpolate(self):
+        """Test parser.items with interpolated values."""
         class MySchema(Schema):
             foo = StringOption()
 
@@ -517,6 +525,7 @@ class TestSchemaConfigParser(unittest.TestCase):
         self.assertEqual(values, expected_values)
 
     def test_parse_option(self):
+        """Test parser parses option."""
         class MyOtherSchema(Schema):
             class foo(Section):
                 bar = StringOption()
@@ -533,6 +542,7 @@ class TestSchemaConfigParser(unittest.TestCase):
             'bar', 'baz', '1')
 
     def test_default_values(self):
+        """Test parser reads default option values."""
         class MySchema(Schema):
             foo = BoolOption(default=True)
 
@@ -763,6 +773,7 @@ class TestSchemaConfigParser(unittest.TestCase):
         self.assertRaises(TypeError, self.parser.set, '__main__', 'foo', 2)
 
     def test_write(self):
+        """Test parser write config to a file."""
         class MySchema(Schema):
             foo = StringOption()
 
@@ -812,6 +823,7 @@ class TestSchemaConfigParser(unittest.TestCase):
             os.unlink(filename)
 
     def test_save_config_same_files(self):
+        """Test parser save config values to original files."""
         def setup_config():
             folder = tempfile.mkdtemp()
 
