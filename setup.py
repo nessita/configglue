@@ -42,9 +42,9 @@ interface.
       author_email='john.lenton@canonical.com, ricardo.kirkner@canonical.com',
       url='https://launchpad.net/configglue',
       license='BSD License',
-      packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
+      packages=find_packages(),
       include_package_data=True,
       zip_safe=True,
-      test_suite='tests',
+      test_suite='configglue.tests',
       tests_require=['mock'],
 )
