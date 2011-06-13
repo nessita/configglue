@@ -29,10 +29,11 @@ from configglue.pyschema.glue import (
 from configglue.pyschema.parser import SchemaConfigParser
 from configglue.pyschema.schema import (
     ConfigOption,
-    Option,
     ConfigSection,
     IntOption,
+    Option,
     Schema,
+    Section,
     StringOption,
 )
 
@@ -49,7 +50,7 @@ class TestOption(unittest.TestCase):
         expected = "<{0} name>".format(self.cls.__name__)
         self.assertEqual(repr(opt), expected)
 
-        sect = ConfigSection(name='sect')
+        sect = Section(name='sect')
         opt = self.cls(name='name', section=sect)
         expected = "<{0} sect.name>".format(self.cls.__name__)
         self.assertEqual(repr(opt), expected)
@@ -85,26 +86,28 @@ class TestConfigOption(TestOption):
     cls = ConfigOption
 
 
-class TestConfigSection(unittest.TestCase):
+class TestSection(unittest.TestCase):
+    cls = Section
+
     def test_repr_name(self):
-        sect = ConfigSection()
-        expected = "<ConfigSection>"
+        sect = self.cls()
+        expected = "<{0}>".format(self.cls.__name__)
         self.assertEqual(repr(sect), expected)
 
-        sect = ConfigSection(name='sect')
-        expected = "<ConfigSection sect>"
+        sect = self.cls(name='sect')
+        expected = "<{0} sect>".format(self.cls.__name__)
         self.assertEqual(repr(sect), expected)
 
     def test_equal(self):
-        sec1 = ConfigSection()
-        sec2 = ConfigSection(name='sec2')
+        sec1 = self.cls()
+        sec2 = self.cls(name='sec2')
 
-        self.assertEqual(sec1, ConfigSection())
-        self.assertEqual(sec2, ConfigSection(name='sec2'))
+        self.assertEqual(sec1, self.cls())
+        self.assertEqual(sec2, self.cls(name='sec2'))
         self.assertNotEqual(sec1, sec2)
 
     def test_has_option(self):
-        class sec1(ConfigSection):
+        class sec1(self.cls):
             foo = IntOption()
 
         sec1 = sec1()
@@ -112,10 +115,14 @@ class TestConfigSection(unittest.TestCase):
         self.assertFalse(sec1.has_option('bar'))
 
 
+class TestConfigSection(TestSection):
+    cls = ConfigSection
+
+
 class TestSchemaConfigGlue(unittest.TestCase):
     def setUp(self):
         class MySchema(Schema):
-            class foo(ConfigSection):
+            class foo(Section):
                 bar = IntOption()
 
             baz = IntOption(help='The baz option')
@@ -160,10 +167,10 @@ class TestSchemaConfigGlue(unittest.TestCase):
 
     def test_ambiguous_option(self):
         class MySchema(Schema):
-            class foo(ConfigSection):
+            class foo(Section):
                 baz = IntOption()
 
-            class bar(ConfigSection):
+            class bar(Section):
                 baz = IntOption()
 
         config = StringIO("[foo]\nbaz=1")

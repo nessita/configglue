@@ -83,7 +83,7 @@ Default is ``''``.
 
 .. attribute:: Option.section
 
-The :class:`~configglue.pyschema.ConfigSection` object where this option was
+The :class:`~configglue.pyschema.Section` object where this option was
 defined.
 
 Default is ``None``.
