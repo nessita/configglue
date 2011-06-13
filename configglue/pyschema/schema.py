@@ -46,6 +46,7 @@ _internal = object.__dict__.keys() + ['__module__']
 
 
 def get_config_objects(obj):
+    """Return the list of ConfigSection- and Option-derived objects."""
     objects = []
     for name, obj in getmembers(obj):
         if isinstance(obj, (Section, Option)):
