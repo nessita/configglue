@@ -159,6 +159,7 @@ class TestOption(unittest.TestCase):
     cls = Option
 
     def test_equal(self):
+        """Test option equality."""
         opt1 = IntOption(name='opt1')
         opt2 = IntOption(name='opt2')
         opt3 = StringOption(name='opt1')
@@ -274,52 +275,65 @@ class TestStringOption(unittest.TestCase):
         self.opt = self.cls()
 
     def test_init_no_args(self):
+        """Test null attribute for StringOption."""
         self.assertFalse(self.opt.null)
 
     def test_init_null(self):
+        """Test null attribute for null StringOption."""
         opt = self.cls(null=True)
         self.assertTrue(opt.null)
 
     def test_parse_ascii_string(self):
+        """Test StringOption parse an ascii string."""
         value = self.opt.parse('42')
         self.assertEqual(value, '42')
 
     def test_parse_empty_string(self):
+        """Test StringOption parse an empty string."""
         value = self.opt.parse('')
         self.assertEqual(value, '')
 
     def test_parse_null_string(self):
+        """Test StringOption parse a null string."""
         opt = self.cls(null=True)
         value = opt.parse(None)
         self.assertEqual(value, None)
 
     def test_None_string(self):
+        """Test StringOption parse the 'None' string."""
         value = self.opt.parse('None')
         self.assertEqual(value, 'None')
 
     def test_parse_nonascii_string(self):
+        """Test StringOption parse a non-ascii string."""
         value = self.opt.parse('foóbâr')
         self.assertEqual(value, 'foóbâr')
 
     def test_parse_int(self):
+        """Test StringOption parse an integer."""
         value = self.opt.parse(42)
         self.assertEqual(value, '42')
 
     def test_parse_bool(self):
+        """Test StringOption parse a boolean."""
         value = self.opt.parse(False)
         self.assertEqual(value, 'False')
 
     def test_default(self):
+        """Test default value for StringOption."""
         self.assertEqual(self.opt.default, '')
 
     def test_default_null(self):
+        """Test default value for null StringOption."""
         opt = self.cls(null=True)
         self.assertEqual(opt.default, None)
 
     def test_validate_string(self):
+        """Test OptionString validate a string value."""
         self.assertEqual(self.opt.validate(''), True)
 
     def test_validate_nonstring(self):
+        """Test OptionString validate a non-string value."""
         self.assertEqual(self.opt.validate(0), False)
 
 
@@ -470,6 +484,7 @@ class TestListOption(unittest.TestCase):
         self.assertEqual(opt.default, [])
 
     def test_remove_duplicates(self):
+        """Test LinesConfigOption with remove_duplicates."""
         class MySchema(Schema):
             foo = self.cls(item=StringOption(), remove_duplicates=True)
 
@@ -602,6 +617,7 @@ baz=42
         self.assertEqual(extra, expected)
 
     def test_parse_dict(self):
+        """Test DictConfigOption parse a dict."""
         class MySchema(Schema):
             foo = self.cls(spec={
                 'bar': StringOption(),
@@ -626,6 +642,7 @@ bla=Yes
         self.assertEqual(parser.values(), expected_values)
 
     def test_parse_raw(self):
+        """Test DictConfigOption parse using raw=True."""
         class MySchema(Schema):
             foo = self.cls(spec={
                 'bar': StringOption(),
@@ -757,6 +774,7 @@ class TestDictConfigOption(TestDictOption):
 
 class TestListOfDictOption(unittest.TestCase):
     def test_parse_lines_of_dict(self):
+        """Test LinesConfigOption parse a list of dicts."""
         class MySchema(Schema):
             foo = ListOption(item=DictOption(
                 spec={
@@ -789,6 +807,7 @@ bla=0
 
 
 class TestDictWithDicts(unittest.TestCase):
+    """Test DictConfigOption parse dict items."""
     def test_parse_dict_with_dicts(self):
         innerspec = {'bar': StringOption(),
                      'baz': IntOption(),

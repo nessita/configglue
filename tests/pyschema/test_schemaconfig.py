@@ -130,6 +130,7 @@ class TestSchemaConfigGlue(unittest.TestCase):
         self.parser = SchemaConfigParser(MySchema())
 
     def test_glue_no_op(self):
+        """Test schemaconfigglue with the default OptionParser value."""
         config = StringIO("[__main__]\nbaz=1")
         self.parser.readfp(config)
         self.assertEqual(self.parser.values(),
@@ -140,6 +141,7 @@ class TestSchemaConfigGlue(unittest.TestCase):
             {'foo': {'bar': 0}, '__main__': {'baz': 2}})
 
     def test_glue_no_argv(self):
+        """Test schemaconfigglue with the default argv value."""
         config = StringIO("[__main__]\nbaz=1")
         self.parser.readfp(config)
         self.assertEqual(self.parser.values(),
@@ -155,6 +157,7 @@ class TestSchemaConfigGlue(unittest.TestCase):
         sys.argv = _argv
 
     def test_glue_section_option(self):
+        """Test schemaconfigglue overriding one option."""
         config = StringIO("[foo]\nbar=1")
         self.parser.readfp(config)
         self.assertEqual(self.parser.values(),
@@ -166,6 +169,7 @@ class TestSchemaConfigGlue(unittest.TestCase):
                          {'foo': {'bar': 2}, '__main__': {'baz': 0}})
 
     def test_ambiguous_option(self):
+        """Test schemaconfigglue when an ambiguous option is specified."""
         class MySchema(Schema):
             class foo(Section):
                 baz = IntOption()
@@ -185,6 +189,7 @@ class TestSchemaConfigGlue(unittest.TestCase):
         self.assertEqual(parser.values('bar'), {'baz': 2})
 
     def test_help(self):
+        """Test schemaconfigglue with --help."""
         config = StringIO("[foo]\nbar=1")
         self.parser.readfp(config)
         self.assertEqual(self.parser.values(),
@@ -206,6 +211,7 @@ class TestSchemaConfigGlue(unittest.TestCase):
         self.assertTrue(output.startswith('Usage:'))
 
     def test_parser_set_with_encoding(self):
+        """Test schemaconfigglue override an option with a non-ascii value."""
         class MySchema(Schema):
             foo = StringOption()
 
