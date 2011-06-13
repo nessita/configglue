@@ -72,6 +72,7 @@ class TestSchema(unittest.TestCase):
         self.assertEquals(set(['__main__', 'froo']), names)
 
     def test_schema_validation(self):
+        """Test Schema validation."""
         class BorkenSchema(Schema):
             class __main__(ConfigSection):
                 foo = BoolOption()
@@ -392,6 +393,7 @@ class TestBoolOption(unittest.TestCase):
     cls = BoolOption
 
     def test_parse_bool(self):
+        """Test BoolOption parse a boolean value."""
         class MySchema(Schema):
             foo = self.cls()
 
@@ -418,14 +420,17 @@ class TestBoolOption(unittest.TestCase):
         self.assertRaises(ValueError, parser.values)
 
     def test_default(self):
+        """Test BoolOption default value."""
         opt = self.cls()
         self.assertEqual(opt.default, False)
 
     def test_validate_bool(self):
+        """Test BoolOption validate a boolean value."""
         opt = self.cls()
         self.assertEqual(opt.validate(False), True)
 
     def test_validate_nonbool(self):
+        """Test BoolOption value a non-boolean value."""
         opt = self.cls()
         self.assertEqual(opt.validate(''), False)
 
@@ -450,6 +455,7 @@ class TestListOption(unittest.TestCase):
         self.assertEqual(parser.values(), expected_values)
 
     def test_parse_bool_lines(self):
+        """Test LinesConfigOption parse a list of booleans."""
         class MySchema(Schema):
             foo = self.cls(item=BoolOption())
 
@@ -461,6 +467,7 @@ class TestListOption(unittest.TestCase):
         self.assertEqual(expected_values, parser.values())
 
     def test_parse_bool_empty_lines(self):
+        """Test LinesConfigOption parse an empty list of booleans."""
         class MySchema(Schema):
             foo = self.cls(item=BoolOption())
 
@@ -472,6 +479,7 @@ class TestListOption(unittest.TestCase):
         self.assertEqual(expected_values, parser.values())
 
     def test_parse_bool_invalid_lines(self):
+        """Test LinesConfigOption parse an invalid list of booleans."""
         class MySchema(Schema):
             foo = self.cls(item=BoolOption())
 
