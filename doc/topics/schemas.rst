@@ -25,18 +25,18 @@ This example schema defines the configuration for a database connection::
     from configglue import pyschema
 
     class DatabaseConnection(pyschema.Schema):
-        host = pyschema.StringConfigOption(
+        host = pyschema.StringOption(
             default='localhost',
             help='Host where the database engine is listening on')
         port = pyschema.IntConfigOption(
             default=5432,
             help='Port where the database engine is listening on')
-        dbname = pyschema.StringConfigOption(
+        dbname = pyschema.StringOption(
             fatal=True,
             help='Name of the database to connect to')
-        user = pyschema.StringConfigOption(
+        user = pyschema.StringOption(
             help='Username to use for the connection')
-        password = pyschema.StringConfigOption(
+        password = pyschema.StringOption(
             help='Password to use fot the connection')
 
 ``host``, ``port``, ``dbname``, ``user`` and ``password`` are options_ of the

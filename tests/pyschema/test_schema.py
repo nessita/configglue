@@ -29,6 +29,7 @@ from configglue.pyschema.schema import (
     LinesConfigOption,
     Schema,
     StringConfigOption,
+    StringOption,
     TupleConfigOption,
     get_config_objects,
 )
@@ -151,7 +152,7 @@ class TestConfigOption(unittest.TestCase):
     def test_equal(self):
         opt1 = IntConfigOption(name='opt1')
         opt2 = IntConfigOption(name='opt2')
-        opt3 = StringConfigOption(name='opt1')
+        opt3 = StringOption(name='opt1')
         self.assertEqual(opt1, opt1)
         self.assertNotEqual(opt1, opt2)
         self.assertNotEqual(opt1, opt3)
@@ -253,15 +254,17 @@ class TestSchemaInheritance(unittest.TestCase):
         self.assertEqual(foo_option_names, set(['bar']))
 
 
-class TestStringConfigOption(unittest.TestCase):
+class TestStringOption(unittest.TestCase):
+    cls = StringOption
+
     def setUp(self):
-        self.opt = StringConfigOption()
+        self.opt = self.cls()
 
     def test_init_no_args(self):
         self.assertFalse(self.opt.null)
 
     def test_init_null(self):
-        opt = StringConfigOption(null=True)
+        opt = self.cls(null=True)
         self.assertTrue(opt.null)
 
     def test_parse_ascii_string(self):
@@ -273,7 +276,7 @@ class TestStringConfigOption(unittest.TestCase):
         self.assertEqual(value, '')
 
     def test_parse_null_string(self):
-        opt = StringConfigOption(null=True)
+        opt = self.cls(null=True)
         value = opt.parse(None)
         self.assertEqual(value, None)
 
@@ -282,8 +285,7 @@ class TestStringConfigOption(unittest.TestCase):
         self.assertEqual(value, 'None')
 
     def test_parse_nonascii_string(self):
-        foo = StringConfigOption()
-        value = foo.parse('foóbâr')
+        value = self.opt.parse('foóbâr')
         self.assertEqual(value, 'foóbâr')
 
     def test_parse_int(self):
@@ -295,20 +297,21 @@ class TestStringConfigOption(unittest.TestCase):
         self.assertEqual(value, 'False')
 
     def test_default(self):
-        opt = StringConfigOption()
-        self.assertEqual(opt.default, '')
+        self.assertEqual(self.opt.default, '')
 
     def test_default_null(self):
-        opt = StringConfigOption(null=True)
+        opt = self.cls(null=True)
         self.assertEqual(opt.default, None)
 
     def test_validate_string(self):
-        opt = StringConfigOption()
-        self.assertEqual(opt.validate(''), True)
+        self.assertEqual(self.opt.validate(''), True)
 
     def test_validate_nonstring(self):
-        opt = StringConfigOption()
-        self.assertEqual(opt.validate(0), False)
+        self.assertEqual(self.opt.validate(0), False)
+
+
+class TestStringConfigOption(TestStringOption):
+    cls = StringConfigOption
 
 
 class TestIntConfigOption(unittest.TestCase):
@@ -441,7 +444,7 @@ class TestLinesConfigOption(unittest.TestCase):
 
     def test_remove_duplicates(self):
         class MySchema(Schema):
-            foo = LinesConfigOption(item=StringConfigOption(),
+            foo = LinesConfigOption(item=StringOption(),
                                     remove_duplicates=True)
 
         schema = MySchema()
@@ -564,7 +567,7 @@ baz=42
     def test_parse_dict(self):
         class MySchema(Schema):
             foo = DictConfigOption(spec={
-                'bar': StringConfigOption(),
+                'bar': StringOption(),
                 'baz': IntConfigOption(),
                 'bla': BoolConfigOption(),
             })
@@ -588,7 +591,7 @@ bla=Yes
     def test_parse_raw(self):
         class MySchema(Schema):
             foo = DictConfigOption(spec={
-                'bar': StringConfigOption(),
+                'bar': StringOption(),
                 'baz': IntConfigOption(),
                 'bla': BoolConfigOption(),
             })
@@ -716,7 +719,7 @@ class TestLinesOfDictConfigOption(unittest.TestCase):
         class MySchema(Schema):
             foo = LinesConfigOption(item=DictConfigOption(
                 spec={
-                    'bar': StringConfigOption(),
+                    'bar': StringOption(),
                     'baz': IntConfigOption(),
                     'bla': BoolConfigOption(),
                 }))
@@ -746,11 +749,11 @@ bla=0
 
 class TestDictWithDicts(unittest.TestCase):
     def test_parse_dict_with_dicts(self):
-        innerspec = {'bar': StringConfigOption(),
+        innerspec = {'bar': StringOption(),
                      'baz': IntConfigOption(),
                      'bla': BoolConfigOption(),
                     }
-        spec = {'name': StringConfigOption(),
+        spec = {'name': StringOption(),
                 'size': IntConfigOption(),
                 'options': DictConfigOption(spec=innerspec)}
 

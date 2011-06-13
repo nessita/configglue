@@ -32,7 +32,7 @@ from configglue.pyschema.schema import (
     ConfigSection,
     IntConfigOption,
     Schema,
-    StringConfigOption,
+    StringOption,
 )
 
 
@@ -193,7 +193,7 @@ class TestSchemaConfigGlue(unittest.TestCase):
 
     def test_parser_set_with_encoding(self):
         class MySchema(Schema):
-            foo = StringConfigOption()
+            foo = StringOption()
 
         parser = SchemaConfigParser(MySchema())
         op, options, args = schemaconfigglue(

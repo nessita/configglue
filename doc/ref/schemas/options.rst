@@ -139,14 +139,14 @@ A list of items.
     If ``True``, duplicate elements will be removed from the parsed
     value.
 
-``StringConfigOption``
+``StringOption``
 ----------------------
 
-.. class:: StringConfigOption([null=False, **attributes])
+.. class:: StringOption([null=False, **attributes])
 
 A string.
 
-.. attribute:: StringConfigOption.null
+.. attribute:: StringOption.null
 
     *Optional*.
 

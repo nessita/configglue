@@ -24,7 +24,7 @@ This configuration file would match with a schema like the following::
 
     class MySchema(pyschema.Schema):
         class my_section(pyschema.ConfigSection):
-            my_option = pyschema.StringConfigOption()
+            my_option = pyschema.StringOption()
 
 ======================
 Special considerations

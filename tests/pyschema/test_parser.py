@@ -48,7 +48,7 @@ from configglue.pyschema.schema import (
     IntConfigOption,
     LinesConfigOption,
     Schema,
-    StringConfigOption,
+    StringOption,
     TupleConfigOption,
 )
 
@@ -56,7 +56,7 @@ from configglue.pyschema.schema import (
 class TestIncludes(unittest.TestCase):
     def setUp(self):
         class MySchema(Schema):
-            foo = StringConfigOption()
+            foo = StringOption()
         self.schema = MySchema()
         fd, self.name = tempfile.mkstemp(suffix='.cfg')
         os.write(fd, '[__main__]\nfoo=bar\n')
@@ -178,7 +178,7 @@ class TestIncludes(unittest.TestCase):
 class TestInterpolation(unittest.TestCase):
     def test_basic_interpolate(self):
         class MySchema(Schema):
-            foo = StringConfigOption()
+            foo = StringOption()
             bar = BoolConfigOption()
         config = StringIO('[__main__]\nbar=%(foo)s\nfoo=True')
         parser = SchemaConfigParser(MySchema())
@@ -188,7 +188,7 @@ class TestInterpolation(unittest.TestCase):
 
     def test_interpolate_missing_option(self):
         class MySchema(Schema):
-            foo = StringConfigOption()
+            foo = StringOption()
             bar = BoolConfigOption()
 
         section = '__main__'
@@ -201,7 +201,7 @@ class TestInterpolation(unittest.TestCase):
 
     def test_interpolate_too_deep(self):
         class MySchema(Schema):
-            foo = StringConfigOption()
+            foo = StringOption()
             bar = BoolConfigOption()
 
         section = '__main__'
@@ -214,7 +214,7 @@ class TestInterpolation(unittest.TestCase):
 
     def test_interpolate_incomplete_format(self):
         class MySchema(Schema):
-            foo = StringConfigOption()
+            foo = StringOption()
             bar = BoolConfigOption()
 
         section = '__main__'
@@ -255,7 +255,7 @@ class TestInterpolation(unittest.TestCase):
 
     def test_get_interpolation_keys_string(self):
         class MySchema(Schema):
-            foo = StringConfigOption()
+            foo = StringOption()
         config = StringIO("[__main__]\nfoo=%(bar)s")
         expected = ('%(bar)s', set(['bar']))
 
@@ -299,7 +299,7 @@ class TestInterpolation(unittest.TestCase):
 
     def test_get_interpolation_keys_lines(self):
         class MySchema(Schema):
-            foo = LinesConfigOption(item=StringConfigOption())
+            foo = LinesConfigOption(item=StringOption())
         config = StringIO("[__main__]\nfoo=%(bar)s\n    %(baz)s")
         expected = ('%(bar)s\n%(baz)s', set(['bar', 'baz']))
 
@@ -379,7 +379,7 @@ class TestInterpolation(unittest.TestCase):
 
     def test_get_with_raw_value(self):
         class MySchema(Schema):
-            foo = StringConfigOption(raw=True)
+            foo = StringOption(raw=True)
         config = StringIO('[__main__]\nfoo=blah%(asd)##$@@dddf2kjhkjs')
         expected_value = 'blah%(asd)##$@@dddf2kjhkjs'
 
@@ -410,7 +410,7 @@ class TestInterpolation(unittest.TestCase):
 class TestSchemaConfigParser(unittest.TestCase):
     def setUp(self):
         class MySchema(Schema):
-            foo = StringConfigOption()
+            foo = StringOption()
         self.schema = MySchema()
         self.parser = SchemaConfigParser(self.schema)
         self.config = StringIO("[__main__]\nfoo = bar")
@@ -451,10 +451,10 @@ class TestSchemaConfigParser(unittest.TestCase):
 
     def test_items_interpolate(self):
         class MySchema(Schema):
-            foo = StringConfigOption()
+            foo = StringOption()
 
             class baz(ConfigSection):
-                bar = StringConfigOption()
+                bar = StringOption()
 
         parser = SchemaConfigParser(MySchema())
         config = StringIO('[__main__]\nfoo=%(bar)s\n[baz]\nbar=42')
@@ -519,7 +519,7 @@ class TestSchemaConfigParser(unittest.TestCase):
     def test_parse_option(self):
         class MyOtherSchema(Schema):
             class foo(ConfigSection):
-                bar = StringConfigOption()
+                bar = StringOption()
 
         expected_value = 'baz'
         config = StringIO("[foo]\nbar = baz")
@@ -538,7 +538,7 @@ class TestSchemaConfigParser(unittest.TestCase):
 
             class bar(ConfigSection):
                 baz = IntConfigOption()
-                bla = StringConfigOption(default='hello')
+                bla = StringOption(default='hello')
 
         schema = MySchema()
         config = StringIO("[bar]\nbaz=123")
@@ -764,7 +764,7 @@ class TestSchemaConfigParser(unittest.TestCase):
 
     def test_write(self):
         class MySchema(Schema):
-            foo = StringConfigOption()
+            foo = StringOption()
 
             class DEFAULTSECT(ConfigSection):
                 pass
@@ -827,8 +827,8 @@ class TestSchemaConfigParser(unittest.TestCase):
             return files, folder
 
         class MySchema(Schema):
-            foo = StringConfigOption()
-            bar = StringConfigOption()
+            foo = StringOption()
+            bar = StringOption()
 
         self.parser = SchemaConfigParser(MySchema())
 
@@ -856,7 +856,7 @@ class TestSchemaConfigParser(unittest.TestCase):
 class TestParserIsValid(unittest.TestCase):
     def setUp(self):
         class MySchema(Schema):
-            foo = StringConfigOption()
+            foo = StringOption()
         self.schema = MySchema()
         self.parser = SchemaConfigParser(self.schema)
         self.config = StringIO("[__main__]\nfoo = bar")
