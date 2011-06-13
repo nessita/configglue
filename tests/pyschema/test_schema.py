@@ -512,6 +512,7 @@ class TestListOption(unittest.TestCase):
                           parser.values())
 
     def test_remove_dict_duplicates(self):
+        """Test LinesConfigOption remove_duplicates with DictOption."""
         class MyOtherSchema(Schema):
             foo = self.cls(item=DictOption(), remove_duplicates=True)
 
@@ -601,7 +602,7 @@ class TestDictOption(unittest.TestCase):
     cls = DictOption
 
     def test_init(self):
-        """Test default values for DictConfigOption attributes."""
+        """Test default values for DictOption attributes."""
         opt = self.cls()
         self.assertEqual(opt.spec, {})
         self.assertEqual(opt.strict, False)
@@ -616,6 +617,7 @@ class TestDictOption(unittest.TestCase):
         self.assertEqual(opt.strict, True)
 
     def test_get_extra_sections(self):
+        """Test DictOption get_extra_sections."""
         class MySchema(Schema):
             foo = self.cls(item=self.cls())
 
@@ -636,7 +638,7 @@ baz=42
         self.assertEqual(extra, expected)
 
     def test_parse_dict(self):
-        """Test DictConfigOption parse a dict."""
+        """Test DictOption parse a dict."""
         class MySchema(Schema):
             foo = self.cls(spec={
                 'bar': StringOption(),
@@ -661,7 +663,7 @@ bla=Yes
         self.assertEqual(parser.values(), expected_values)
 
     def test_parse_raw(self):
-        """Test DictConfigOption parse using raw=True."""
+        """Test DictOption parse using raw=True."""
         class MySchema(Schema):
             foo = self.cls(spec={
                 'bar': StringOption(),
@@ -683,7 +685,7 @@ baz=42
         self.assertEqual(parsed, expected)
 
     def test_parse_invalid_key_in_parsed(self):
-        """Test DictConfigOption parse with an invalid key in the config."""
+        """Test DictOption parse with an invalid key in the config."""
         class MySchema(Schema):
             foo = self.cls(spec={'bar': IntOption()})
 
@@ -694,7 +696,7 @@ baz=42
         self.assertEqual(parser.values(), expected_values)
 
     def test_parse_invalid_key_in_spec(self):
-        """Test DictConfigOption parse with an invalid key in the spec."""
+        """Test DictOption parse with an invalid key in the spec."""
         class MySchema(Schema):
             foo = self.cls(spec={
                 'bar': IntOption(),
@@ -710,7 +712,7 @@ baz=42
         self.assertEqual(opt.default, {})
 
     def test_parse_no_strict_missing_args(self):
-        """Test DictConfigOption parse a missing key in non-strict mode."""
+        """Test DictOption parse a missing key in non-strict mode."""
         class MySchema(Schema):
             foo = self.cls(spec={'bar': IntOption()})
 
@@ -731,7 +733,7 @@ baz=42
         self.assertEqual(parser.values(), expected_values)
 
     def test_parse_no_strict_with_item(self):
-        """Test DictConfigOption parse in non-strict mode with an item spec."""
+        """Test DictOption parse in non-strict mode with an item spec."""
         class MySchema(Schema):
             foo = self.cls(
                       item=self.cls(
@@ -750,7 +752,7 @@ wham=42
         self.assertEqual(parser.values(), expected_values)
 
     def test_parse_strict(self):
-        """Test DictConfigOption parse in strict mode."""
+        """Test DictOption parse in strict mode."""
         class MySchema(Schema):
             spec = {'bar': IntOption()}
             foo = self.cls(spec=spec, strict=True)
@@ -762,7 +764,7 @@ wham=42
         self.assertEqual(parser.values(), expected_values)
 
     def test_parse_strict_missing_vars(self):
-        """Test DictConfigOption parse in strict mode with missing values."""
+        """Test DictOption parse in strict mode with missing values."""
         class MySchema(Schema):
             spec = {'bar': IntOption(),
                     'baz': IntOption()}
@@ -775,7 +777,7 @@ wham=42
         self.assertEqual(parser.values(), expected_values)
 
     def test_parse_strict_extra_vars(self):
-        """Test DictConfigOption parse in strict mode with extra values."""
+        """Test DictOption parse in strict mode with extra values."""
         class MySchema(Schema):
             spec = {'bar': IntOption()}
             foo = self.cls(spec=spec, strict=True)
@@ -833,7 +835,7 @@ bla=0
 
 
 class TestDictWithDicts(unittest.TestCase):
-    """Test DictConfigOption parse dict items."""
+    """Test DictOption parse dict items."""
     def test_parse_dict_with_dicts(self):
         innerspec = {'bar': StringOption(),
                      'baz': IntOption(),
