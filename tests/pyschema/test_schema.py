@@ -30,6 +30,7 @@ from configglue.pyschema.schema import (
     IntConfigOption,
     IntOption,
     LinesConfigOption,
+    ListOption,
     Schema,
     StringConfigOption,
     StringOption,
@@ -48,13 +49,13 @@ class TestSchema(unittest.TestCase):
                 bar = IntOption()
 
             class froo(ConfigSection):
-                twaddle = LinesConfigOption(item=BoolOption())
+                twaddle = ListOption(item=BoolOption())
 
         class MyThirdSchema(Schema):
             bar = IntOption()
 
             class froo(ConfigSection):
-                twaddle = LinesConfigOption(item=BoolOption())
+                twaddle = ListOption(item=BoolOption())
 
         schema = MySchema()
         names = set(s.name for s in schema.sections())
@@ -404,10 +405,12 @@ class TestBoolConfigOption(TestBoolOption):
     cls = BoolConfigOption
 
 
-class TestLinesConfigOption(unittest.TestCase):
+class TestListOption(unittest.TestCase):
+    cls = ListOption
+
     def test_parse_int_lines(self):
         class MySchema(Schema):
-            foo = LinesConfigOption(item=IntOption())
+            foo = self.cls(item=IntOption())
 
         config = StringIO("[__main__]\nfoo = 42\n 43\n 44")
         expected_values = {'__main__': {'foo': [42, 43, 44]}}
@@ -418,7 +421,7 @@ class TestLinesConfigOption(unittest.TestCase):
 
     def test_parse_bool_lines(self):
         class MySchema(Schema):
-            foo = LinesConfigOption(item=BoolOption())
+            foo = self.cls(item=BoolOption())
 
         schema = MySchema()
         config = StringIO("[__main__]\nfoo = tRuE\n No\n 0\n 1")
@@ -429,7 +432,7 @@ class TestLinesConfigOption(unittest.TestCase):
 
     def test_parse_bool_empty_lines(self):
         class MySchema(Schema):
-            foo = LinesConfigOption(item=BoolOption())
+            foo = self.cls(item=BoolOption())
 
         schema = MySchema()
         config = StringIO("[__main__]\nfoo =")
@@ -440,7 +443,7 @@ class TestLinesConfigOption(unittest.TestCase):
 
     def test_parse_bool_invalid_lines(self):
         class MySchema(Schema):
-            foo = LinesConfigOption(item=BoolOption())
+            foo = self.cls(item=BoolOption())
 
         schema = MySchema()
         config = StringIO("[__main__]\nfoo = bla")
@@ -454,13 +457,12 @@ class TestLinesConfigOption(unittest.TestCase):
         self.assertRaises(ValueError, parser.values)
 
     def test_default(self):
-        opt = LinesConfigOption(item=IntOption())
+        opt = self.cls(item=IntOption())
         self.assertEqual(opt.default, [])
 
     def test_remove_duplicates(self):
         class MySchema(Schema):
-            foo = LinesConfigOption(item=StringOption(),
-                                    remove_duplicates=True)
+            foo = self.cls(item=StringOption(), remove_duplicates=True)
 
         schema = MySchema()
         config = StringIO("[__main__]\nfoo = bla\n blah\n bla")
@@ -471,8 +473,7 @@ class TestLinesConfigOption(unittest.TestCase):
 
     def test_remove_dict_duplicates(self):
         class MyOtherSchema(Schema):
-            foo = LinesConfigOption(item=DictOption(),
-                                    remove_duplicates=True)
+            foo = self.cls(item=DictOption(), remove_duplicates=True)
 
         schema = MyOtherSchema()
         config = StringIO("[__main__]\nfoo = bla\n bla\n[bla]\nbar = baz")
@@ -482,12 +483,16 @@ class TestLinesConfigOption(unittest.TestCase):
                           parser.values())
 
     def test_validate_list(self):
-        opt = LinesConfigOption(item=IntOption())
+        opt = self.cls(item=IntOption())
         self.assertEqual(opt.validate([]), True)
 
     def test_validate_nonlist(self):
-        opt = LinesConfigOption(item=IntOption())
+        opt = self.cls(item=IntOption())
         self.assertEqual(opt.validate(''), False)
+
+
+class LinesConfigOption(ListOption):
+    cls = LinesConfigOption
 
 
 class TestTupleConfigOption(unittest.TestCase):
@@ -735,10 +740,10 @@ class TestDictConfigOption(TestDictOption):
     cls = DictConfigOption
 
 
-class TestLinesOfDictOption(unittest.TestCase):
+class TestListOfDictOption(unittest.TestCase):
     def test_parse_lines_of_dict(self):
         class MySchema(Schema):
-            foo = LinesConfigOption(item=DictOption(
+            foo = ListOption(item=DictOption(
                 spec={
                     'bar': StringOption(),
                     'baz': IntOption(),
@@ -802,7 +807,7 @@ baz = 42
 class TestListOfTuples(unittest.TestCase):
     def setUp(self):
         class MySchema(Schema):
-            foo = LinesConfigOption(item=TupleConfigOption(length=3))
+            foo = ListOption(item=TupleConfigOption(length=3))
 
         schema = MySchema()
         self.parser = SchemaConfigParser(schema)

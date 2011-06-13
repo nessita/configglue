@@ -76,7 +76,7 @@ This will be parsed as the tuple `(1, 2, 3)`.
 Lists
 -----
 
-For specifying the value of a :class:`~configglue.pyschema.schema.LinesConfigOption`,
+For specifying the value of a :class:`~configglue.pyschema.schema.ListOption`,
 you just put each value on a different line, as shown::
 
     my_list = 1

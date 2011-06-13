@@ -118,21 +118,21 @@ A true/false option.
 
 An integer.
 
-``LinesConfigOption``
+``ListOption``
 ---------------------
 
-.. class:: LinesConfigOption(item, [remove_duplicates=False, **attributes])
+.. class:: ListOption(item, [remove_duplicates=False, **attributes])
 
 A list of items.
 
-.. attribute:: LinesConfigOption.item
+.. attribute:: ListOption.item
 
     *Required*.
 
     List elements will be parsed as being of this type. Should be an
     instance of a subclass of :class:`~configglue.pyschema.schema.ConfigOption`.
 
-.. attribute:: LinesConfigOption.remove_duplicates
+.. attribute:: ListOption.remove_duplicates
 
     *Optional*.
 

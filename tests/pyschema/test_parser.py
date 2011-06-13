@@ -46,7 +46,7 @@ from configglue.pyschema.schema import (
     ConfigSection,
     DictOption,
     IntOption,
-    LinesConfigOption,
+    ListOption,
     Schema,
     StringOption,
     TupleConfigOption,
@@ -299,7 +299,7 @@ class TestInterpolation(unittest.TestCase):
 
     def test_get_interpolation_keys_lines(self):
         class MySchema(Schema):
-            foo = LinesConfigOption(item=StringOption())
+            foo = ListOption(item=StringOption())
         config = StringIO("[__main__]\nfoo=%(bar)s\n    %(baz)s")
         expected = ('%(bar)s\n%(baz)s', set(['bar', 'baz']))
 
@@ -310,7 +310,7 @@ class TestInterpolation(unittest.TestCase):
 
     def test_get_interpolation_keys_tuple_lines(self):
         class MySchema(Schema):
-            foo = LinesConfigOption(item=TupleConfigOption(2))
+            foo = ListOption(item=TupleConfigOption(2))
         config = StringIO(
             "[__main__]\nfoo=%(bar)s,%(bar)s\n    %(baz)s,%(baz)s")
         expected = ('%(bar)s,%(bar)s\n%(baz)s,%(baz)s',
@@ -587,7 +587,7 @@ class TestSchemaConfigParser(unittest.TestCase):
 
     def test_multiple_extra_sections(self):
         class MySchema(Schema):
-            foo = LinesConfigOption(
+            foo = ListOption(
                 item=DictOption(spec={'bar': IntOption()}))
 
         config = StringIO('[__main__]\nfoo=d1\n    d2\n    d3\n'
@@ -653,7 +653,7 @@ class TestSchemaConfigParser(unittest.TestCase):
 
     def test_multi_file_dict_list_config(self):
         class MySchema(Schema):
-            foo = LinesConfigOption(
+            foo = ListOption(
                 item=DictOption(spec={
                     'bar': IntOption(),
                     'baz': IntOption(),
@@ -1020,7 +1020,7 @@ baz=42
 
     def test_extra_sections_when_lines_dict_with_nested_dicts(self):
         class MySchema(Schema):
-            foo = LinesConfigOption(
+            foo = ListOption(
                 item=DictOption(item=DictOption()))
 
         config = StringIO("""
@@ -1049,7 +1049,7 @@ whaz = 2
     def test_extra_sections_when_dict_with_nested_lines_dicts(self):
         class MySchema(Schema):
             foo = DictOption(
-                item=LinesConfigOption(item=DictOption()))
+                item=ListOption(item=DictOption()))
 
         config = StringIO("""
 [__main__]
@@ -1072,9 +1072,9 @@ wham = 2
 
     def test_extra_sections_when_lines_dict_with_nested_lines_dicts(self):
         class MySchema(Schema):
-            foo = LinesConfigOption(
+            foo = ListOption(
                 item=DictOption(
-                    item=LinesConfigOption(item=DictOption())))
+                    item=ListOption(item=DictOption())))
 
         config = StringIO("""
 [__main__]
@@ -1107,7 +1107,7 @@ swoosh = 4
 
     def test_multiple_extra_sections(self):
         class MySchema(Schema):
-            foo = LinesConfigOption(
+            foo = ListOption(
                 item=DictOption(spec={'bar': IntOption()}))
 
         config = StringIO('[__main__]\nfoo=d1\n    d2\n    d3\n'
