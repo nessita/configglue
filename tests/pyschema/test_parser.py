@@ -286,6 +286,7 @@ class TestInterpolation(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_get_interpolation_keys_bool(self):
+        """Test get_interpolation_keys for a boolean."""
         class MySchema(Schema):
             foo = BoolOption()
         config = StringIO("[__main__]\nfoo=%(bar)s")
