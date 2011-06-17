@@ -30,7 +30,7 @@ from configglue.pyschema.parser import SchemaConfigParser
 from configglue.pyschema.schema import (
     ConfigOption,
     ConfigSection,
-    IntConfigOption,
+    IntOption,
     Schema,
     StringOption,
 )
@@ -97,8 +97,9 @@ class TestConfigSection(unittest.TestCase):
         self.assertNotEqual(sec1, sec2)
 
     def test_has_option(self):
+        """Test ConfigSection has_option."""
         class MySection(ConfigSection):
-            foo = IntConfigOption()
+            foo = IntOption()
 
         sec1 = MySection()
         self.assertTrue(sec1.has_option('foo'))
@@ -109,9 +110,9 @@ class TestSchemaConfigGlue(unittest.TestCase):
     def setUp(self):
         class MySchema(Schema):
             class foo(ConfigSection):
-                bar = IntConfigOption()
+                bar = IntOption()
 
-            baz = IntConfigOption(help='The baz option')
+            baz = IntOption(help='The baz option')
 
         self.parser = SchemaConfigParser(MySchema())
 
@@ -158,10 +159,10 @@ class TestSchemaConfigGlue(unittest.TestCase):
         """Test schemaconfigglue when an ambiguous option is specified."""
         class MySchema(Schema):
             class foo(ConfigSection):
-                baz = IntConfigOption()
+                baz = IntOption()
 
             class bar(ConfigSection):
-                baz = IntConfigOption()
+                baz = IntOption()
 
         config = StringIO("[foo]\nbaz=1")
         parser = SchemaConfigParser(MySchema())
@@ -214,6 +215,7 @@ class ConfigglueTestCase(unittest.TestCase):
     @patch('configglue.pyschema.glue.schemaconfigglue')
     def test_configglue_no_errors(self, mock_schemaconfigglue,
         mock_schema_parser):
+        """Test configglue when no errors occur."""
         # prepare mocks
         expected_schema_parser = Mock()
         expected_schema_parser.is_valid.return_value = (True, None)
@@ -226,7 +228,7 @@ class ConfigglueTestCase(unittest.TestCase):
 
         # define the inputs
         class MySchema(Schema):
-            foo = IntConfigOption()
+            foo = IntOption()
 
         configs = ['config.ini']
 
@@ -249,6 +251,7 @@ class ConfigglueTestCase(unittest.TestCase):
     @patch('configglue.pyschema.glue.schemaconfigglue')
     def test_configglue_with_errors(self, mock_schemaconfigglue,
         mock_schema_parser):
+        """Test configglue when an error happens."""
         # prepare mocks
         expected_schema_parser = Mock()
         expected_schema_parser.is_valid.return_value = (False, ['some error'])
@@ -261,7 +264,7 @@ class ConfigglueTestCase(unittest.TestCase):
 
         # define the inputs
         class MySchema(Schema):
-            foo = IntConfigOption()
+            foo = IntOption()
 
         configs = ['config.ini']
 
@@ -286,6 +289,7 @@ class ConfigglueTestCase(unittest.TestCase):
     @patch('configglue.pyschema.glue.schemaconfigglue')
     def test_configglue_with_usage(self, mock_schemaconfigglue,
         mock_schema_parser, mock_option_parser):
+        """Test configglue with the 'usage' parameter set."""
         # prepare mocks
         expected_schema_parser = Mock()
         expected_schema_parser.is_valid.return_value = (True, None)
@@ -298,7 +302,7 @@ class ConfigglueTestCase(unittest.TestCase):
 
         # define the inputs
         class MySchema(Schema):
-            foo = IntConfigOption()
+            foo = IntOption()
 
         configs = ['config.ini']
 

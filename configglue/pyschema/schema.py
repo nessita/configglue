@@ -26,6 +26,7 @@ __all__ = [
     'ConfigSection',
     'DictConfigOption',
     'IntConfigOption',
+    'IntOption',
     'LinesConfigOption',
     'Schema',
     'StringConfigOption',
@@ -314,7 +315,7 @@ class BoolConfigOption(ConfigOption):
         return isinstance(value, bool)
 
 
-class IntConfigOption(ConfigOption):
+class IntOption(ConfigOption):
     """A ConfigOption that is parsed into an int"""
 
     def _get_default(self):
@@ -590,4 +591,8 @@ class DeprecatedOption(type):
 
 
 class StringConfigOption(StringOption):
+    __metaclass__ = DeprecatedOption
+
+
+class IntConfigOption(IntOption):
     __metaclass__ = DeprecatedOption

@@ -111,10 +111,10 @@ Option types
 
 A true/false option.
 
-``IntConfigOption``
+``IntOption``
 -------------------
 
-.. class:: IntConfigOption([**attributes])
+.. class:: IntOption([**attributes])
 
 An integer.
 

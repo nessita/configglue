@@ -28,7 +28,7 @@ This example schema defines the configuration for a database connection::
         host = pyschema.StringOption(
             default='localhost',
             help='Host where the database engine is listening on')
-        port = pyschema.IntConfigOption(
+        port = pyschema.IntOption(
             default=5432,
             help='Port where the database engine is listening on')
         dbname = pyschema.StringOption(
@@ -51,8 +51,8 @@ defines. Options are specified by class attributes.
 Example::
 
     class OvenSettings(pyschema.Schema):
-        temperature = pyschema.IntConfigOption()
-        time = pyschema.IntConfigOption()
+        temperature = pyschema.IntOption()
+        time = pyschema.IntOption()
 
 Option types
 ------------
@@ -106,7 +106,7 @@ configglue places only one restriction on schema option names:
     result in a Python syntax error. For example::
 
         class Example(pyschema.Schema):
-            pass = pyschema.IntConfigOption() # 'pass' is a reserved word!
+            pass = pyschema.IntOption() # 'pass' is a reserved word!
 
 Custom option types
 -------------------
@@ -150,17 +150,17 @@ For example::
 
 
     class BaseSchema(pyschema.Schema):
-        option1 = pyschema.IntConfigOption()
+        option1 = pyschema.IntOption()
 
         class MySection(pyschema.ConfigSection):
             option1 = pyschema.BoolConfigOption()
 
 
     class ChildSchema(BaseSchema):
-        option2 = pyschema.IntConfigOption()
+        option2 = pyschema.IntOption()
 
         class MySection(BaseSchema.MySection):
-            option2 = IntConfigOption()
+            option2 = IntOption()
 
 In this example :class:`ChildSchema` will have two top-level options,
 :attr:`option1` and :attr:`option2`, and one section :attr:`MySection`, which
@@ -172,12 +172,12 @@ expected::
     from configglue import pyschema
 
     class ChildSchema(pyschema.Schema):
-        option1 = pyschema.IntConfigOption()
-        option2 = pyschema.IntConfigOption()
+        option1 = pyschema.IntOption()
+        option2 = pyschema.IntOption()
 
         class MySection(pyschema.ConfigSection):
             option1 = pyschema.BoolConfigOption()
-            option2 = IntConfigOption()
+            option2 = IntOption()
 
 
 Multiple inheritance
