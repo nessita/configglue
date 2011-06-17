@@ -29,6 +29,7 @@ from configglue.pyschema.schema import (
     LinesConfigOption,
     Schema,
     StringConfigOption,
+    StringOption,
     TupleConfigOption,
     get_config_objects,
 )
@@ -149,9 +150,10 @@ class TestSchemaHelpers(unittest.TestCase):
 
 class TestConfigOption(unittest.TestCase):
     def test_equal(self):
+        """Test option equality."""
         opt1 = IntConfigOption(name='opt1')
         opt2 = IntConfigOption(name='opt2')
-        opt3 = StringConfigOption(name='opt1')
+        opt3 = StringOption(name='opt1')
         self.assertEqual(opt1, opt1)
         self.assertNotEqual(opt1, opt2)
         self.assertNotEqual(opt1, opt3)
@@ -253,62 +255,77 @@ class TestSchemaInheritance(unittest.TestCase):
         self.assertEqual(foo_option_names, set(['bar']))
 
 
-class TestStringConfigOption(unittest.TestCase):
+class TestStringOption(unittest.TestCase):
+    cls = StringOption
+
     def setUp(self):
-        self.opt = StringConfigOption()
+        self.opt = self.cls()
 
     def test_init_no_args(self):
+        """Test null attribute for StringOption."""
         self.assertFalse(self.opt.null)
 
     def test_init_null(self):
-        opt = StringConfigOption(null=True)
+        """Test null attribute for null StringOption."""
+        opt = self.cls(null=True)
         self.assertTrue(opt.null)
 
     def test_parse_ascii_string(self):
+        """Test StringOption parse an ascii string."""
         value = self.opt.parse('42')
         self.assertEqual(value, '42')
 
     def test_parse_empty_string(self):
+        """Test StringOption parse an empty string."""
         value = self.opt.parse('')
         self.assertEqual(value, '')
 
     def test_parse_null_string(self):
-        opt = StringConfigOption(null=True)
+        """Test StringOption parse a null string."""
+        opt = self.cls(null=True)
         value = opt.parse(None)
         self.assertEqual(value, None)
 
     def test_None_string(self):
+        """Test StringOption parse the 'None' string."""
         value = self.opt.parse('None')
         self.assertEqual(value, 'None')
 
     def test_parse_nonascii_string(self):
-        foo = StringConfigOption()
-        value = foo.parse('foóbâr')
+        """Test StringOption parse a non-ascii string."""
+        value = self.opt.parse('foóbâr')
         self.assertEqual(value, 'foóbâr')
 
     def test_parse_int(self):
+        """Test StringOption parse an integer."""
         value = self.opt.parse(42)
         self.assertEqual(value, '42')
 
     def test_parse_bool(self):
+        """Test StringOption parse a boolean."""
         value = self.opt.parse(False)
         self.assertEqual(value, 'False')
 
     def test_default(self):
-        opt = StringConfigOption()
-        self.assertEqual(opt.default, '')
+        """Test default value for StringOption."""
+        self.assertEqual(self.opt.default, '')
 
     def test_default_null(self):
-        opt = StringConfigOption(null=True)
+        """Test default value for null StringOption."""
+        opt = self.cls(null=True)
         self.assertEqual(opt.default, None)
 
     def test_validate_string(self):
-        opt = StringConfigOption()
-        self.assertEqual(opt.validate(''), True)
+        """Test OptionString validate a string value."""
+        self.assertEqual(self.opt.validate(''), True)
 
     def test_validate_nonstring(self):
-        opt = StringConfigOption()
-        self.assertEqual(opt.validate(0), False)
+        """Test OptionString validate a non-string value."""
+        self.assertEqual(self.opt.validate(0), False)
+
+
+class TestStringConfigOption(TestStringOption):
+    cls = StringConfigOption
 
 
 class TestIntConfigOption(unittest.TestCase):
@@ -440,8 +457,9 @@ class TestLinesConfigOption(unittest.TestCase):
         self.assertEqual(opt.default, [])
 
     def test_remove_duplicates(self):
+        """Test LinesConfigOption with remove_duplicates."""
         class MySchema(Schema):
-            foo = LinesConfigOption(item=StringConfigOption(),
+            foo = LinesConfigOption(item=StringOption(),
                                     remove_duplicates=True)
 
         schema = MySchema()
@@ -562,9 +580,10 @@ baz=42
         self.assertEqual(extra, expected)
 
     def test_parse_dict(self):
+        """Test DictConfigOption parse a dict."""
         class MySchema(Schema):
             foo = DictConfigOption(spec={
-                'bar': StringConfigOption(),
+                'bar': StringOption(),
                 'baz': IntConfigOption(),
                 'bla': BoolConfigOption(),
             })
@@ -586,9 +605,10 @@ bla=Yes
         self.assertEqual(parser.values(), expected_values)
 
     def test_parse_raw(self):
+        """Test DictConfigOption parse using raw=True."""
         class MySchema(Schema):
             foo = DictConfigOption(spec={
-                'bar': StringConfigOption(),
+                'bar': StringOption(),
                 'baz': IntConfigOption(),
                 'bla': BoolConfigOption(),
             })
@@ -713,10 +733,11 @@ wham=42
 
 class TestLinesOfDictConfigOption(unittest.TestCase):
     def test_parse_lines_of_dict(self):
+        """Test LinesConfigOption parse a list of dicts."""
         class MySchema(Schema):
             foo = LinesConfigOption(item=DictConfigOption(
                 spec={
-                    'bar': StringConfigOption(),
+                    'bar': StringOption(),
                     'baz': IntConfigOption(),
                     'bla': BoolConfigOption(),
                 }))
@@ -745,12 +766,13 @@ bla=0
 
 
 class TestDictWithDicts(unittest.TestCase):
+    """Test DictConfigOption parse dict items."""
     def test_parse_dict_with_dicts(self):
-        innerspec = {'bar': StringConfigOption(),
+        innerspec = {'bar': StringOption(),
                      'baz': IntConfigOption(),
                      'bla': BoolConfigOption(),
                     }
-        spec = {'name': StringConfigOption(),
+        spec = {'name': StringOption(),
                 'size': IntConfigOption(),
                 'options': DictConfigOption(spec=innerspec)}
 

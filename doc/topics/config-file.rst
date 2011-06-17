@@ -8,7 +8,7 @@ configuration file, there a few special syntax constructs you should be aware of
 
 A ConfigSection is matched by a ConfigParser section, which is defined like::
 
-    [my_section]
+    [MySection]
 
 A ConfigOption is matched by a ConfigParser option, which is defined by a
 simple key, value pair, like::
@@ -17,14 +17,14 @@ simple key, value pair, like::
 
 So, a very simple configuration file could look like::
 
-    [my_section]
+    [MySection]
     my_option = the value
 
 This configuration file would match with a schema like the following::
 
     class MySchema(pyschema.Schema):
-        class my_section(pyschema.ConfigSection):
-            my_option = pyschema.StringConfigOption()
+        class MySection(pyschema.ConfigSection):
+            my_option = pyschema.StringOption()
 
 ======================
 Special considerations

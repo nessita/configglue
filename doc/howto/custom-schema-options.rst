@@ -83,5 +83,5 @@ value for the ``mydict`` attribute::
 .. note::
     Note that the dictionary values are strings because we didn't specify an
     item type for the ``UpperCaseDictConfigOption``, and so it defaulted to
-    :class:`~configglue.pyschema.schema.StringConfigOption`.
+    :class:`~configglue.pyschema.schema.StringOption`.
 

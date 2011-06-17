@@ -32,7 +32,7 @@ from configglue.pyschema.schema import (
     IntConfigOption,
     LinesConfigOption,
     Schema,
-    StringConfigOption,
+    StringOption,
 )
 
 
@@ -58,7 +58,7 @@ def ini2schema(fd, p=None):
     p.readfp(fd)
     p.parse_all()
 
-    parser2option = {'unicode': StringConfigOption,
+    parser2option = {'unicode': StringOption,
                      'int': IntConfigOption,
                      'bool': BoolConfigOption,
                      'lines': LinesConfigOption}
@@ -93,9 +93,9 @@ def ini2schema(fd, p=None):
             if option_action is not None:
                 attrs['action'] = option_action
 
-            klass = parser2option.get(parser, StringConfigOption)
+            klass = parser2option.get(parser, StringOption)
             if parser == 'lines':
-                instance = klass(item=StringConfigOption(), **attrs)
+                instance = klass(item=StringOption(), **attrs)
             else:
                 instance = klass(**attrs)
             setattr(section, option_name, instance)

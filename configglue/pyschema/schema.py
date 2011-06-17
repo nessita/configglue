@@ -17,6 +17,7 @@
 
 from copy import deepcopy
 from inspect import getmembers
+from warnings import warn
 
 
 __all__ = [
@@ -28,6 +29,7 @@ __all__ = [
     'LinesConfigOption',
     'Schema',
     'StringConfigOption',
+    'StringOption',
     'TupleConfigOption',
 ]
 
@@ -69,7 +71,7 @@ class Schema(object):
     """
 
     def __init__(self):
-        self.includes = LinesConfigOption(item=StringConfigOption())
+        self.includes = LinesConfigOption(item=StringOption())
         self._sections = {}
         # add section and options to the schema
         for name, item in get_config_objects(self.__class__):
@@ -387,7 +389,7 @@ class LinesConfigOption(ConfigOption):
         return isinstance(value, list)
 
 
-class StringConfigOption(ConfigOption):
+class StringOption(ConfigOption):
     """A ConfigOption that is parsed into a string.
 
     If null==True, a value of 'None' will be parsed in to None instead of
@@ -398,7 +400,7 @@ class StringConfigOption(ConfigOption):
     def __init__(self, name='', raw=False, default=NO_DEFAULT, fatal=False,
         null=False, help='', action='store'):
         self.null = null
-        super(StringConfigOption, self).__init__(name=name, raw=raw,
+        super(StringOption, self).__init__(name=name, raw=raw,
             default=default, fatal=fatal, help=help, action=action)
 
     def _get_default(self):
@@ -490,7 +492,7 @@ class DictConfigOption(ConfigOption):
         if spec is None:
             spec = {}
         if item is None:
-            item = StringConfigOption()
+            item = StringOption()
         self.spec = spec
         self.strict = strict
         self.item = item
@@ -575,3 +577,17 @@ class DictConfigOption(ConfigOption):
                 sections.extend(extra)
 
         return sections
+
+#
+# deprecated
+#
+
+class DeprecatedOption(type):
+    def __init__(cls, name, bases, attrs):
+        warn('{0} is deprecated; use {1} instead.'.format(
+            name, bases[0].__name__), DeprecationWarning)
+        type.__init__(cls, name, bases, attrs)
+
+
+class StringConfigOption(StringOption):
+    __metaclass__ = DeprecatedOption

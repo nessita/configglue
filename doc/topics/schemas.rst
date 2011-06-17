@@ -25,18 +25,18 @@ This example schema defines the configuration for a database connection::
     from configglue import pyschema
 
     class DatabaseConnection(pyschema.Schema):
-        host = pyschema.StringConfigOption(
+        host = pyschema.StringOption(
             default='localhost',
             help='Host where the database engine is listening on')
         port = pyschema.IntConfigOption(
             default=5432,
             help='Port where the database engine is listening on')
-        dbname = pyschema.StringConfigOption(
+        dbname = pyschema.StringOption(
             fatal=True,
             help='Name of the database to connect to')
-        user = pyschema.StringConfigOption(
+        user = pyschema.StringOption(
             help='Username to use for the connection')
-        password = pyschema.StringConfigOption(
+        password = pyschema.StringOption(
             help='Password to use fot the connection')
 
 ``host``, ``port``, ``dbname``, ``user`` and ``password`` are options_ of the
@@ -151,19 +151,21 @@ For example::
 
     class BaseSchema(pyschema.Schema):
         option1 = pyschema.IntConfigOption()
-        class section1(pyschema.ConfigSection):
+
+        class MySection(pyschema.ConfigSection):
             option1 = pyschema.BoolConfigOption()
 
 
     class ChildSchema(BaseSchema):
         option2 = pyschema.IntConfigOption()
-        class section1(BaseSchema.section1):
+
+        class MySection(BaseSchema.MySection):
             option2 = IntConfigOption()
 
 In this example :class:`ChildSchema` will have two top-level options,
-:attr:`option1` and :attr:`option2`, and one section :attr:`section1`, which
-will have also two options within in (:attr:`section1.option1` and
-:attr:`section1.option2`). So, defining :class:`ChildSchema` in this way
+:attr:`option1` and :attr:`option2`, and one section :attr:`MySection`, which
+will have also two options within in (:attr:`MySection.option1` and
+:attr:`MySection.option2`). So, defining :class:`ChildSchema` in this way
 produces the same result as explicitely describing each attribute, as
 expected::
 
@@ -172,7 +174,8 @@ expected::
     class ChildSchema(pyschema.Schema):
         option1 = pyschema.IntConfigOption()
         option2 = pyschema.IntConfigOption()
-        class section1(pyschema.ConfigSection):
+
+        class MySection(pyschema.ConfigSection):
             option1 = pyschema.BoolConfigOption()
             option2 = IntConfigOption()
 
