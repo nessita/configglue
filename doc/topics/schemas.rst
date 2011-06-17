@@ -153,7 +153,7 @@ For example::
         option1 = pyschema.IntOption()
 
         class MySection(pyschema.ConfigSection):
-            option1 = pyschema.BoolConfigOption()
+            option1 = pyschema.BoolOption()
 
 
     class ChildSchema(BaseSchema):
@@ -176,7 +176,7 @@ expected::
         option2 = pyschema.IntOption()
 
         class MySection(pyschema.ConfigSection):
-            option1 = pyschema.BoolConfigOption()
+            option1 = pyschema.BoolOption()
             option2 = IntOption()
 
 

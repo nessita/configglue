@@ -106,7 +106,7 @@ and the schema::
     class MySchema(pyschema.Schema):
         my_dict = pyschema.DictConfigOption(
             spec={'foo': pyschema.IntOption(),
-                  'bar': pyschema.BoolConfigOption()})
+                  'bar': pyschema.BoolOption()})
 
 `my_dict` would be parsed as::
 
