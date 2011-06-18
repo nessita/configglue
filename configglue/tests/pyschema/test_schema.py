@@ -995,12 +995,12 @@ class MultiSchemaTestCase(unittest.TestCase):
 
     def test_merge_schemas_same_section(self):
         class SchemaA(Schema):
-            foo = Section()
-            foo.bar = IntOption()
+            class foo(Section):
+                bar = IntOption()
 
         class SchemaB(Schema):
-            foo = Section()
-            foo.baz = BoolOption()
+            class foo(Section):
+                baz = BoolOption()
 
         schema = merge(SchemaA, SchemaB)()
         self.assertEqual(set(s.name for s in schema.sections()),
