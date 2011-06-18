@@ -38,11 +38,10 @@ __all__ = [
     'StringOption',
     'TupleConfigOption',
     'TupleOption',
+    'merge',
 ]
 
 NO_DEFAULT = object()
-
-_internal = object.__dict__.keys() + ['__module__']
 
 
 def get_config_objects(obj):
@@ -57,6 +56,49 @@ def get_config_objects(obj):
                 setattr(instance, key, value)
             objects.append((name, instance))
     return objects
+
+
+def merge(*schemas):
+    # import here to avoid circular imports
+    from .parser import SchemaValidationError
+
+    # define result schema
+    class MergedSchema(Schema):
+        pass
+
+    # for each schema
+    for schema in schemas:
+        instance = schema()
+        # iterate over the schema sections
+        for section in instance.sections():
+            # create the appropriate section object
+            section_name = section.name
+            if section_name == '__main__':
+                # section is special __main__ section
+                sect = MergedSchema
+            elif not hasattr(MergedSchema, section_name):
+                # section is not present in schema, just copy it over
+                # completely
+                setattr(MergedSchema, section_name, section)
+                continue
+            else:
+                # section is present in schema, do the merge
+                sect = getattr(MergedSchema, section_name)
+
+            # do the merge
+
+            # iterate over the section options
+            for option in section.options():
+                opt = getattr(sect, option.name, None)
+                if opt is not None:
+                    if option != opt:
+                        raise SchemaValidationError("Conflicting option "
+                            "'%s.%s' while merging schemas." % (
+                            section_name, option.name))
+                else:
+                    setattr(sect, option.name, option)
+
+    return MergedSchema
 
 
 class Schema(object):
@@ -111,8 +153,10 @@ class Schema(object):
         setattr(section, name, option)
 
     def __eq__(self, other):
-        return (self._sections == other._sections and
-                self.includes == other.includes)
+        return (
+            type(self) == type(other) and
+            self._sections == other._sections and
+            self.includes == other.includes)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -174,8 +218,10 @@ class Section(object):
         self.name = name
 
     def __eq__(self, other):
-        return (self.name == other.name and
-                self.options() == other.options())
+        return (
+            type(self) == type(other) and
+            self.name == other.name and
+            self.options() == other.options())
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -249,11 +295,13 @@ class Option(object):
 
     def __eq__(self, other):
         try:
-            equal = (self.name == other.name and
-                     self.raw == other.raw and
-                     self.fatal == other.fatal and
-                     self.default == other.default and
-                     self.help == other.help)
+            equal = (
+                type(self) == type(other) and
+                self.name == other.name and
+                self.raw == other.raw and
+                self.fatal == other.fatal and
+                self.default == other.default and
+                self.help == other.help)
             if self.section is not None and other.section is not None:
                 # only test for section name to avoid recursion
                 equal &= self.section.name == other.section.name
@@ -574,12 +622,13 @@ class DictOption(Option):
             is_dict_lines_item = (hasattr(option_obj, 'item') and
                 isinstance(option_obj.item, DictOption))
 
+            if not (is_dict_item or is_dict_lines_item):
+                continue
+
             if is_dict_item:
                 base = option_obj
-            elif is_dict_lines_item:
-                base = option_obj.item
             else:
-                continue
+                base = option_obj.item
 
             value = parser.get(section, option, parse=False)
             names = value.split()
