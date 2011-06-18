@@ -45,7 +45,8 @@ class App(XdgApplication):
     schema = Schema
     plugin_manager = PluginManager
 
-    def __init__(self, schema=None, plugin_manager=None, name=None, create_dirs=True):
+    def __init__(self, schema=None, plugin_manager=None, name=None,
+        create_dirs=True):
         # initialize app name
         if name is None:
             name = os.path.splitext(os.path.basename(sys.argv[0]))[0]

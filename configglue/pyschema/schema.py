@@ -156,8 +156,7 @@ class Schema(object):
         return (
             type(self) == type(other) and
             self._sections == other._sections and
-            self.includes == other.includes
-        )
+            self.includes == other.includes)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -222,8 +221,7 @@ class Section(object):
         return (
             type(self) == type(other) and
             self.name == other.name and
-            self.options() == other.options()
-        )
+            self.options() == other.options())
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -303,8 +301,7 @@ class Option(object):
                 self.raw == other.raw and
                 self.fatal == other.fatal and
                 self.default == other.default and
-                self.help == other.help
-            )
+                self.help == other.help)
             if self.section is not None and other.section is not None:
                 # only test for section name to avoid recursion
                 equal &= self.section.name == other.section.name

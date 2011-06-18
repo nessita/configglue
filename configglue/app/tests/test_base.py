@@ -85,8 +85,10 @@ class ConfigTestCase(TestCase):
         self.assertEqual(config.get_config_files(app=app), config_files)
 
     @patch('xdg.BaseDirectory.os.path.exists')
-    def test_get_config_files_with_plugins_full_hierarchy(self, mock_path_exists):
+    def test_get_config_files_with_plugins_full_hierarchy(self,
+        mock_path_exists):
         mock_path_exists.return_value = True
+
         class Foo(Plugin):
             enabled = True
 

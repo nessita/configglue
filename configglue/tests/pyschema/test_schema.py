@@ -1033,9 +1033,8 @@ class MultiSchemaTestCase(unittest.TestCase):
             foo = BoolConfigOption()
 
         try:
-            schema = merge(SchemaA, SchemaB)
+            merge(SchemaA, SchemaB)
             self.fail('SchemaValidationError not raised.')
         except SchemaValidationError, e:
-            schemas = (SchemaA, SchemaB)
             self.assertEqual(str(e),
                 "Conflicting option '__main__.foo' while merging schemas.")
