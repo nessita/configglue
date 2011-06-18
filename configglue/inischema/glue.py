@@ -30,7 +30,7 @@ from configglue.pyschema.schema import (
     BoolOption,
     ConfigSection,
     IntOption,
-    LinesConfigOption,
+    ListOption,
     Schema,
     StringOption,
 )
@@ -61,7 +61,7 @@ def ini2schema(fd, p=None):
     parser2option = {'unicode': StringOption,
                      'int': IntOption,
                      'bool': BoolOption,
-                     'lines': LinesConfigOption}
+                     'lines': ListOption}
 
     class MySchema(Schema):
         pass

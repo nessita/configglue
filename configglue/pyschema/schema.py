@@ -30,6 +30,7 @@ __all__ = [
     'IntConfigOption',
     'IntOption',
     'LinesConfigOption',
+    'ListOption',
     'Schema',
     'StringConfigOption',
     'StringOption',
@@ -74,7 +75,7 @@ class Schema(object):
     """
 
     def __init__(self):
-        self.includes = LinesConfigOption(item=StringOption())
+        self.includes = ListOption(item=StringOption())
         self._sections = {}
         # add section and options to the schema
         for name, item in get_config_objects(self.__class__):
@@ -338,7 +339,7 @@ class IntOption(ConfigOption):
         return isinstance(value, int)
 
 
-class LinesConfigOption(ConfigOption):
+class ListOption(ConfigOption):
     """A ConfigOption that is parsed into a list of objects
 
     All items in the list need to be of the same type.  The 'item' constructor
@@ -356,7 +357,7 @@ class LinesConfigOption(ConfigOption):
 
     def __init__(self, name='', item=None, raw=False, default=NO_DEFAULT,
         fatal=False, help='', action='store', remove_duplicates=False):
-        super(LinesConfigOption, self).__init__(name=name, raw=raw,
+        super(ListOption, self).__init__(name=name, raw=raw,
             default=default, fatal=fatal, help=help, action=action)
         self.item = item
         self.require_parser = item.require_parser
@@ -612,4 +613,8 @@ class BoolConfigOption(BoolOption):
 
 
 class DictConfigOption(DictOption):
+    __metaclass__ = DeprecatedOption
+
+
+class LinesConfigOption(ListOption):
     __metaclass__ = DeprecatedOption

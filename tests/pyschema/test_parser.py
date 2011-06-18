@@ -46,7 +46,7 @@ from configglue.pyschema.schema import (
     ConfigSection,
     DictOption,
     IntOption,
-    LinesConfigOption,
+    ListOption,
     Schema,
     StringOption,
     TupleConfigOption,
@@ -311,7 +311,7 @@ class TestInterpolation(unittest.TestCase):
     def test_get_interpolation_keys_lines(self):
         """Test get_interpolation_keys for a list."""
         class MySchema(Schema):
-            foo = LinesConfigOption(item=StringOption())
+            foo = ListOption(item=StringOption())
         config = StringIO("[__main__]\nfoo=%(bar)s\n    %(baz)s")
         expected = ('%(bar)s\n%(baz)s', set(['bar', 'baz']))
 
@@ -321,8 +321,9 @@ class TestInterpolation(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_get_interpolation_keys_tuple_lines(self):
+        """Test get_interpolation_keys for a list of tuples."""
         class MySchema(Schema):
-            foo = LinesConfigOption(item=TupleConfigOption(2))
+            foo = ListOption(item=TupleConfigOption(2))
         config = StringIO(
             "[__main__]\nfoo=%(bar)s,%(bar)s\n    %(baz)s,%(baz)s")
         expected = ('%(bar)s,%(bar)s\n%(baz)s,%(baz)s',
@@ -610,7 +611,7 @@ class TestSchemaConfigParser(unittest.TestCase):
     def test_multiple_extra_sections(self):
         """Test parsing multiple extra sections."""
         class MySchema(Schema):
-            foo = LinesConfigOption(
+            foo = ListOption(
                 item=DictOption(spec={'bar': IntOption()}))
 
         config = StringIO('[__main__]\nfoo=d1\n    d2\n    d3\n'
@@ -679,7 +680,7 @@ class TestSchemaConfigParser(unittest.TestCase):
     def test_multi_file_dict_list_config(self):
         """Test parsing a list of dicts option spanning multiple files."""
         class MySchema(Schema):
-            foo = LinesConfigOption(
+            foo = ListOption(
                 item=DictOption(spec={
                     'bar': IntOption(),
                     'baz': IntOption(),
@@ -1060,7 +1061,7 @@ baz=42
     def test_extra_sections_when_lines_dict_with_nested_dicts(self):
         """Test parser.is_valid w/ extra section in list of nested dicts."""
         class MySchema(Schema):
-            foo = LinesConfigOption(
+            foo = ListOption(
                 item=DictOption(item=DictOption()))
 
         config = StringIO("""
@@ -1090,7 +1091,7 @@ whaz = 2
         """Test parser.is_valid in dict of nested list lists."""
         class MySchema(Schema):
             foo = DictOption(
-                item=LinesConfigOption(item=DictOption()))
+                item=ListOption(item=DictOption()))
 
         config = StringIO("""
 [__main__]
@@ -1114,9 +1115,9 @@ wham = 2
     def test_extra_sections_when_lines_dict_with_nested_lines_dicts(self):
         """Test parser.is_valid in dict of nested dict lists."""
         class MySchema(Schema):
-            foo = LinesConfigOption(
+            foo = ListOption(
                 item=DictOption(
-                    item=LinesConfigOption(item=DictOption())))
+                    item=ListOption(item=DictOption())))
 
         config = StringIO("""
 [__main__]
@@ -1150,7 +1151,7 @@ swoosh = 4
     def test_multiple_extra_sections(self):
         """Test parser.is_valid with multiple extra sections."""
         class MySchema(Schema):
-            foo = LinesConfigOption(
+            foo = ListOption(
                 item=DictOption(spec={'bar': IntOption()}))
 
         config = StringIO('[__main__]\nfoo=d1\n    d2\n    d3\n'

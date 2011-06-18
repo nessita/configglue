@@ -70,8 +70,8 @@ Option attributes
 
 Each option takes a certain set of option-specific arguments (documented in
 the :ref:`schema option reference <schema-option-types>`). For example,
-:class:`~configglue.pyschema.schema.LinesConfigOption` (and its subclasses)
-require a :attr:`~configglue.pyschema.schema.LinesConfigOption.item` argument
+:class:`~configglue.pyschema.schema.ListOption` (and its subclasses)
+require a :attr:`~configglue.pyschema.schema.ListOption.item` argument
 which specifies the type of the items contained in the list.
 
 There's also a set of common arguments available to all option types. All are
