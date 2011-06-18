@@ -26,6 +26,7 @@ __all__ = [
     'ConfigOption',
     'ConfigSection',
     'DictConfigOption',
+    'DictOption',
     'IntConfigOption',
     'IntOption',
     'LinesConfigOption',
@@ -216,7 +217,7 @@ class ConfigOption(object):
     argument, parser, that should receive the whole SchemaConfigParser to
     do the parsing.  This is needed for config options that need to look at
     other parts of the config file to be able to carry out their parsing,
-    like DictConfigOptions.
+    like DictOption.
 
     If self.fatal == True, SchemaConfigParser's parse_all will raise an
     exception if no value for this option is provided in the configuration
@@ -473,7 +474,7 @@ class TupleConfigOption(ConfigOption):
         return isinstance(value, tuple)
 
 
-class DictConfigOption(ConfigOption):
+class DictOption(ConfigOption):
     """A ConfigOption that is parsed into a dictionary.
 
     In the configuration file you'll need to specify the name of a section,
@@ -498,7 +499,7 @@ class DictConfigOption(ConfigOption):
         self.spec = spec
         self.strict = strict
         self.item = item
-        super(DictConfigOption, self).__init__(name=name, raw=raw,
+        super(DictOption, self).__init__(name=name, raw=raw,
             default=default, fatal=fatal, help=help, action=action)
 
     def _get_default(self):
@@ -555,12 +556,19 @@ class DictConfigOption(ConfigOption):
         return isinstance(value, dict)
 
     def get_extra_sections(self, section, parser):
+        """Return the list of implicit sections.
+
+        Implicit sections are sections defined in the configuration file
+        that are not defined in the schema, but used as helper sections for
+        defining a dictionary.
+
+        """
         sections = []
         for option in parser.options(section):
             option_obj = self.spec.get(option, self.item)
-            is_dict_item = isinstance(option_obj, DictConfigOption)
+            is_dict_item = isinstance(option_obj, DictOption)
             is_dict_lines_item = (hasattr(option_obj, 'item') and
-                isinstance(option_obj.item, DictConfigOption))
+                isinstance(option_obj.item, DictOption))
 
             if is_dict_item:
                 base = option_obj
@@ -600,4 +608,8 @@ class IntConfigOption(IntOption):
 
 
 class BoolConfigOption(BoolOption):
+    __metaclass__ = DeprecatedOption
+
+
+class DictConfigOption(DictOption):
     __metaclass__ = DeprecatedOption

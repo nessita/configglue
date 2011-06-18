@@ -26,6 +26,7 @@ from configglue.pyschema.schema import (
     ConfigOption,
     ConfigSection,
     DictConfigOption,
+    DictOption,
     IntConfigOption,
     IntOption,
     LinesConfigOption,
@@ -508,8 +509,9 @@ class TestLinesConfigOption(unittest.TestCase):
                           parser.values())
 
     def test_remove_dict_duplicates(self):
+        """Test LinesConfigOption remove_duplicates with DictOption."""
         class MyOtherSchema(Schema):
-            foo = LinesConfigOption(item=DictConfigOption(),
+            foo = LinesConfigOption(item=DictOption(),
                                     remove_duplicates=True)
 
         schema = MyOtherSchema()
@@ -584,25 +586,28 @@ class TestTupleConfigOption(unittest.TestCase):
         self.assertEqual(opt.validate(0), False)
 
 
-class TestDictConfigOption(unittest.TestCase):
+class TestDictOption(unittest.TestCase):
+    cls = DictOption
+
     def test_init(self):
-        """Test default values for DictConfigOption attributes."""
-        opt = DictConfigOption()
+        """Test default values for DictOption attributes."""
+        opt = self.cls()
         self.assertEqual(opt.spec, {})
         self.assertEqual(opt.strict, False)
 
         spec = {'a': IntOption(), 'b': BoolOption()}
-        opt = DictConfigOption(spec=spec)
+        opt = self.cls(spec=spec)
         self.assertEqual(opt.spec, spec)
         self.assertEqual(opt.strict, False)
 
-        opt = DictConfigOption(spec=spec, strict=True)
+        opt = self.cls(spec=spec, strict=True)
         self.assertEqual(opt.spec, spec)
         self.assertEqual(opt.strict, True)
 
     def test_get_extra_sections(self):
+        """Test DictOption get_extra_sections."""
         class MySchema(Schema):
-            foo = DictConfigOption(item=DictConfigOption())
+            foo = self.cls(item=self.cls())
 
         config = StringIO("""
 [__main__]
@@ -616,14 +621,14 @@ baz=42
         parser.readfp(config)
         expected = ['dict2']
 
-        opt = DictConfigOption(item=DictConfigOption())
+        opt = self.cls(item=self.cls())
         extra = opt.get_extra_sections('dict1', parser)
         self.assertEqual(extra, expected)
 
     def test_parse_dict(self):
-        """Test DictConfigOption parse a dict."""
+        """Test DictOption parse a dict."""
         class MySchema(Schema):
-            foo = DictConfigOption(spec={
+            foo = self.cls(spec={
                 'bar': StringOption(),
                 'baz': IntOption(),
                 'bla': BoolOption(),
@@ -646,9 +651,9 @@ bla=Yes
         self.assertEqual(parser.values(), expected_values)
 
     def test_parse_raw(self):
-        """Test DictConfigOption parse using raw=True."""
+        """Test DictOption parse using raw=True."""
         class MySchema(Schema):
-            foo = DictConfigOption(spec={
+            foo = self.cls(spec={
                 'bar': StringOption(),
                 'baz': IntOption(),
                 'bla': BoolOption(),
@@ -668,9 +673,9 @@ baz=42
         self.assertEqual(parsed, expected)
 
     def test_parse_invalid_key_in_parsed(self):
-        """Test DictConfigOption parse with an invalid key in the config."""
+        """Test DictOption parse with an invalid key in the config."""
         class MySchema(Schema):
-            foo = DictConfigOption(spec={'bar': IntOption()})
+            foo = self.cls(spec={'bar': IntOption()})
 
         config = StringIO("[__main__]\nfoo=mydict\n[mydict]\nbaz=2")
         expected_values = {'__main__': {'foo': {'bar': 0, 'baz': '2'}}}
@@ -679,9 +684,9 @@ baz=42
         self.assertEqual(parser.values(), expected_values)
 
     def test_parse_invalid_key_in_spec(self):
-        """Test DictConfigOption parse with an invalid key in the spec."""
+        """Test DictOption parse with an invalid key in the spec."""
         class MySchema(Schema):
-            foo = DictConfigOption(spec={
+            foo = self.cls(spec={
                 'bar': IntOption(),
                 'baz': IntOption(fatal=True)})
 
@@ -691,13 +696,13 @@ baz=42
         self.assertRaises(ValueError, parser.parse_all)
 
     def test_default(self):
-        opt = DictConfigOption(spec={})
+        opt = self.cls(spec={})
         self.assertEqual(opt.default, {})
 
     def test_parse_no_strict_missing_args(self):
-        """Test DictConfigOption parse a missing key in non-strict mode."""
+        """Test DictOption parse a missing key in non-strict mode."""
         class MySchema(Schema):
-            foo = DictConfigOption(spec={'bar': IntOption()})
+            foo = self.cls(spec={'bar': IntOption()})
 
         config = StringIO("[__main__]\nfoo=mydict\n[mydict]")
         expected_values = {'__main__': {'foo': {'bar': 0}}}
@@ -707,7 +712,7 @@ baz=42
 
     def test_parse_no_strict_extra_args(self):
         class MySchema(Schema):
-            foo = DictConfigOption()
+            foo = self.cls()
 
         config = StringIO("[__main__]\nfoo=mydict\n[mydict]\nbar=2")
         expected_values = {'__main__': {'foo': {'bar': '2'}}}
@@ -716,10 +721,10 @@ baz=42
         self.assertEqual(parser.values(), expected_values)
 
     def test_parse_no_strict_with_item(self):
-        """Test DictConfigOption parse in non-strict mode with an item spec."""
+        """Test DictOption parse in non-strict mode with an item spec."""
         class MySchema(Schema):
-            foo = DictConfigOption(
-                      item=DictConfigOption(
+            foo = self.cls(
+                      item=self.cls(
                           item=IntOption()))
         config = StringIO("""
 [__main__]
@@ -735,10 +740,10 @@ wham=42
         self.assertEqual(parser.values(), expected_values)
 
     def test_parse_strict(self):
-        """Test DictConfigOption parse in strict mode."""
+        """Test DictOption parse in strict mode."""
         class MySchema(Schema):
             spec = {'bar': IntOption()}
-            foo = DictConfigOption(spec=spec, strict=True)
+            foo = self.cls(spec=spec, strict=True)
 
         config = StringIO("[__main__]\nfoo=mydict\n[mydict]\nbar=2")
         expected_values = {'__main__': {'foo': {'bar': 2}}}
@@ -747,11 +752,11 @@ wham=42
         self.assertEqual(parser.values(), expected_values)
 
     def test_parse_strict_missing_vars(self):
-        """Test DictConfigOption parse in strict mode with missing values."""
+        """Test DictOption parse in strict mode with missing values."""
         class MySchema(Schema):
             spec = {'bar': IntOption(),
                     'baz': IntOption()}
-            foo = DictConfigOption(spec=spec, strict=True)
+            foo = self.cls(spec=spec, strict=True)
 
         config = StringIO("[__main__]\nfoo=mydict\n[mydict]\nbar=2")
         expected_values = {'__main__': {'foo': {'bar': 2, 'baz': 0}}}
@@ -760,10 +765,10 @@ wham=42
         self.assertEqual(parser.values(), expected_values)
 
     def test_parse_strict_extra_vars(self):
-        """Test DictConfigOption parse in strict mode with extra values."""
+        """Test DictOption parse in strict mode with extra values."""
         class MySchema(Schema):
             spec = {'bar': IntOption()}
-            foo = DictConfigOption(spec=spec, strict=True)
+            foo = self.cls(spec=spec, strict=True)
 
         config = StringIO("[__main__]\nfoo=mydict\n[mydict]\nbar=2\nbaz=3")
         parser = SchemaConfigParser(MySchema())
@@ -771,19 +776,23 @@ wham=42
         self.assertRaises(ValueError, parser.parse_all)
 
     def test_validate_dict(self):
-        opt = DictConfigOption()
+        opt = self.cls()
         self.assertEqual(opt.validate({}), True)
 
     def test_validate_nondict(self):
-        opt = DictConfigOption()
+        opt = self.cls()
         self.assertEqual(opt.validate(0), False)
 
 
-class TestLinesOfDictConfigOption(unittest.TestCase):
+class TestDictConfigOption(TestDictOption):
+    cls = DictConfigOption
+
+
+class TestLinesOfDictOption(unittest.TestCase):
     def test_parse_lines_of_dict(self):
         """Test LinesConfigOption parse a list of dicts."""
         class MySchema(Schema):
-            foo = LinesConfigOption(item=DictConfigOption(
+            foo = LinesConfigOption(item=DictOption(
                 spec={
                     'bar': StringOption(),
                     'baz': IntOption(),
@@ -814,7 +823,7 @@ bla=0
 
 
 class TestDictWithDicts(unittest.TestCase):
-    """Test DictConfigOption parse dict items."""
+    """Test DictOption parse dict items."""
     def test_parse_dict_with_dicts(self):
         innerspec = {'bar': StringOption(),
                      'baz': IntOption(),
@@ -822,10 +831,10 @@ class TestDictWithDicts(unittest.TestCase):
                     }
         spec = {'name': StringOption(),
                 'size': IntOption(),
-                'options': DictConfigOption(spec=innerspec)}
+                'options': DictOption(spec=innerspec)}
 
         class MySchema(Schema):
-            foo = DictConfigOption(spec=spec)
+            foo = DictOption(spec=spec)
 
         config = StringIO("""[__main__]
 foo = outerdict
