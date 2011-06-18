@@ -1,18 +1,18 @@
 ###############################################################################
-# 
+#
 # configglue -- glue for your apps' configuration
-# 
+#
 # A library for simple, DRY configuration of applications
-# 
+#
 # (C) 2009--2010 by Canonical Ltd.
 # originally by John R. Lenton <john.lenton@canonical.com>
 # incorporating schemaconfig as configglue.pyschema
 # schemaconfig originally by Ricardo Kirkner <ricardo.kirkner@canonical.com>
-# 
+#
 # Released under the BSD License (see the file LICENSE)
-# 
+#
 # For bug reports, support, and new releases: http://launchpad.net/configglue
-# 
+#
 ###############################################################################
 
 import os
@@ -35,7 +35,7 @@ SchemaGlue = namedtuple("SchemaGlue",
 
 def schemaconfigglue(parser, op=None, argv=None):
     """Glue an OptionParser with a SchemaConfigParser.
-    
+
     The OptionParser is populated with options and defaults taken from the
     SchemaConfigParser.
 
@@ -115,4 +115,3 @@ def configglue(schema_class, configs, usage=None):
     if not is_valid:
         parser.error(reasons[0])
     return SchemaGlue(scp, parser, opts, args)
-

@@ -1,33 +1,42 @@
 ###############################################################################
-# 
+#
 # configglue -- glue for your apps' configuration
-# 
+#
 # A library for simple, DRY configuration of applications
-# 
+#
 # (C) 2009--2010 by Canonical Ltd.
 # originally by John R. Lenton <john.lenton@canonical.com>
 # incorporating schemaconfig as configglue.pyschema
 # schemaconfig originally by Ricardo Kirkner <ricardo.kirkner@canonical.com>
-# 
+#
 # Released under the BSD License (see the file LICENSE)
-# 
+#
 # For bug reports, support, and new releases: http://launchpad.net/configglue
-# 
+#
 ###############################################################################
 
 from copy import deepcopy
 from inspect import getmembers
+from warnings import warn
 
 
 __all__ = [
+    'BoolConfigOption',
     'BoolOption',
+    'ConfigOption',
     'Option',
+    'ConfigSection',
     'Section',
+    'DictConfigOption',
     'DictOption',
+    'IntConfigOption',
     'IntOption',
+    'LinesConfigOption',
     'ListOption',
     'Schema',
+    'StringConfigOption',
     'StringOption',
+    'TupleConfigOption',
     'TupleOption',
 ]
 
@@ -37,6 +46,7 @@ _internal = object.__dict__.keys() + ['__module__']
 
 
 def get_config_objects(obj):
+    """Return the list of Section- and Option-derived objects."""
     objects = []
     for name, obj in getmembers(obj):
         if isinstance(obj, (Section, Option)):
@@ -95,7 +105,8 @@ class Schema(object):
 
     def _add_option(self, name, option):
         """Add a top-level option to the schema."""
-        section = self._sections.setdefault('__main__', Section(name='__main__'))
+        section = self._sections.setdefault('__main__',
+            Section(name='__main__'))
         option.section = section
         setattr(section, name, option)
 
@@ -114,7 +125,6 @@ class Schema(object):
         return is_valid
 
     def has_section(self, name):
-        """Return whether the schema as a given section."""
         """Return True if a Section with the given name is available"""
         return name in self._sections.keys()
 
@@ -175,7 +185,7 @@ class Section(object):
             name = " %s" % self.name
         else:
             name = ''
-        value = "<Section%s>" % name
+        value = "<{0}{1}>".format(self.__class__.__name__, name)
         return value
 
     def has_option(self, name):
@@ -211,7 +221,7 @@ class Option(object):
     argument, parser, that should receive the whole SchemaConfigParser to
     do the parsing.  This is needed for config options that need to look at
     other parts of the config file to be able to carry out their parsing,
-    like DictOptions.
+    like DictOption.
 
     If self.fatal == True, SchemaConfigParser's parse_all will raise an
     exception if no value for this option is provided in the configuration
@@ -225,8 +235,8 @@ class Option(object):
 
     require_parser = False
 
-    def __init__(self, name='', raw=False, default=NO_DEFAULT, fatal=False, help='',
-                 section=None, action='store'):
+    def __init__(self, name='', raw=False, default=NO_DEFAULT, fatal=False,
+                 help='', section=None, action='store'):
         self.name = name
         self.raw = raw
         self.fatal = fatal
@@ -262,12 +272,12 @@ class Option(object):
         extra += ' fatal' if self.fatal else ''
         section = self.section.name if self.section is not None else None
         if section is not None:
-            name = " %s.%s" % (section, self.name)
+            name = " {0}.{1}".format(section, self.name)
         elif self.name:
-            name = " %s" % self.name
+            name = " {0}".format(self.name)
         else:
             name = ''
-        value = "<Option%s%s>" % (name, extra)
+        value = "<{0}{1}{2}>".format(self.__class__.__name__, name, extra)
         return value
 
     def _get_default(self):
@@ -276,6 +286,13 @@ class Option(object):
     def parse(self, value):
         """Parse the given value."""
         raise NotImplementedError()
+
+    def validate(self, value):
+        raise NotImplementedError()
+
+    def to_string(self, value):
+        """Return a string representation of the value."""
+        return str(value)
 
 
 class BoolOption(Option):
@@ -300,6 +317,9 @@ class BoolOption(Option):
         else:
             raise ValueError("Unable to determine boolosity of %r" % value)
 
+    def validate(self, value):
+        return isinstance(value, bool)
+
 
 class IntOption(Option):
     """A Option that is parsed into an int"""
@@ -317,6 +337,9 @@ class IntOption(Option):
             return value
 
         return int(value)
+
+    def validate(self, value):
+        return isinstance(value, int)
 
 
 class ListOption(Option):
@@ -369,6 +392,9 @@ class ListOption(Option):
             items = filtered_items
         return items
 
+    def validate(self, value):
+        return isinstance(value, list)
+
 
 class StringOption(Option):
     """A Option that is parsed into a string.
@@ -403,6 +429,12 @@ class StringOption(Option):
             result = repr(value)
         return result
 
+    def to_string(self, value):
+        return value
+
+    def validate(self, value):
+        return isinstance(value, basestring)
+
 
 class TupleOption(Option):
     """A Option that is parsed into a fixed-size tuple of strings.
@@ -435,11 +467,15 @@ class TupleOption(Option):
             if len(parts) == self.length:
                 result = tuple(parts)
             else:
-                raise ValueError("Tuples need to be %d items long" % self.length)
+                raise ValueError(
+                    "Tuples need to be %d items long" % self.length)
         else:
             result = tuple(parts)
             # length is 0, so no length validation
         return result
+
+    def validate(self, value):
+        return isinstance(value, tuple)
 
 
 class DictOption(Option):
@@ -520,7 +556,17 @@ class DictOption(Option):
                     result[key] = value
         return result
 
+    def validate(self, value):
+        return isinstance(value, dict)
+
     def get_extra_sections(self, section, parser):
+        """Return the list of implicit sections.
+
+        Implicit sections are sections defined in the configuration file
+        that are not defined in the schema, but used as helper sections for
+        defining a dictionary.
+
+        """
         sections = []
         for option in parser.options(section):
             option_obj = self.spec.get(option, self.item)
@@ -546,3 +592,45 @@ class DictOption(Option):
 
         return sections
 
+#
+# deprecated
+#
+
+
+class Deprecated(type):
+    def __init__(cls, name, bases, attrs):
+        warn('{0} is deprecated; use {1} instead.'.format(
+            name, bases[0].__name__), DeprecationWarning)
+        type.__init__(cls, name, bases, attrs)
+
+
+class StringConfigOption(StringOption):
+    __metaclass__ = Deprecated
+
+
+class IntConfigOption(IntOption):
+    __metaclass__ = Deprecated
+
+
+class BoolConfigOption(BoolOption):
+    __metaclass__ = Deprecated
+
+
+class DictConfigOption(DictOption):
+    __metaclass__ = Deprecated
+
+
+class LinesConfigOption(ListOption):
+    __metaclass__ = Deprecated
+
+
+class TupleConfigOption(TupleOption):
+    __metaclass__ = Deprecated
+
+
+class ConfigOption(Option):
+    __metaclass__ = Deprecated
+
+
+class ConfigSection(Section):
+    __metaclass__ = Deprecated

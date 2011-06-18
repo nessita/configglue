@@ -1,18 +1,18 @@
 ###############################################################################
-# 
+#
 # configglue -- glue for your apps' configuration
-# 
+#
 # A library for simple, DRY configuration of applications
-# 
+#
 # (C) 2009--2010 by Canonical Ltd.
 # originally by John R. Lenton <john.lenton@canonical.com>
 # incorporating schemaconfig as configglue.pyschema
 # schemaconfig originally by Ricardo Kirkner <ricardo.kirkner@canonical.com>
-# 
+#
 # Released under the BSD License (see the file LICENSE)
-# 
+#
 # For bug reports, support, and new releases: http://launchpad.net/configglue
-# 
+#
 ###############################################################################
 
 """
@@ -21,7 +21,10 @@ AttributtedConfigParser lives here.
 import re
 from ConfigParser import RawConfigParser
 
+
 marker = object()
+
+
 class ValueWithAttrs(object):
     """The values returned by AttributtedConfigParser are instances of this.
     """
@@ -37,6 +40,7 @@ class ValueWithAttrs(object):
         Note this is different from being set to None.
         """
         return self.value is marker
+
 
 class AttributedConfigParser(RawConfigParser, object):
     """Handle attributed ini-style configuration files
@@ -74,5 +78,5 @@ class AttributedConfigParser(RawConfigParser, object):
         self.set(section, option, value)
         for opt, val in self.items(section)[:]:
             if opt.startswith(option + '.'):
-                value.attrs[opt[len(option)+1:]] = val
+                value.attrs[opt[len(option) + 1:]] = val
                 self.remove_option(section, opt)

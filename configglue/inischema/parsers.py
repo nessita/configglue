@@ -1,22 +1,23 @@
 ###############################################################################
-# 
+#
 # configglue -- glue for your apps' configuration
-# 
+#
 # A library for simple, DRY configuration of applications
-# 
+#
 # (C) 2009--2010 by Canonical Ltd.
 # originally by John R. Lenton <john.lenton@canonical.com>
 # incorporating schemaconfig as configglue.pyschema
 # schemaconfig originally by Ricardo Kirkner <ricardo.kirkner@canonical.com>
-# 
+#
 # Released under the BSD License (see the file LICENSE)
-# 
+#
 # For bug reports, support, and new releases: http://launchpad.net/configglue
-# 
+#
 ###############################################################################
 
 """Parsers used by TypedConfigParser live here
 """
+
 
 def lines(value):
     """ Split a string on its newlines
@@ -33,6 +34,8 @@ def lines(value):
 
 _true_values = frozenset(('true', '1', 'on', 'yes'))
 _false_values = frozenset(('false', '0', 'off', 'no'))
+
+
 def bool_parser(value):
     """Take a string representation of a boolean and return its boolosity
 
