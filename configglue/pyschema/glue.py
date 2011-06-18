@@ -69,11 +69,9 @@ def schemaconfigglue(parser, op=None, argv=None):
     options, args = op.parse_args(argv)
 
     def set_value(section, option, value):
-        # the value has been overridden by an argument;
-        # update it, but make sure it's a string, as
-        # SafeConfigParser will complain otherwise.
-        if not isinstance(value, basestring):
-            value = repr(value)
+        # if value is not of the right type, cast it
+        if not option.validate(value):
+            value = option.parse(value)
         parser.set(section.name, option.name, value)
 
     for section in schema.sections():
