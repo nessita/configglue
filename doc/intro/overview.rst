@@ -1,20 +1,20 @@
-============
-Introduction
-============
+======================
+configglue at a glance
+======================
 
 What is configglue?
 ===================
 
-configglue is a library that glues together Python's  optparse.OptionParser and
+configglue is a library that glues together Python's optparse.OptionParser and
 ConfigParser.ConfigParser, so that you don't have to repeat yourself when you
-want to export the same options to a configuration file and a commandline
+want to export the same options to a configuration file and a command-line
 interface.
 
 The main features of configglue are:
 
 - ini-style configuration files
 - schema-based configuration
-- commandline integration
+- command-line integration
 - configuration validation
 
 
@@ -30,29 +30,16 @@ Some of the benefits of using configglue are that it allows you to:
 - use standard types out of the box (integer, string, bool, tuple, list, dict)
 - use standards-compatible configuration files (standard ini-files)
 - create your own custom types beyond what's provided in the library 
-- easily support commandline integration
+- easily support command-line integration
 - override options locally by using several configuration files (useful for
   separating configuration files for different environments)
-
-configglue and django-configglue are already available in Ubuntu 10.10
-(Maverick), so they can be installed via apt-get. configglue should already be
-installed if you have the desktop edition, as it's being used by Ubuntu One's
-client.
-
-Who else is using configglue?
-=============================
-
-- Ubuntu Pay 
-- Ubuntu Software Center
-- Ubuntu Single Sign On
-- Ubuntu One 
 
 
 Got curious?
 ============
 
 You can find a quickstart guide for configglue on 
-:ref:`quickstart` and you can get its code at
+:doc:`quickstart` and you can get its code at
 http://launchpad.net/configglue.
 
 As an additional bonus, there is another project called 

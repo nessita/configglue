@@ -1,3 +1,16 @@
+python-configglue (0.10-0ubuntu1) maverick; urgency=low
+
+  [Ricardo Kirkner]
+  * Override ConfigParser.write in SchemaConfigParser, to support writing non-ascii data.
+  * documentation + backwards-compatibility
+  * fixes proper schema inheritance using declarative syntax
+  * all ConfigOption classes have a name attribute
+  * Use SafeConfigParser instead of ConfigParser as this will get deprecated
+  * added debian packaging info directly into the source tree
+  * added test for regression of bug #659178
+
+ -- Ricardo Kirkner <ricardo.kirkner@canonical.com>  Mon, 02 May 2011 16:44:35 -0300
+
 python-configglue (0.9.1-0ubuntu1) maverick; urgency=low
 
   [Ricardo Kirkner]

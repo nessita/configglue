@@ -1,18 +1,18 @@
 ###############################################################################
-# 
+#
 # configglue -- glue for your apps' configuration
-# 
+#
 # A library for simple, DRY configuration of applications
-# 
+#
 # (C) 2009--2010 by Canonical Ltd.
 # originally by John R. Lenton <john.lenton@canonical.com>
 # incorporating schemaconfig as configglue.pyschema
 # schemaconfig originally by Ricardo Kirkner <ricardo.kirkner@canonical.com>
-# 
+#
 # Released under the BSD License (see the file LICENSE)
-# 
+#
 # For bug reports, support, and new releases: http://launchpad.net/configglue
-# 
+#
 ###############################################################################
 
 import codecs
@@ -29,7 +29,7 @@ from ConfigParser import (
     NoSectionError,
 )
 
-from configglue.pyschema.schema import DictConfigOption
+from configglue.pyschema.schema import DictOption
 
 
 __all__ = [
@@ -41,7 +41,7 @@ CONFIG_FILE_ENCODING = 'utf-8'
 
 
 class SchemaValidationError(Exception):
-    pass
+    """Exception class raised for any schema validation error."""
 
 
 class SchemaConfigParser(BaseConfigParser, object):
@@ -54,6 +54,7 @@ class SchemaConfigParser(BaseConfigParser, object):
     config.parse_all()
     ...
     profit!
+
     """
     def __init__(self, schema):
         super(SchemaConfigParser, self).__init__()
@@ -69,6 +70,12 @@ class SchemaConfigParser(BaseConfigParser, object):
             lambda: collections.defaultdict(dict))
 
     def is_valid(self, report=False):
+        """Return if the state of the parser is valid.
+
+        This is useful to detect errors in configuration files, like type
+        errors or missing required options.
+
+        """
         valid = True
         errors = []
         try:
@@ -141,8 +148,10 @@ class SchemaConfigParser(BaseConfigParser, object):
             return valid
 
     def items(self, section, raw=False, vars=None):
-        """Return a list of tuples with (name, value) for each option
-        in the section.
+        """Return the list of all options in a section.
+
+        The returned value is a list of tuples of (name, value) for each
+        option in the section.
 
         All % interpolations are expanded in the return values, based on the
         defaults passed into the constructor, unless the optional argument
@@ -150,7 +159,9 @@ class SchemaConfigParser(BaseConfigParser, object):
         `vars' argument, which must be a dictionary whose contents overrides
         any pre-existing defaults.
 
-        The section DEFAULT is special.
+        The section __main__ is special as it's implicitly defined and used
+        for options not explicitly included in any section.
+
         """
         d = self._defaults.copy()
         try:
@@ -184,7 +195,7 @@ class SchemaConfigParser(BaseConfigParser, object):
             return items
 
     def values(self, section=None, parse=True):
-        """Returns multiple values, in a dict.
+        """Returns multiple values in a dict.
 
         This method can return the value of multiple options in a single call,
         unlike get() that returns a single option's value.
@@ -193,7 +204,8 @@ class SchemaConfigParser(BaseConfigParser, object):
         If section is specified, return all options from that section only.
 
         Section is to be specified *by name*, not by
-        passing in real ConfigSection objects.
+        passing in real Section objects.
+
         """
         values = collections.defaultdict(dict)
         if section is None:
@@ -231,6 +243,7 @@ class SchemaConfigParser(BaseConfigParser, object):
         return read_ok
 
     def readfp(self, fp, filename=None):
+        """Like ConfigParser.readfp, but consider the encoding."""
         # wrap the StringIO so it can read encoded text
         decoded_fp = codecs.getreader(CONFIG_FILE_ENCODING)(fp)
         self._read(decoded_fp, filename)
@@ -291,6 +304,14 @@ class SchemaConfigParser(BaseConfigParser, object):
                         self._location[option] = filename
 
     def parse(self, section, option, value):
+        """Parse the value of an option.
+
+        This method raises NoSectionError if an invalid section name is
+        passed in.
+
+        This method raises ValueError if the value is not parseable.
+
+        """
         if section == '__main__':
             option_obj = getattr(self.schema, option, None)
         else:
@@ -306,9 +327,9 @@ class SchemaConfigParser(BaseConfigParser, object):
                 kwargs = {'parser': self}
 
             # hook to save extra sections
-            is_dict_option = isinstance(option_obj, DictConfigOption)
+            is_dict_option = isinstance(option_obj, DictOption)
             is_dict_lines_option = (hasattr(option_obj, 'item') and
-                isinstance(option_obj.item, DictConfigOption))
+                isinstance(option_obj.item, DictOption))
             is_default_value = unicode(option_obj.default) == value
 
             # avoid adding implicit sections for dict default value
@@ -328,7 +349,7 @@ class SchemaConfigParser(BaseConfigParser, object):
 
             if is_default_value:
                 value = option_obj.default
-            else:
+            elif isinstance(value, basestring):
                 try:
                     value = option_obj.parse(value, **kwargs)
                 except ValueError, e:
@@ -342,8 +363,11 @@ class SchemaConfigParser(BaseConfigParser, object):
         """Go through all sections and options attempting to parse each one.
 
         If any options are omitted from the config file, provide the
-        default value from the schema.  If the option has fatal=True, raise
-        an exception.
+        default value from the schema.
+
+        In the case of an NoSectionError or NoOptionError, raise it if the
+        option has *fatal* set to *True*.
+
         """
         for section in self.schema.sections():
             for option in section.options():
@@ -354,6 +378,7 @@ class SchemaConfigParser(BaseConfigParser, object):
                         raise
 
     def locate(self, option=None):
+        """Return the location (file) where the option was last defined."""
         return self._location.get(option)
 
     def _get_interpolation_keys(self, section, option):
@@ -439,16 +464,23 @@ class SchemaConfigParser(BaseConfigParser, object):
             #    raise NoSectionError(section)
             return None
         else:
-            # we want to return a non-parsed value
-            # a unicode of the value is the closest we can get
-            return unicode(value)
+            return value
 
     def get(self, section, option, raw=False, vars=None, parse=True):
+        """Return the parsed value of an option.
+
+        If *raw* is True, return the value as it's stored in the parser,
+        without parsing it.
+
+        Extra *vars* can be passed in to be evaluated during parsing.
+
+        If *parse* is False, return the string representation of the value.
+
+        """
         try:
             # get option's raw mode setting
             try:
-                section_obj = self.schema.section(section)
-                option_obj = section_obj.option(option)
+                option_obj = self._get_option(section, option)
                 raw = option_obj.raw or raw
             except:
                 pass
@@ -480,12 +512,48 @@ class SchemaConfigParser(BaseConfigParser, object):
             value = self.parse(section, option, value)
         return value
 
+    def _get_option(self, section, option):
+        section_obj = self.schema.section(section)
+        option_obj = section_obj.option(option)
+        return option_obj
+
     def set(self, section, option, value):
-        super(SchemaConfigParser, self).set(section, option, value)
+        """Set an option's raw value."""
+        option_obj = self._get_option(section, option)
+        # make sure the value is of the right type for the option
+        if not option_obj.validate(value):
+            raise TypeError("{0} is not a valid {1} value.".format(
+                value, type(option_obj).__name__))
+        # cast value to a string because SafeConfigParser only allows
+        # strings to be set
+        str_value = option_obj.to_string(value)
+        super(SchemaConfigParser, self).set(section, option, str_value)
         filename = self.locate(option)
-        self._dirty[filename][section][option] = value
+        self._dirty[filename][section][option] = str_value
+
+    def write(self, fp):
+        """Write an .ini-format representation of the configuration state."""
+        if self._defaults:
+            fp.write("[%s]\n" % DEFAULTSECT)
+            for (key, value) in self._defaults.items():
+                fp.write("%s = %s\n" % (key, value.replace('\n', '\n\t')))
+            fp.write("\n")
+        for section in self._sections:
+            fp.write("[%s]\n" % section)
+            for (key, value) in self._sections[section].items():
+                if key == "__name__":
+                    continue
+                if (value is not None) or (self._optcre == self.OPTCRE):
+                    key = " = ".join((key, value.replace('\n', '\n\t')))
+                fp.write("%s\n" % (key))
+            fp.write("\n")
 
     def save(self, fp=None):
+        """Save the parser contents to a file.
+
+        The data will be saved as a ini file.
+
+        """
         if fp is not None:
             if isinstance(fp, basestring):
                 fp = open(fp, 'w')
@@ -510,4 +578,3 @@ class SchemaConfigParser(BaseConfigParser, object):
                     os.rename(filename, "%s.old" % filename)
                 # rename new file
                 os.rename("%s.new" % filename, filename)
-
