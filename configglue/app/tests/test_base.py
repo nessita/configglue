@@ -16,7 +16,7 @@ from configglue.app.plugin import (
     PluginManager,
 )
 from configglue.pyschema import (
-    IntConfigOption,
+    IntOption,
     Schema,
 )
 
@@ -63,7 +63,7 @@ class ConfigTestCase(TestCase):
 
     def test_glue_invalid_config(self):
         class MySchema(Schema):
-            foo = IntConfigOption(fatal=True)
+            foo = IntOption(fatal=True)
         self.assertRaises(NoSectionError, make_app, schema=MySchema)
 
     def test_get_config_files(self):

@@ -980,10 +980,10 @@ class TestConfigSection(TestSection):
 class MultiSchemaTestCase(unittest.TestCase):
     def test_merge_schemas_no_conflicts(self):
         class SchemaA(Schema):
-            foo = IntConfigOption()
+            foo = IntOption()
 
         class SchemaB(Schema):
-            bar = BoolConfigOption()
+            bar = BoolOption()
 
         schema = merge(SchemaA, SchemaB)()
         self.assertEqual(set(s.name for s in schema.sections()),
@@ -995,12 +995,12 @@ class MultiSchemaTestCase(unittest.TestCase):
 
     def test_merge_schemas_same_section(self):
         class SchemaA(Schema):
-            foo = ConfigSection()
-            foo.bar = IntConfigOption()
+            foo = Section()
+            foo.bar = IntOption()
 
         class SchemaB(Schema):
-            foo = ConfigSection()
-            foo.baz = BoolConfigOption()
+            foo = Section()
+            foo.baz = BoolOption()
 
         schema = merge(SchemaA, SchemaB)()
         self.assertEqual(set(s.name for s in schema.sections()),
@@ -1012,10 +1012,10 @@ class MultiSchemaTestCase(unittest.TestCase):
 
     def test_merge_schemas_duplicate(self):
         class SchemaA(Schema):
-            foo = IntConfigOption()
+            foo = IntOption()
 
         class SchemaB(Schema):
-            foo = IntConfigOption()
+            foo = IntOption()
 
         schema = merge(SchemaA, SchemaB)()
         self.assertEqual(set(s.name for s in schema.sections()),
@@ -1027,10 +1027,10 @@ class MultiSchemaTestCase(unittest.TestCase):
 
     def test_merge_schemas_conflicts(self):
         class SchemaA(Schema):
-            foo = IntConfigOption()
+            foo = IntOption()
 
         class SchemaB(Schema):
-            foo = BoolConfigOption()
+            foo = BoolOption()
 
         try:
             merge(SchemaA, SchemaB)
