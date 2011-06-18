@@ -21,7 +21,7 @@ This document contains details about the `option attributes`_ and
     :mod:`configglue.pyschema.schema`, but for convenience they're imported
     into :mod:`configglue.pyschema`; the standard convention is to use
     ``from configglue import pyschema`` and refer to classes as
-    ``pyschema.<Foo>ConfigOption``.
+    ``pyschema.<Foo>Option``.
 
 .. _common-schema-option-attributes:
 
@@ -34,7 +34,7 @@ The following arguments are available to all option types. All are
 ``name``
 --------
 
-.. attribute:: ConfigOption.name
+.. attribute:: Option.name
 
 The name of the option. This will be automatically set to the name assigned to
 the option in the schema definition.
@@ -42,7 +42,7 @@ the option in the schema definition.
 ``raw``
 -------
 
-.. attribute:: ConfigOption.raw
+.. attribute:: Option.raw
 
 If ``True``, variable interpolation will not be carried out for this option.
 
@@ -51,7 +51,7 @@ Default is ``False``.
 ``default``
 -----------
 
-.. attribute:: ConfigOption.default
+.. attribute:: Option.default
 
 The default value for this option, if none is provided in the config file.
 
@@ -60,7 +60,7 @@ Default is ``configglue.pyschema.schema.NO_DEFAULT``.
 ``fatal``
 ---------
 
-.. attribute:: ConfigOption.fatal
+.. attribute:: Option.fatal
 
 If ``True``, ``SchemaConfigParser.parse_all`` will raise an exception if no
 value is provided in the configuration file for this option. Otherwise,
@@ -71,7 +71,7 @@ Default is ``False``.
 ``help``
 --------
 
-.. attribute:: ConfigOption.help
+.. attribute:: Option.help
 
 The help text describing this option. This text will be used as the
 ``optparse.OptParser`` help text.
@@ -81,9 +81,9 @@ Default is ``''``.
 ``section``
 -----------
 
-.. attribute:: ConfigOption.section
+.. attribute:: Option.section
 
-The :class:`~configglue.pyschema.ConfigSection` object where this option was
+The :class:`~configglue.pyschema.Section` object where this option was
 defined.
 
 Default is ``None``.
@@ -91,7 +91,7 @@ Default is ``None``.
 .. ``action``
 ..  ----------
 ..
-..  .. attribute:: ConfigOption.action
+..  .. attribute:: Option.action
 ..
 ..  lorem ipsum
 .. 
@@ -104,49 +104,49 @@ Option types
 
 .. currentmodule:: configglue.pyschema.schema
 
-``BoolConfigOption``
+``BoolOption``
 --------------------
 
-.. class:: BoolConfigOption([**attributes])
+.. class:: BoolOption([**attributes])
 
 A true/false option.
 
-``IntConfigOption``
+``IntOption``
 -------------------
 
-.. class:: IntConfigOption([**attributes])
+.. class:: IntOption([**attributes])
 
 An integer.
 
-``LinesConfigOption``
+``ListOption``
 ---------------------
 
-.. class:: LinesConfigOption(item, [remove_duplicates=False, **attributes])
+.. class:: ListOption(item, [remove_duplicates=False, **attributes])
 
 A list of items.
 
-.. attribute:: LinesConfigOption.item
+.. attribute:: ListOption.item
 
     *Required*.
 
     List elements will be parsed as being of this type. Should be an
-    instance of a subclass of :class:`~configglue.pyschema.schema.ConfigOption`.
+    instance of a subclass of :class:`~configglue.pyschema.schema.Option`.
 
-.. attribute:: LinesConfigOption.remove_duplicates
+.. attribute:: ListOption.remove_duplicates
 
     *Optional*.
 
     If ``True``, duplicate elements will be removed from the parsed
     value.
 
-``StringConfigOption``
+``StringOption``
 ----------------------
 
-.. class:: StringConfigOption([null=False, **attributes])
+.. class:: StringOption([null=False, **attributes])
 
 A string.
 
-.. attribute:: StringConfigOption.null
+.. attribute:: StringOption.null
 
     *Optional*.
 
@@ -154,46 +154,46 @@ A string.
     instead of just leaving it as the string 'None'.
 
 
-``TupleConfigOption``
+``TupleOption``
 ---------------------
 
-.. class:: TupleConfigOption([length=0, **attributes])
+.. class:: TupleOption([length=0, **attributes])
 
 A tuple of elements.
 
-.. attribute:: TupleConfigOption.length
+.. attribute:: TupleOption.length
 
     *Optional*.
 
     If not 0, the tuple has to have exactly this number of elements.
 
-``DictConfigOption``
+``DictOption``
 --------------------
 
-.. class:: DictConfigOption([spec=None, strict=False, item=None, **attributes])
+.. class:: DictOption([spec=None, strict=False, item=None, **attributes])
 
 A dictionary.
 
-.. attribute:: DictConfigOption.spec
+.. attribute:: DictOption.spec
 
     *Optional*.
 
     If not ``None``, should be a ``dict`` instance, such that its values
     are instances of a subclass of
-    :class:`~configglue.pyschema.schema.ConfigOption`.
+    :class:`~configglue.pyschema.schema.Option`.
 
-.. attribute:: DictConfigOption.strict
+.. attribute:: DictOption.strict
 
     *Optional*.
 
     If ``True``, no keys will be allowed other than those specified
-    in the :attr:`~DictConfigOption.spec`.
+    in the :attr:`~DictOption.spec`.
 
-.. attribute:: DictConfigOption.item
+.. attribute:: DictOption.item
 
     *Optional*.
 
     Any not explicitly defined attributes will be parsed as being
     of this type. This should be an instance of a subclass of
-    :class:`~configglue.pyschema.schema.ConfigOption`.
+    :class:`~configglue.pyschema.schema.Option`.
 

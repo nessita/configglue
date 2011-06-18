@@ -1,18 +1,18 @@
 ###############################################################################
-# 
+#
 # configglue -- glue for your apps' configuration
-# 
+#
 # A library for simple, DRY configuration of applications
-# 
+#
 # (C) 2009--2010 by Canonical Ltd.
 # originally by John R. Lenton <john.lenton@canonical.com>
 # incorporating schemaconfig as configglue.pyschema
 # schemaconfig originally by Ricardo Kirkner <ricardo.kirkner@canonical.com>
-# 
+#
 # Released under the BSD License (see the file LICENSE)
-# 
+#
 # For bug reports, support, and new releases: http://launchpad.net/configglue
-# 
+#
 ###############################################################################
 
 import sys
@@ -34,7 +34,7 @@ SchemaGlue = namedtuple("SchemaGlue",
 
 def schemaconfigglue(parser, op=None, argv=None):
     """Glue an OptionParser with a SchemaConfigParser.
-    
+
     The OptionParser is populated with options and defaults taken from the
     SchemaConfigParser.
 
@@ -71,11 +71,10 @@ def schemaconfigglue(parser, op=None, argv=None):
         for option in section.options():
             value = getattr(options, opt_name(option))
             if parser.get(section.name, option.name) != value:
-                # the value has been overridden by an argument;
-                # update it, but make sure it's a string, as
-                # SafeConfigParser will complain otherwise.
-                if not isinstance(value, basestring):
-                    value = repr(value)
+                # the value has been overridden by an argument
+                if isinstance(value, basestring):
+                    # parse it to the right type if it's a string
+                    value = option.parse(value)
                 parser.set(section.name, option.name, value)
 
     return op, options, args
@@ -101,4 +100,3 @@ def configglue(schema_class, configs, usage=None):
     if not is_valid:
         parser.error(reasons[0])
     return SchemaGlue(scp, parser, opts, args)
-

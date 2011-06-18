@@ -14,8 +14,8 @@ The basics:
       :class:`~configglue.pyschema.schema.Schema`.
 
     * Each attribute of the schema represents either a configuration section
-      (see :class:`~configglue.pyschema.schema.ConfigSection`) or
-      option (see :class:`~configglue.pyschema.schema.ConfigOption`).
+      (see :class:`~configglue.pyschema.schema.Section`) or
+      option (see :class:`~configglue.pyschema.schema.Option`).
 
 Quick example
 =============
@@ -25,18 +25,18 @@ This example schema defines the configuration for a database connection::
     from configglue import pyschema
 
     class DatabaseConnection(pyschema.Schema):
-        host = pyschema.StringConfigOption(
+        host = pyschema.StringOption(
             default='localhost',
             help='Host where the database engine is listening on')
-        port = pyschema.IntConfigOption(
+        port = pyschema.IntOption(
             default=5432,
             help='Port where the database engine is listening on')
-        dbname = pyschema.StringConfigOption(
+        dbname = pyschema.StringOption(
             fatal=True,
             help='Name of the database to connect to')
-        user = pyschema.StringConfigOption(
+        user = pyschema.StringOption(
             help='Username to use for the connection')
-        password = pyschema.StringConfigOption(
+        password = pyschema.StringOption(
             help='Password to use fot the connection')
 
 ``host``, ``port``, ``dbname``, ``user`` and ``password`` are options_ of the
@@ -51,14 +51,14 @@ defines. Options are specified by class attributes.
 Example::
 
     class OvenSettings(pyschema.Schema):
-        temperature = pyschema.IntConfigOption()
-        time = pyschema.IntConfigOption()
+        temperature = pyschema.IntOption()
+        time = pyschema.IntOption()
 
 Option types
 ------------
 
 Each option in your schema should be an instance of the appropriate
-:class:`~configglue.pyschema.schema.ConfigOption` class.
+:class:`~configglue.pyschema.schema.Option` class.
 
 configglue ships with a couple of built-in option types; you can find the
 complete list in the :ref:`schema option reference <schema-option-types>`. You
@@ -70,8 +70,8 @@ Option attributes
 
 Each option takes a certain set of option-specific arguments (documented in
 the :ref:`schema option reference <schema-option-types>`). For example,
-:class:`~configglue.pyschema.schema.LinesConfigOption` (and its subclasses)
-require a :attr:`~configglue.pyschema.schema.LinesConfigOption.item` argument
+:class:`~configglue.pyschema.schema.ListOption` (and its subclasses)
+require a :attr:`~configglue.pyschema.schema.ListOption.item` argument
 which specifies the type of the items contained in the list.
 
 There's also a set of common arguments available to all option types. All are
@@ -79,17 +79,17 @@ optional. They're fully explained in the :ref:`reference
 <common-schema-option-attributes>`, but here's a quick summary of the most
 often-used ones:
 
-    :attr:`~ConfigOption.default`
+    :attr:`~Option.default`
         The default value for this option, if none is provided in the config file.
         Default is :attr:`configglue.pyschema.schema.NO_DEFAULT`.
 
-    :attr:`~ConfigOption.fatal`
+    :attr:`~Option.fatal`
         If ``True``, :func:`SchemaConfigParser.parse_all` will raise an exception if no
         value is provided in the configuration file for this option. Otherwise,
         :attr:`self.default` will be used. 
         Default is ``False``.
 
-    :attr:`~ConfigOption.help`
+    :attr:`~Option.help`
         The help text describing this option. This text will be used as the
         :class:`optparse.OptParser` help text.
         Default is ``''``.
@@ -106,7 +106,7 @@ configglue places only one restriction on schema option names:
     result in a Python syntax error. For example::
 
         class Example(pyschema.Schema):
-            pass = pyschema.IntConfigOption() # 'pass' is a reserved word!
+            pass = pyschema.IntOption() # 'pass' is a reserved word!
 
 Custom option types
 -------------------
@@ -134,12 +134,12 @@ Python inheritance model. Whenever a schema is created, it will inherit all
 its attributes from the base classes.
 
 This poses a slight problem for attributes of type
-:class:`~configglue.pyschema.schema.ConfigSection`. Usually, you'll want to
-extend a :class:`~configglue.pyschema.schema.ConfigSection` instead of
+:class:`~configglue.pyschema.schema.Section`. Usually, you'll want to
+extend a :class:`~configglue.pyschema.schema.Section` instead of
 overriding it. In order to achieve this, in your schema subclass, copy the
 parent's attribute explicitely, to avoid modifying the parent schema class.
 Option attributes (derived from
-:class:`~configglue.pyschema.schema.ConfigOption`) will be overridden, as
+:class:`~configglue.pyschema.schema.Option`) will be overridden, as
 expected.
 
 For example::
@@ -150,31 +150,34 @@ For example::
 
 
     class BaseSchema(pyschema.Schema):
-        option1 = pyschema.IntConfigOption()
-        class section1(pyschema.ConfigSection):
-            option1 = pyschema.BoolConfigOption()
+        option1 = pyschema.IntOption()
+
+        class MySection(pyschema.Section):
+            option1 = pyschema.BoolOption()
 
 
     class ChildSchema(BaseSchema):
-        option2 = pyschema.IntConfigOption()
-        class section1(BaseSchema.section1):
-            option2 = IntConfigOption()
+        option2 = pyschema.IntOption()
+
+        class MySection(BaseSchema.MySection):
+            option2 = IntOption()
 
 In this example :class:`ChildSchema` will have two top-level options,
-:attr:`option1` and :attr:`option2`, and one section :attr:`section1`, which
-will have also two options within in (:attr:`section1.option1` and
-:attr:`section1.option2`). So, defining :class:`ChildSchema` in this way
+:attr:`option1` and :attr:`option2`, and one section :attr:`MySection`, which
+will have also two options within in (:attr:`MySection.option1` and
+:attr:`MySection.option2`). So, defining :class:`ChildSchema` in this way
 produces the same result as explicitely describing each attribute, as
 expected::
 
     from configglue import pyschema
 
     class ChildSchema(pyschema.Schema):
-        option1 = pyschema.IntConfigOption()
-        option2 = pyschema.IntConfigOption()
-        class section1(pyschema.ConfigSection):
-            option1 = pyschema.BoolConfigOption()
-            option2 = IntConfigOption()
+        option1 = pyschema.IntOption()
+        option2 = pyschema.IntOption()
+
+        class MySection(pyschema.Section):
+            option1 = pyschema.BoolOption()
+            option2 = IntOption()
 
 
 Multiple inheritance

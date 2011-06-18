@@ -28,8 +28,8 @@ will look like the following snippet, so let's look at it in detail::
 
         # create the schema
         class MySchema(pyschema.Schema):
-            foo = pyschema.IntConfigOption()
-            bar = pyschema.BoolConfigOption()
+            foo = pyschema.IntOption()
+            bar = pyschema.BoolOption()
 
         # read the configuration files
         scp = pyschema.SchemaConfigParser(MySchema())
@@ -73,8 +73,8 @@ The general structure is:
     ::
 
         class MySchema(pyschema.Schema):
-            foo = pyschema.IntConfigOption()
-            bar = pyschema.BoolConfigOption()
+            foo = pyschema.IntOption()
+            bar = pyschema.BoolOption()
 
 #. Create a parser for that schema
 
@@ -129,8 +129,8 @@ this code would look like::
 
         # create the schema
         class MySchema(pyschema.Schema):
-            foo = pyschema.IntConfigOption()
-            bar = pyschema.BoolConfigOption()
+            foo = pyschema.IntOption()
+            bar = pyschema.BoolOption()
 
         # glue everything together
         glue = pyschema.configglue(MySchema, ['config.ini'])
