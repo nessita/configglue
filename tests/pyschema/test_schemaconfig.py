@@ -29,6 +29,7 @@ from configglue.pyschema.glue import (
 from configglue.pyschema.parser import SchemaConfigParser
 from configglue.pyschema.schema import (
     ConfigOption,
+    Option,
     ConfigSection,
     IntOption,
     Schema,
@@ -36,46 +37,56 @@ from configglue.pyschema.schema import (
 )
 
 
-class TestConfigOption(unittest.TestCase):
+class TestOption(unittest.TestCase):
+    cls = Option
+
     def test_repr_name(self):
-        opt = ConfigOption()
-        expected = "<ConfigOption>"
+        """Test Option repr with name."""
+        opt = self.cls()
+        expected = "<{0}>".format(self.cls.__name__)
         self.assertEqual(repr(opt), expected)
 
-        opt = ConfigOption(name='name')
-        expected = "<ConfigOption name>"
+        opt = self.cls(name='name')
+        expected = "<{0} name>".format(self.cls.__name__)
         self.assertEqual(repr(opt), expected)
 
         sect = ConfigSection(name='sect')
-        opt = ConfigOption(name='name', section=sect)
-        expected = "<ConfigOption sect.name>"
+        opt = self.cls(name='name', section=sect)
+        expected = "<{0} sect.name>".format(self.cls.__name__)
         self.assertEqual(repr(opt), expected)
 
     def test_repr_extra(self):
-        opt = ConfigOption(name='name', raw=True)
-        expected = "<ConfigOption name raw>"
+        """Test Option repr with other attributes."""
+        opt = self.cls(name='name', raw=True)
+        expected = "<{0} name raw>".format(self.cls.__name__)
         self.assertEqual(repr(opt), expected)
 
-        opt = ConfigOption(name='name', fatal=True)
-        expected = "<ConfigOption name fatal>"
+        opt = self.cls(name='name', fatal=True)
+        expected = "<{0} name fatal>".format(self.cls.__name__)
         self.assertEqual(repr(opt), expected)
 
-        opt = ConfigOption(name='name', raw=True, fatal=True)
-        expected = "<ConfigOption name raw fatal>"
+        opt = self.cls(name='name', raw=True, fatal=True)
+        expected = "<{0} name raw fatal>".format(self.cls.__name__)
         self.assertEqual(repr(opt), expected)
 
     def test_parse(self):
-        opt = ConfigOption()
+        """Test Option parse."""
+        opt = self.cls()
         self.assertRaises(NotImplementedError, opt.parse, '')
 
     def test_equal(self):
-        opt1 = ConfigOption()
-        opt2 = ConfigOption(name='name', raw=True)
+        """Test Option equality."""
+        opt1 = self.cls()
+        opt2 = self.cls(name='name', raw=True)
 
-        self.assertEqual(opt1, ConfigOption())
-        self.assertEqual(opt2, ConfigOption(name='name', raw=True))
+        self.assertEqual(opt1, self.cls())
+        self.assertEqual(opt2, self.cls(name='name', raw=True))
         self.assertNotEqual(opt1, opt2)
         self.assertNotEqual(opt1, None)
+
+
+class TestConfigOption(TestOption):
+    cls = ConfigOption
 
 
 class TestConfigSection(unittest.TestCase):

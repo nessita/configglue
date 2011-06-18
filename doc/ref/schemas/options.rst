@@ -21,7 +21,7 @@ This document contains details about the `option attributes`_ and
     :mod:`configglue.pyschema.schema`, but for convenience they're imported
     into :mod:`configglue.pyschema`; the standard convention is to use
     ``from configglue import pyschema`` and refer to classes as
-    ``pyschema.<Foo>ConfigOption``.
+    ``pyschema.<Foo>Option``.
 
 .. _common-schema-option-attributes:
 
@@ -34,7 +34,7 @@ The following arguments are available to all option types. All are
 ``name``
 --------
 
-.. attribute:: ConfigOption.name
+.. attribute:: Option.name
 
 The name of the option. This will be automatically set to the name assigned to
 the option in the schema definition.
@@ -42,7 +42,7 @@ the option in the schema definition.
 ``raw``
 -------
 
-.. attribute:: ConfigOption.raw
+.. attribute:: Option.raw
 
 If ``True``, variable interpolation will not be carried out for this option.
 
@@ -51,7 +51,7 @@ Default is ``False``.
 ``default``
 -----------
 
-.. attribute:: ConfigOption.default
+.. attribute:: Option.default
 
 The default value for this option, if none is provided in the config file.
 
@@ -60,7 +60,7 @@ Default is ``configglue.pyschema.schema.NO_DEFAULT``.
 ``fatal``
 ---------
 
-.. attribute:: ConfigOption.fatal
+.. attribute:: Option.fatal
 
 If ``True``, ``SchemaConfigParser.parse_all`` will raise an exception if no
 value is provided in the configuration file for this option. Otherwise,
@@ -71,7 +71,7 @@ Default is ``False``.
 ``help``
 --------
 
-.. attribute:: ConfigOption.help
+.. attribute:: Option.help
 
 The help text describing this option. This text will be used as the
 ``optparse.OptParser`` help text.
@@ -81,7 +81,7 @@ Default is ``''``.
 ``section``
 -----------
 
-.. attribute:: ConfigOption.section
+.. attribute:: Option.section
 
 The :class:`~configglue.pyschema.ConfigSection` object where this option was
 defined.
@@ -91,7 +91,7 @@ Default is ``None``.
 .. ``action``
 ..  ----------
 ..
-..  .. attribute:: ConfigOption.action
+..  .. attribute:: Option.action
 ..
 ..  lorem ipsum
 .. 
@@ -130,7 +130,7 @@ A list of items.
     *Required*.
 
     List elements will be parsed as being of this type. Should be an
-    instance of a subclass of :class:`~configglue.pyschema.schema.ConfigOption`.
+    instance of a subclass of :class:`~configglue.pyschema.schema.Option`.
 
 .. attribute:: ListOption.remove_duplicates
 
@@ -180,7 +180,7 @@ A dictionary.
 
     If not ``None``, should be a ``dict`` instance, such that its values
     are instances of a subclass of
-    :class:`~configglue.pyschema.schema.ConfigOption`.
+    :class:`~configglue.pyschema.schema.Option`.
 
 .. attribute:: DictOption.strict
 
@@ -195,5 +195,5 @@ A dictionary.
 
     Any not explicitly defined attributes will be parsed as being
     of this type. This should be an instance of a subclass of
-    :class:`~configglue.pyschema.schema.ConfigOption`.
+    :class:`~configglue.pyschema.schema.Option`.
 

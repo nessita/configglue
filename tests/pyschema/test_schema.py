@@ -24,6 +24,7 @@ from configglue.pyschema.schema import (
     BoolConfigOption,
     BoolOption,
     ConfigOption,
+    Option,
     ConfigSection,
     DictConfigOption,
     DictOption,
@@ -159,7 +160,9 @@ class TestSchemaHelpers(unittest.TestCase):
             self.assertEqual(type(objects[key]), type(value))
 
 
-class TestConfigOption(unittest.TestCase):
+class TestOption(unittest.TestCase):
+    cls = Option
+
     def test_equal(self):
         """Test option equality."""
         opt1 = IntOption(name='opt1')
@@ -192,8 +195,12 @@ class TestConfigOption(unittest.TestCase):
         self.assertNotEqual(opt1, opt2)
 
     def test_validate(self):
-        opt = ConfigOption()
+        opt = self.cls()
         self.assertRaises(NotImplementedError, opt.validate, 0)
+
+
+class TestConfigOption(TestOption):
+    cls = ConfigOption
 
 
 class TestSchemaInheritance(unittest.TestCase):

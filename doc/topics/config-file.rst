@@ -10,7 +10,7 @@ A ConfigSection is matched by a ConfigParser section, which is defined like::
 
     [MySection]
 
-A ConfigOption is matched by a ConfigParser option, which is defined by a
+A Option is matched by a ConfigParser option, which is defined by a
 simple key, value pair, like::
 
     my_option = the value
@@ -35,7 +35,7 @@ There is always an implicitely defined section called ``__main__``
 
 A few special considerations have to be kept in mind while working with these
 configuration files. As ConfigParser requires a config file to have at least
-one section defined, any top-level ConfigOptions are added to an implicitely
+one section defined, any top-level Option are added to an implicitely
 defined section called ``__main__``.
 
 Therefore, if you have a schema like::

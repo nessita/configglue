@@ -24,6 +24,7 @@ __all__ = [
     'BoolConfigOption',
     'BoolOption',
     'ConfigOption',
+    'Option',
     'ConfigSection',
     'DictConfigOption',
     'DictOption',
@@ -44,9 +45,10 @@ _internal = object.__dict__.keys() + ['__module__']
 
 
 def get_config_objects(obj):
+    """Return the list of ConfigSection- and Option-derived objects."""
     objects = []
     for name, obj in getmembers(obj):
-        if isinstance(obj, (ConfigSection, ConfigOption)):
+        if isinstance(obj, (ConfigSection, Option)):
             objects.append((name, obj))
         elif type(obj) == type and issubclass(obj, ConfigSection):
             instance = obj()
@@ -61,15 +63,15 @@ class Schema(object):
 
     To define your own configuration schema you should:
      1- Inherit from Schema
-     2- Add ConfigOptions and ConfigSections as class attributes.
+     2- Add Option and ConfigSections as class attributes.
 
     With that your whole configuration schema is defined, and you can now
     load configuration files.
 
-    ConfigOptions that don't go in a ConfigSection will belong in the
+    Options that don't go in a ConfigSection will belong in the
     '__main__' section of the configuration files.
 
-    One ConfigOption comes already defined in Schema, 'includes' in the
+    One Option comes already defined in Schema, 'includes' in the
     '__main__' section, that allows configuration files to include other
     configuration files.
 
@@ -87,7 +89,7 @@ class Schema(object):
         item.name = name
         if isinstance(item, ConfigSection):
             self._add_section(name, item)
-        elif isinstance(item, ConfigOption):
+        elif isinstance(item, Option):
             self._add_option(name, item)
         # override class attributes with instance attributes to correctly
         # handle schema inheritance
@@ -137,7 +139,7 @@ class Schema(object):
         return self._sections.values()
 
     def options(self, section=None):
-        """Return all the ConfigOptions within a given section.
+        """Return all the Options within a given section.
 
         If section is omitted, returns all the options in the configuration
         file, flattening out any sections.
@@ -153,7 +155,7 @@ class Schema(object):
         elif section.name == '__main__':
             class_config_objects = get_config_objects(self.__class__)
             options = [getattr(self, att) for att, _ in class_config_objects
-                           if isinstance(getattr(self, att), ConfigOption)]
+                           if isinstance(getattr(self, att), Option)]
         else:
             options = section.options()
         return options
@@ -162,7 +164,7 @@ class Schema(object):
 class ConfigSection(object):
     """A group of options.
 
-    This class is just a bag you can dump ConfigOptions in.
+    This class is just a bag you can dump Options in.
 
     After instantiating the Schema, each ConfigSection will know its own
     name.
@@ -187,26 +189,26 @@ class ConfigSection(object):
         return value
 
     def has_option(self, name):
-        """Return True if a ConfigOption with the given name is available"""
+        """Return True if a Option with the given name is available"""
         opt = getattr(self, name, None)
-        return isinstance(opt, ConfigOption)
+        return isinstance(opt, Option)
 
     def option(self, name):
-        """Return a ConfigOption by name"""
+        """Return a Option by name"""
         opt = getattr(self, name, None)
-        assert opt is not None, "Invalid ConfigOption name '%s'" % name
+        assert opt is not None, "Invalid Option name '%s'" % name
         return opt
 
     def options(self):
-        """Return a list of all available ConfigOptions within this section"""
+        """Return a list of all available Options within this section"""
         return [getattr(self, att) for att in vars(self)
-                if isinstance(getattr(self, att), ConfigOption)]
+                if isinstance(getattr(self, att), Option)]
 
 
-class ConfigOption(object):
+class Option(object):
     """Base class for Config Options.
 
-    ConfigOptions are never bound to a particular conguration file, and
+    Options are never bound to a particular conguration file, and
     simply describe one particular available option.
 
     They also know how to parse() the content of a config file in to the right
@@ -226,7 +228,7 @@ class ConfigOption(object):
     file.  Otherwise, the self.default value will be used if the option is
     omitted.
 
-    In runtime, after instantiating the Schema, each ConfigOption will also
+    In runtime, after instantiating the Schema, each Option will also
     know its own name and to which section it belongs.
 
     """
@@ -270,12 +272,12 @@ class ConfigOption(object):
         extra += ' fatal' if self.fatal else ''
         section = self.section.name if self.section is not None else None
         if section is not None:
-            name = " %s.%s" % (section, self.name)
+            name = " {0}.{1}".format(section, self.name)
         elif self.name:
-            name = " %s" % self.name
+            name = " {0}".format(self.name)
         else:
             name = ''
-        value = "<ConfigOption%s%s>" % (name, extra)
+        value = "<{0}{1}{2}>".format(self.__class__.__name__, name, extra)
         return value
 
     def _get_default(self):
@@ -293,8 +295,8 @@ class ConfigOption(object):
         return str(value)
 
 
-class BoolOption(ConfigOption):
-    """A ConfigOption that is parsed into a bool"""
+class BoolOption(Option):
+    """A Option that is parsed into a bool"""
 
     def _get_default(self):
         return False
@@ -319,8 +321,8 @@ class BoolOption(ConfigOption):
         return isinstance(value, bool)
 
 
-class IntOption(ConfigOption):
-    """A ConfigOption that is parsed into an int"""
+class IntOption(Option):
+    """A Option that is parsed into an int"""
 
     def _get_default(self):
         return 0
@@ -340,12 +342,12 @@ class IntOption(ConfigOption):
         return isinstance(value, int)
 
 
-class ListOption(ConfigOption):
-    """A ConfigOption that is parsed into a list of objects
+class ListOption(Option):
+    """A Option that is parsed into a list of objects
 
     All items in the list need to be of the same type.  The 'item' constructor
     argument determines the type of the list items. item should be another
-    child of ConfigOption.
+    child of Option.
 
     self.require_parser will be True if the item provided in turn has
     require_parser == True.
@@ -394,8 +396,8 @@ class ListOption(ConfigOption):
         return isinstance(value, list)
 
 
-class StringOption(ConfigOption):
-    """A ConfigOption that is parsed into a string.
+class StringOption(Option):
+    """A Option that is parsed into a string.
 
     If null==True, a value of 'None' will be parsed in to None instead of
     just leaving it as the string 'None'.
@@ -434,8 +436,8 @@ class StringOption(ConfigOption):
         return isinstance(value, basestring)
 
 
-class TupleOption(ConfigOption):
-    """A ConfigOption that is parsed into a fixed-size tuple of strings.
+class TupleOption(Option):
+    """A Option that is parsed into a fixed-size tuple of strings.
 
     The number of items in the tuple should be specified with the 'length'
     constructor argument.
@@ -476,8 +478,8 @@ class TupleOption(ConfigOption):
         return isinstance(value, tuple)
 
 
-class DictOption(ConfigOption):
-    """A ConfigOption that is parsed into a dictionary.
+class DictOption(Option):
+    """A Option that is parsed into a dictionary.
 
     In the configuration file you'll need to specify the name of a section,
     and all that section's items will be parsed as a dictionary.
@@ -485,7 +487,7 @@ class DictOption(ConfigOption):
     The available keys for the dict are specified with the 'spec' constructor
     argument, that should be in turn a dictionary.  spec's keys are the
     available keys for the config file, and spec's values should be
-    ConfigOptions that will be used to parse the values in the config file.
+    Options that will be used to parse the values in the config file.
 
     """
 
@@ -622,4 +624,8 @@ class LinesConfigOption(ListOption):
 
 
 class TupleConfigOption(TupleOption):
+    __metaclass__ = DeprecatedOption
+
+
+class ConfigOption(Option):
     __metaclass__ = DeprecatedOption
