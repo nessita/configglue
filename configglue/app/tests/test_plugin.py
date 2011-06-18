@@ -32,11 +32,11 @@ class PluginTestCase(TestCase):
 class PluginManagerTestCase(TestCase):
     def test_constructor(self):
         plugins = make_plugins()
-        self.assertEqual(plugins.available, set([]))
+        self.assertEqual(plugins.available, [])
 
     def test_enabled(self):
         plugins = make_plugins(available=[Foo], enabled=[Foo])
-        self.assertEqual(plugins.enabled, set([Foo]))
+        self.assertEqual(plugins.enabled, [Foo])
 
     def test_enable(self):
         plugins = make_plugins(available=[Foo])
@@ -67,11 +67,11 @@ class PluginManagerTestCase(TestCase):
 
     def test_load(self):
         plugins = make_plugins()
-        self.assertEqual(plugins.load(), set([]))
+        self.assertEqual(plugins.load(), [])
 
     def test_register(self):
         plugins = PluginManager()
-        self.assertEqual(plugins.available, set([]))
+        self.assertEqual(plugins.available, [])
 
         plugins.register(Foo)
-        self.assertEqual(plugins.available, set([Foo]))
+        self.assertEqual(plugins.available, [Foo])

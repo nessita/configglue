@@ -18,7 +18,7 @@ class PluginManager(object):
 
     @property
     def enabled(self):
-        return set((cls for cls in self.available if cls.enabled))
+        return [cls for cls in self.available if cls.enabled]
 
     def enable(self, plugin):
         plugin.enabled = True
@@ -31,7 +31,8 @@ class PluginManager(object):
         return [cls.schema for cls in self.enabled]
 
     def load(self):
-        return set()
+        return []
 
     def register(self, plugin):
-        self.available.add(plugin)
+        if plugin not in self.available:
+            self.available.append(plugin)
