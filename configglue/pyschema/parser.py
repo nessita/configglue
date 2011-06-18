@@ -518,11 +518,12 @@ class SchemaConfigParser(BaseConfigParser, object):
             self.set(section, option, value)
 
         # interpolate environment variables
-        try:
-            value = self.interpolate_environment(value, raw=raw)
-        except KeyError:
-            # interpolation failed, fallback to default value
-            value = self._get_default(section, option)
+        if isinstance(value, basestring):
+            try:
+                value = self.interpolate_environment(value, raw=raw)
+            except KeyError:
+                # interpolation failed, fallback to default value
+                value = self._get_default(section, option)
 
         if parse:
             value = self.parse(section, option, value)
