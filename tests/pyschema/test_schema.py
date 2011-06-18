@@ -35,6 +35,7 @@ from configglue.pyschema.schema import (
     StringConfigOption,
     StringOption,
     TupleConfigOption,
+    TupleOption,
     get_config_objects,
 )
 
@@ -537,19 +538,24 @@ class TestLinesConfigOption(TestListOption):
     cls = LinesConfigOption
 
 
-class TestTupleConfigOption(unittest.TestCase):
+class TestTupleOption(unittest.TestCase):
+    cls = TupleOption
+
     def test_init(self):
-        opt = TupleConfigOption(length=2)
+        """Test TupleOption constructor."""
+        opt = self.cls(length=2)
         self.assertEqual(opt.length, 2)
 
     def test_init_no_length(self):
-        opt = TupleConfigOption()
+        """Test TupleOption default attribute values."""
+        opt = self.cls()
         self.assertEqual(opt.length, 0)
         self.assertEqual(opt.default, ())
 
     def test_parse_no_length(self):
+        """Test TupleOption parse without length."""
         class MySchema(Schema):
-            foo = TupleConfigOption()
+            foo = self.cls()
 
         config = StringIO('[__main__]\nfoo=1,2,3,4')
         expected_values = {'__main__': {'foo': ('1', '2', '3', '4')}}
@@ -558,8 +564,9 @@ class TestTupleConfigOption(unittest.TestCase):
         self.assertEqual(parser.values(), expected_values)
 
     def test_parse_tuple(self):
+        """Test TupleOption parse with length."""
         class MySchema(Schema):
-            foo = TupleConfigOption(length=4)
+            foo = self.cls(length=4)
 
         config = StringIO('[__main__]\nfoo = 1, 2, 3, 4')
         expected_values = {'__main__': {'foo': ('1', '2', '3', '4')}}
@@ -579,16 +586,23 @@ class TestTupleConfigOption(unittest.TestCase):
         self.assertRaises(ValueError, parser.values)
 
     def test_default(self):
-        opt = TupleConfigOption(length=2)
+        """Test TupleOption default value."""
+        opt = self.cls(length=2)
         self.assertEqual(opt.default, ())
 
     def test_validate_tuple(self):
-        opt = TupleConfigOption(length=2)
+        """Test TupleOption validate a tuple value."""
+        opt = self.cls(length=2)
         self.assertEqual(opt.validate(()), True)
 
     def test_validate_nontuple(self):
-        opt = TupleConfigOption(length=2)
+        """Test TupleOption validate a non-tuple value."""
+        opt = self.cls(length=2)
         self.assertEqual(opt.validate(0), False)
+
+
+class TestTupleConfigOption(TupleOption):
+    cls = TupleConfigOption
 
 
 class TestDictOption(unittest.TestCase):
@@ -862,7 +876,7 @@ baz = 42
 class TestListOfTuples(unittest.TestCase):
     def setUp(self):
         class MySchema(Schema):
-            foo = ListOption(item=TupleConfigOption(length=3))
+            foo = ListOption(item=TupleOption(length=3))
 
         schema = MySchema()
         self.parser = SchemaConfigParser(schema)

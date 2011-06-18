@@ -49,7 +49,7 @@ from configglue.pyschema.schema import (
     ListOption,
     Schema,
     StringOption,
-    TupleConfigOption,
+    TupleOption,
 )
 
 
@@ -298,8 +298,9 @@ class TestInterpolation(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_get_interpolation_keys_tuple(self):
+        """Test get_interpolation_keys for a tuple."""
         class MySchema(Schema):
-            foo = TupleConfigOption(2)
+            foo = TupleOption(2)
         config = StringIO("[__main__]\nfoo=%(bar)s,%(baz)s")
         expected = ('%(bar)s,%(baz)s', set(['bar', 'baz']))
 
@@ -323,7 +324,7 @@ class TestInterpolation(unittest.TestCase):
     def test_get_interpolation_keys_tuple_lines(self):
         """Test get_interpolation_keys for a list of tuples."""
         class MySchema(Schema):
-            foo = ListOption(item=TupleConfigOption(2))
+            foo = ListOption(item=TupleOption(2))
         config = StringIO(
             "[__main__]\nfoo=%(bar)s,%(bar)s\n    %(baz)s,%(baz)s")
         expected = ('%(bar)s,%(bar)s\n%(baz)s,%(baz)s',
@@ -354,8 +355,9 @@ class TestInterpolation(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_interpolate_value_duplicate_key(self):
+        """Test interpolate_value for a duplicate key."""
         class MySchema(Schema):
-            foo = TupleConfigOption(2)
+            foo = TupleOption(2)
         config = StringIO(
             "[__noschema__]\nbar=4\n[__main__]\nfoo=%(bar)s,%(bar)s")
         expected_value = '4,4'
@@ -366,8 +368,9 @@ class TestInterpolation(unittest.TestCase):
         self.assertEqual(value, expected_value)
 
     def test_interpolate_value_invalid_key(self):
+        """Test interpolate_value with an invalid key."""
         class MySchema(Schema):
-            foo = TupleConfigOption(2)
+            foo = TupleOption(2)
         config = StringIO("[other]\nbar=4\n[__main__]\nfoo=%(bar)s,%(bar)s")
         expected_value = None
 
@@ -377,8 +380,9 @@ class TestInterpolation(unittest.TestCase):
         self.assertEqual(value, expected_value)
 
     def test_interpolate_value_no_keys(self):
+        """Test interpolate_value with no keys."""
         class MySchema(Schema):
-            foo = TupleConfigOption(2)
+            foo = TupleOption(2)
         config = StringIO("[__main__]\nfoo=%(bar)s,%(bar)s")
 
         mock_get_interpolation_keys = Mock(return_value=('%(bar)s', None))

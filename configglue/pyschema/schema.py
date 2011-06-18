@@ -35,6 +35,7 @@ __all__ = [
     'StringConfigOption',
     'StringOption',
     'TupleConfigOption',
+    'TupleOption',
 ]
 
 NO_DEFAULT = object()
@@ -433,7 +434,7 @@ class StringOption(ConfigOption):
         return isinstance(value, basestring)
 
 
-class TupleConfigOption(ConfigOption):
+class TupleOption(ConfigOption):
     """A ConfigOption that is parsed into a fixed-size tuple of strings.
 
     The number of items in the tuple should be specified with the 'length'
@@ -443,7 +444,7 @@ class TupleConfigOption(ConfigOption):
 
     def __init__(self, name='', length=0, raw=False, default=NO_DEFAULT,
         fatal=False, help='', action='store'):
-        super(TupleConfigOption, self).__init__(name=name, raw=raw,
+        super(TupleOption, self).__init__(name=name, raw=raw,
             default=default, fatal=fatal, help=help, action=action)
         self.length = length
 
@@ -617,4 +618,8 @@ class DictConfigOption(DictOption):
 
 
 class LinesConfigOption(ListOption):
+    __metaclass__ = DeprecatedOption
+
+
+class TupleConfigOption(TupleOption):
     __metaclass__ = DeprecatedOption
