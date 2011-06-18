@@ -574,12 +574,13 @@ class DictOption(Option):
             is_dict_lines_item = (hasattr(option_obj, 'item') and
                 isinstance(option_obj.item, DictOption))
 
+            if not (is_dict_item or is_dict_lines_item):
+                continue
+
             if is_dict_item:
                 base = option_obj
-            elif is_dict_lines_item:
-                base = option_obj.item
             else:
-                continue
+                base = option_obj.item
 
             value = parser.get(section, option, parse=False)
             names = value.split()
