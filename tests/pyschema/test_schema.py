@@ -26,6 +26,7 @@ from configglue.pyschema.schema import (
     ConfigOption,
     Option,
     ConfigSection,
+    Section,
     DictConfigOption,
     DictOption,
     IntConfigOption,
@@ -48,16 +49,16 @@ class TestSchema(unittest.TestCase):
             foo = BoolOption()
 
         class MyOtherSchema(Schema):
-            class web(ConfigSection):
+            class web(Section):
                 bar = IntOption()
 
-            class froo(ConfigSection):
+            class froo(Section):
                 twaddle = ListOption(item=BoolOption())
 
         class MyThirdSchema(Schema):
             bar = IntOption()
 
-            class froo(ConfigSection):
+            class froo(Section):
                 twaddle = ListOption(item=BoolOption())
 
         schema = MySchema()
@@ -75,11 +76,11 @@ class TestSchema(unittest.TestCase):
     def test_schema_validation(self):
         """Test Schema validation."""
         class BorkenSchema(Schema):
-            class __main__(ConfigSection):
+            class __main__(Section):
                 foo = BoolOption()
 
         class SomeSchema(Schema):
-            class mysection(ConfigSection):
+            class mysection(Section):
                 pass
 
         schema = BorkenSchema()
@@ -93,7 +94,7 @@ class TestSchema(unittest.TestCase):
         class MySchema(Schema):
             foo = BoolOption()
 
-            class bar(ConfigSection):
+            class bar(Section):
                 baz = IntOption()
 
         schema = MySchema()
@@ -108,7 +109,7 @@ class TestSchema(unittest.TestCase):
         class MySchema(Schema):
             foo = BoolOption()
 
-            class bar(ConfigSection):
+            class bar(Section):
                 baz = IntOption()
 
         schema = MySchema()
@@ -141,10 +142,10 @@ class TestSchemaHelpers(unittest.TestCase):
         class MySchema(Schema):
             foo = IntOption()
 
-            class one(ConfigSection):
+            class one(Section):
                 bar = IntOption()
 
-            two = ConfigSection()
+            two = Section()
             two.bam = IntOption()
 
         expected = {
@@ -174,8 +175,8 @@ class TestOption(unittest.TestCase):
 
     def test_equal_when_in_section(self):
         """Test option equality for section options."""
-        sect1 = ConfigSection(name='sect1')
-        sect2 = ConfigSection(name='sect2')
+        sect1 = Section(name='sect1')
+        sect2 = Section(name='sect2')
         opt1 = IntOption()
         opt2 = IntOption()
 
@@ -206,15 +207,15 @@ class TestConfigOption(TestOption):
 class TestSchemaInheritance(unittest.TestCase):
     def setUp(self):
         class SchemaA(Schema):
-            class foo(ConfigSection):
+            class foo(Section):
                 bar = IntOption()
 
         class SchemaB(SchemaA):
-            class baz(ConfigSection):
+            class baz(Section):
                 wham = IntOption()
 
         class SchemaC(SchemaA):
-            class bar(ConfigSection):
+            class bar(Section):
                 woof = IntOption()
 
         self.schema = SchemaB()
@@ -225,7 +226,7 @@ class TestSchemaInheritance(unittest.TestCase):
         names = [('foo', ['bar']), ('baz', ['wham'])]
         for section, options in names:
             section_obj = getattr(self.schema, section)
-            self.assertTrue(isinstance(section_obj, ConfigSection))
+            self.assertTrue(isinstance(section_obj, Section))
             for option in options:
                 option_obj = getattr(section_obj, option)
                 self.assertTrue(isinstance(option_obj, IntOption))
@@ -249,7 +250,7 @@ class TestSchemaInheritance(unittest.TestCase):
     def test_merge_inherited(self):
         """Test inherited schema overrides attributes as expected."""
         class SchemaA(Schema):
-            class foo(ConfigSection):
+            class foo(Section):
                 bar = IntOption()
 
             bar = IntOption()
@@ -905,3 +906,68 @@ class TestListOfTuples(unittest.TestCase):
         expected_values = {'__main__': {'foo': [()]}}
         self.parser.readfp(config)
         self.assertEqual(self.parser.values(), expected_values)
+
+
+class TestSection(unittest.TestCase):
+    cls = Section
+
+    def test_default_name(self):
+        """Test Section default name."""
+        section = self.cls()
+        self.assertEqual(section.name, '')
+
+    def test_custom_name(self):
+        """Test Section custom name."""
+        section = self.cls(name='foo')
+        self.assertEqual(section.name, 'foo')
+
+    def test_equality(self):
+        """Test Section equality."""
+        section1 = self.cls()
+        section2 = self.cls()
+        section3 = self.cls(name='foo')
+        section4 = self.cls()
+        section4.foo = IntOption()
+
+        self.assertEqual(section1, section1)
+        self.assertEqual(section1, section2)
+        self.assertNotEqual(section1, section3)
+        self.assertNotEqual(section1, section4)
+
+    def test_repr(self):
+        """Test Section repr."""
+        section1 = self.cls()
+        section2 = self.cls(name='foo')
+
+        self.assertEqual(repr(section1), '<{0}>'.format(self.cls.__name__))
+        self.assertEqual(repr(section2),
+            '<{0} foo>'.format(self.cls.__name__))
+
+    def test_has_option(self):
+        """Test Section has_option method."""
+        section = self.cls()
+        section.foo = IntOption()
+        section.bar = 4
+
+        self.assertEqual(section.has_option('foo'), True)
+        self.assertEqual(section.has_option('bar'), False)
+
+    def test_option(self):
+        """Test Section option method."""
+        section = self.cls()
+        section.foo = IntOption()
+
+        self.assertEqual(section.option('foo'), section.foo)
+        self.assertRaises(AssertionError, section.option, 'bar')
+
+    def test_options(self):
+        """Test Section options method."""
+        section = self.cls()
+        section.foo = IntOption()
+        section.bar = 4
+
+        self.assertEqual(section.options(), [section.foo])
+
+
+class TestConfigSection(TestSection):
+    cls = ConfigSection

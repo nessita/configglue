@@ -28,7 +28,7 @@ from configglue.pyschema.glue import schemaconfigglue
 from configglue.pyschema.parser import SchemaConfigParser
 from configglue.pyschema.schema import (
     BoolOption,
-    ConfigSection,
+    Section,
     IntOption,
     ListOption,
     Schema,
@@ -70,7 +70,7 @@ def ini2schema(fd, p=None):
         if section_name == '__main__':
             section = MySchema
         else:
-            section = ConfigSection(name=section_name)
+            section = Section(name=section_name)
             setattr(MySchema, section_name, section)
         for option_name in p.options(section_name):
             option = p.get(section_name, option_name)

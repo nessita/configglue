@@ -6,7 +6,7 @@ configglue uses standard INI-style configuration files to store the values for
 the configuration, in the same format supported by ConfigParser. Within a
 configuration file, there a few special syntax constructs you should be aware of. 
 
-A ConfigSection is matched by a ConfigParser section, which is defined like::
+A Section is matched by a ConfigParser section, which is defined like::
 
     [MySection]
 
@@ -23,7 +23,7 @@ So, a very simple configuration file could look like::
 This configuration file would match with a schema like the following::
 
     class MySchema(pyschema.Schema):
-        class MySection(pyschema.ConfigSection):
+        class MySection(pyschema.Section):
             my_option = pyschema.StringOption()
 
 ======================

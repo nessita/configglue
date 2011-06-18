@@ -43,7 +43,7 @@ from configglue.pyschema.parser import (
 )
 from configglue.pyschema.schema import (
     BoolOption,
-    ConfigSection,
+    Section,
     DictOption,
     IntOption,
     ListOption,
@@ -234,10 +234,10 @@ class TestInterpolation(unittest.TestCase):
     def test_interpolate_across_sections(self):
         """Test interpolation across sections."""
         class MySchema(Schema):
-            class foo(ConfigSection):
+            class foo(Section):
                 bar = IntOption()
 
-            class baz(ConfigSection):
+            class baz(Section):
                 wham = IntOption()
 
         config = StringIO("[foo]\nbar=%(wham)s\n[baz]\nwham=42")
@@ -249,10 +249,10 @@ class TestInterpolation(unittest.TestCase):
     def test_interpolate_invalid_key(self):
         """Test interpolation of invalid key."""
         class MySchema(Schema):
-            class foo(ConfigSection):
+            class foo(Section):
                 bar = IntOption()
 
-            class baz(ConfigSection):
+            class baz(Section):
                 wham = IntOption()
 
         config = StringIO("[foo]\nbar=%(wham)s\n[baz]\nwham=42")
@@ -443,7 +443,7 @@ class TestSchemaConfigParser(unittest.TestCase):
 
     def test_init_invalid_schema(self):
         class MyInvalidSchema(Schema):
-            class __main__(ConfigSection):
+            class __main__(Section):
                 pass
 
         self.assertRaises(SchemaValidationError, SchemaConfigParser,
@@ -474,7 +474,7 @@ class TestSchemaConfigParser(unittest.TestCase):
         class MySchema(Schema):
             foo = StringOption()
 
-            class baz(ConfigSection):
+            class baz(Section):
                 bar = StringOption()
 
         parser = SchemaConfigParser(MySchema())
@@ -506,10 +506,10 @@ class TestSchemaConfigParser(unittest.TestCase):
     def test_values_many_sections_same_option(self):
         """Test parser.values for many section with the same option."""
         class MySchema(Schema):
-            class foo(ConfigSection):
+            class foo(Section):
                 bar = IntOption()
 
-            class baz(ConfigSection):
+            class baz(Section):
                 bar = IntOption()
 
         config = StringIO("[foo]\nbar=3\n[baz]\nbar=4")
@@ -524,10 +524,10 @@ class TestSchemaConfigParser(unittest.TestCase):
     def test_values_many_sections_different_options(self):
         """Test parser.values for many sections with different options."""
         class MySchema(Schema):
-            class foo(ConfigSection):
+            class foo(Section):
                 bar = IntOption()
 
-            class bar(ConfigSection):
+            class bar(Section):
                 baz = IntOption()
 
         config = StringIO("[foo]\nbar=3\n[bar]\nbaz=4")
@@ -542,7 +542,7 @@ class TestSchemaConfigParser(unittest.TestCase):
     def test_parse_option(self):
         """Test parser parses option."""
         class MyOtherSchema(Schema):
-            class foo(ConfigSection):
+            class foo(Section):
                 bar = StringOption()
 
         expected_value = 'baz'
@@ -561,7 +561,7 @@ class TestSchemaConfigParser(unittest.TestCase):
         class MySchema(Schema):
             foo = BoolOption(default=True)
 
-            class bar(ConfigSection):
+            class bar(Section):
                 baz = IntOption()
                 bla = StringOption(default='hello')
 
@@ -645,7 +645,7 @@ class TestSchemaConfigParser(unittest.TestCase):
     def test_get_default_from_section(self):
         """Test parser._get_default for a section/option pair."""
         class MySchema(Schema):
-            class foo(ConfigSection):
+            class foo(Section):
                 bar = IntOption()
         config = StringIO("[__main__]\n")
         expected = 0
@@ -799,7 +799,7 @@ class TestSchemaConfigParser(unittest.TestCase):
         class MySchema(Schema):
             foo = StringOption()
 
-            class DEFAULTSECT(ConfigSection):
+            class DEFAULTSECT(Section):
                 pass
 
         parser = SchemaConfigParser(MySchema())

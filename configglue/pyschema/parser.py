@@ -204,7 +204,7 @@ class SchemaConfigParser(BaseConfigParser, object):
         If section is specified, return all options from that section only.
 
         Section is to be specified *by name*, not by
-        passing in real ConfigSection objects.
+        passing in real Section objects.
 
         """
         values = collections.defaultdict(dict)

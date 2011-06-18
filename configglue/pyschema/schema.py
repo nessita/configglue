@@ -26,6 +26,7 @@ __all__ = [
     'ConfigOption',
     'Option',
     'ConfigSection',
+    'Section',
     'DictConfigOption',
     'DictOption',
     'IntConfigOption',
@@ -45,12 +46,12 @@ _internal = object.__dict__.keys() + ['__module__']
 
 
 def get_config_objects(obj):
-    """Return the list of ConfigSection- and Option-derived objects."""
+    """Return the list of Section- and Option-derived objects."""
     objects = []
     for name, obj in getmembers(obj):
-        if isinstance(obj, (ConfigSection, Option)):
+        if isinstance(obj, (Section, Option)):
             objects.append((name, obj))
-        elif type(obj) == type and issubclass(obj, ConfigSection):
+        elif type(obj) == type and issubclass(obj, Section):
             instance = obj()
             for key, value in get_config_objects(obj):
                 setattr(instance, key, value)
@@ -63,12 +64,12 @@ class Schema(object):
 
     To define your own configuration schema you should:
      1- Inherit from Schema
-     2- Add Option and ConfigSections as class attributes.
+     2- Add Option and Sections as class attributes.
 
     With that your whole configuration schema is defined, and you can now
     load configuration files.
 
-    Options that don't go in a ConfigSection will belong in the
+    Options that don't go in a Section will belong in the
     '__main__' section of the configuration files.
 
     One Option comes already defined in Schema, 'includes' in the
@@ -87,7 +88,7 @@ class Schema(object):
     def _add_item(self, name, item):
         """Add a top-level item to the schema."""
         item.name = name
-        if isinstance(item, ConfigSection):
+        if isinstance(item, Section):
             self._add_section(name, item)
         elif isinstance(item, Option):
             self._add_option(name, item)
@@ -105,7 +106,7 @@ class Schema(object):
     def _add_option(self, name, option):
         """Add a top-level option to the schema."""
         section = self._sections.setdefault('__main__',
-            ConfigSection(name='__main__'))
+            Section(name='__main__'))
         option.section = section
         setattr(section, name, option)
 
@@ -119,23 +120,22 @@ class Schema(object):
     def is_valid(self):
         """Return whether the schema has a valid structure."""
         explicit_default_section = isinstance(getattr(self, '__main__', None),
-                                              ConfigSection)
+                                              Section)
         is_valid = not explicit_default_section
         return is_valid
 
     def has_section(self, name):
-        """Return whether the schema as a given section."""
-        """Return True if a ConfigSection with the given name is available"""
+        """Return True if a Section with the given name is available"""
         return name in self._sections.keys()
 
     def section(self, name):
-        """Return a ConfigSection by name"""
+        """Return a Section by name"""
         section = self._sections.get(name)
-        assert section is not None, "Invalid ConfigSection name '%s'" % name
+        assert section is not None, "Invalid Section name '%s'" % name
         return section
 
     def sections(self):
-        """Returns the list of available ConfigSections"""
+        """Returns the list of available Sections"""
         return self._sections.values()
 
     def options(self, section=None):
@@ -161,12 +161,12 @@ class Schema(object):
         return options
 
 
-class ConfigSection(object):
+class Section(object):
     """A group of options.
 
     This class is just a bag you can dump Options in.
 
-    After instantiating the Schema, each ConfigSection will know its own
+    After instantiating the Schema, each Section will know its own
     name.
 
     """
@@ -185,7 +185,7 @@ class ConfigSection(object):
             name = " %s" % self.name
         else:
             name = ''
-        value = "<ConfigSection%s>" % name
+        value = "<{0}{1}>".format(self.__class__.__name__, name)
         return value
 
     def has_option(self, name):
@@ -596,7 +596,8 @@ class DictOption(Option):
 # deprecated
 #
 
-class DeprecatedOption(type):
+
+class Deprecated(type):
     def __init__(cls, name, bases, attrs):
         warn('{0} is deprecated; use {1} instead.'.format(
             name, bases[0].__name__), DeprecationWarning)
@@ -604,28 +605,32 @@ class DeprecatedOption(type):
 
 
 class StringConfigOption(StringOption):
-    __metaclass__ = DeprecatedOption
+    __metaclass__ = Deprecated
 
 
 class IntConfigOption(IntOption):
-    __metaclass__ = DeprecatedOption
+    __metaclass__ = Deprecated
 
 
 class BoolConfigOption(BoolOption):
-    __metaclass__ = DeprecatedOption
+    __metaclass__ = Deprecated
 
 
 class DictConfigOption(DictOption):
-    __metaclass__ = DeprecatedOption
+    __metaclass__ = Deprecated
 
 
 class LinesConfigOption(ListOption):
-    __metaclass__ = DeprecatedOption
+    __metaclass__ = Deprecated
 
 
 class TupleConfigOption(TupleOption):
-    __metaclass__ = DeprecatedOption
+    __metaclass__ = Deprecated
 
 
 class ConfigOption(Option):
-    __metaclass__ = DeprecatedOption
+    __metaclass__ = Deprecated
+
+
+class ConfigSection(Section):
+    __metaclass__ = Deprecated

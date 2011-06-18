@@ -14,7 +14,7 @@ The basics:
       :class:`~configglue.pyschema.schema.Schema`.
 
     * Each attribute of the schema represents either a configuration section
-      (see :class:`~configglue.pyschema.schema.ConfigSection`) or
+      (see :class:`~configglue.pyschema.schema.Section`) or
       option (see :class:`~configglue.pyschema.schema.Option`).
 
 Quick example
@@ -134,8 +134,8 @@ Python inheritance model. Whenever a schema is created, it will inherit all
 its attributes from the base classes.
 
 This poses a slight problem for attributes of type
-:class:`~configglue.pyschema.schema.ConfigSection`. Usually, you'll want to
-extend a :class:`~configglue.pyschema.schema.ConfigSection` instead of
+:class:`~configglue.pyschema.schema.Section`. Usually, you'll want to
+extend a :class:`~configglue.pyschema.schema.Section` instead of
 overriding it. In order to achieve this, in your schema subclass, copy the
 parent's attribute explicitely, to avoid modifying the parent schema class.
 Option attributes (derived from
@@ -152,7 +152,7 @@ For example::
     class BaseSchema(pyschema.Schema):
         option1 = pyschema.IntOption()
 
-        class MySection(pyschema.ConfigSection):
+        class MySection(pyschema.Section):
             option1 = pyschema.BoolOption()
 
 
@@ -175,7 +175,7 @@ expected::
         option1 = pyschema.IntOption()
         option2 = pyschema.IntOption()
 
-        class MySection(pyschema.ConfigSection):
+        class MySection(pyschema.Section):
             option1 = pyschema.BoolOption()
             option2 = IntOption()
 
