@@ -19,7 +19,10 @@
 import unittest
 from StringIO import StringIO
 
-from configglue.pyschema.parser import SchemaConfigParser
+from configglue.pyschema.parser import (
+    SchemaConfigParser,
+    SchemaValidationError,
+)
 from configglue.pyschema.schema import (
     BoolConfigOption,
     BoolOption,
@@ -39,6 +42,7 @@ from configglue.pyschema.schema import (
     TupleConfigOption,
     TupleOption,
     get_config_objects,
+    merge,
 )
 
 
@@ -971,3 +975,66 @@ class TestSection(unittest.TestCase):
 
 class TestConfigSection(TestSection):
     cls = ConfigSection
+
+
+class MultiSchemaTestCase(unittest.TestCase):
+    def test_merge_schemas_no_conflicts(self):
+        class SchemaA(Schema):
+            foo = IntOption()
+
+        class SchemaB(Schema):
+            bar = BoolOption()
+
+        schema = merge(SchemaA, SchemaB)()
+        self.assertEqual(set(s.name for s in schema.sections()),
+            set(['__main__']))
+        self.assertEqual(set(o.name for o in schema.options('__main__')),
+            set(['foo', 'bar']))
+        self.assertEqual(schema.foo, SchemaA().foo)
+        self.assertEqual(schema.bar, SchemaB().bar)
+
+    def test_merge_schemas_same_section(self):
+        class SchemaA(Schema):
+            class foo(Section):
+                bar = IntOption()
+
+        class SchemaB(Schema):
+            class foo(Section):
+                baz = BoolOption()
+
+        schema = merge(SchemaA, SchemaB)()
+        self.assertEqual(set(s.name for s in schema.sections()),
+            set(['foo']))
+        self.assertEqual(set(o.name for o in schema.options('foo')),
+            set(['bar', 'baz']))
+        self.assertEqual(schema.foo.bar, SchemaA().foo.bar)
+        self.assertEqual(schema.foo.baz, SchemaB().foo.baz)
+
+    def test_merge_schemas_duplicate(self):
+        class SchemaA(Schema):
+            foo = IntOption()
+
+        class SchemaB(Schema):
+            foo = IntOption()
+
+        schema = merge(SchemaA, SchemaB)()
+        self.assertEqual(set(s.name for s in schema.sections()),
+            set(['__main__']))
+        self.assertEqual(set(o.name for o in schema.options('__main__')),
+            set(['foo']))
+        self.assertEqual(schema.foo, SchemaA().foo)
+        self.assertEqual(schema.foo, SchemaB().foo)
+
+    def test_merge_schemas_conflicts(self):
+        class SchemaA(Schema):
+            foo = IntOption()
+
+        class SchemaB(Schema):
+            foo = BoolOption()
+
+        try:
+            merge(SchemaA, SchemaB)
+            self.fail('SchemaValidationError not raised.')
+        except SchemaValidationError, e:
+            self.assertEqual(str(e),
+                "Conflicting option '__main__.foo' while merging schemas.")
