@@ -195,6 +195,19 @@ class TestSchemaConfigGlue(unittest.TestCase):
         finally:
             sys.argv = _argv
 
+    @patch('configglue.pyschema.glue.os')
+    def test_glue_environ_bad_name(self, mock_os):
+        mock_os.environ = {'FOO_BAR': 2, 'BAZ': 3}
+        config = StringIO("[foo]\nbar=1")
+        self.parser.readfp(config)
+
+        _argv, sys.argv = sys.argv, ['prognam']
+        try:
+            op, options, args = schemaconfigglue(self.parser)
+            self.assertEqual(self.parser.values(),
+                {'foo': {'bar': 1}, '__main__': {'baz': 0}})
+        finally:
+            sys.argv = _argv
 
     def test_glue_environ_precedence(self):
         with patch_object(os, 'environ',
