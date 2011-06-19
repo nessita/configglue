@@ -15,6 +15,7 @@
 #
 ###############################################################################
 
+import os
 import sys
 from optparse import OptionParser
 from collections import namedtuple
@@ -67,15 +68,27 @@ def schemaconfigglue(parser, op=None, argv=None):
             og.add_option('--' + long_name(option), **kwargs)
     options, args = op.parse_args(argv)
 
+    def set_value(section, option, value):
+        # if value is not of the right type, cast it
+        if not option.validate(value):
+            value = option.parse(value)
+        parser.set(section.name, option.name, value)
+
     for section in schema.sections():
         for option in section.options():
-            value = getattr(options, opt_name(option))
-            if parser.get(section.name, option.name) != value:
-                # the value has been overridden by an argument
-                if isinstance(value, basestring):
-                    # parse it to the right type if it's a string
-                    value = option.parse(value)
-                parser.set(section.name, option.name, value)
+            # 1. op value != parser value
+            # 2. op value == parser value != env value
+            # 3. op value == parser value == env value or not env value
+
+            op_value = getattr(options, opt_name(option))
+            parser_value = parser.get(section.name, option.name)
+            env_value = os.environ.get("CONFIGGLUE_{0}".format(
+                long_name(option).upper()))
+
+            if op_value != parser_value:
+                set_value(section, option, op_value)
+            elif env_value is not None and env_value != parser_value:
+                set_value(section, option, env_value)
 
     return op, options, args
 

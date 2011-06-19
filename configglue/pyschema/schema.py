@@ -106,7 +106,7 @@ class Schema(object):
 
     To define your own configuration schema you should:
      1- Inherit from Schema
-     2- Add Option and Sections as class attributes.
+     2- Add Options and Sections as class attributes.
 
     With that your whole configuration schema is defined, and you can now
     load configuration files.
