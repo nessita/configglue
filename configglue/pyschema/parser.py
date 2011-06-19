@@ -89,13 +89,19 @@ class SchemaConfigParser(BaseConfigParser, object):
             schema_sections.update(skip_sections)
             sections_match = (parsed_sections == schema_sections)
             if not sections_match:
-                error_msg = "Sections in configuration do not match schema: %s"
                 unmatched_sections = list(parsed_sections - schema_sections)
-                error_value = ', '.join(unmatched_sections)
-                errors.append(error_msg % error_value)
+                if len(unmatched_sections) > 0:
+                    error_msg = "Sections in configuration are missing from schema: %s"
+                    error_value = ', '.join(unmatched_sections)
+                    errors.append(error_msg % error_value)
+                unmatched_sections = list(schema_sections - parsed_sections)
+                if len(unmatched_sections) > 0:
+                    error_msg = "Sections in schema are missing from configuration: %s"
+                    error_value = ', '.join(unmatched_sections)
+                    errors.append(error_msg % error_value)
             valid &= sections_match
 
-            for name in parsed_sections:
+            for name in list(parsed_sections.union(schema_sections)):
                 if name not in skip_sections:
                     if not self.schema.has_section(name):
                         # this should have been reported before
@@ -103,7 +109,10 @@ class SchemaConfigParser(BaseConfigParser, object):
                         continue
 
                     section = self.schema.section(name)
-                    parsed_options = set(self.options(name))
+                    try:
+                        parsed_options = set(self.options(name))
+                    except:
+                        parsed_options = set([])
                     schema_options = set(section.options())
 
                     fatal_options = set(opt.name for opt in schema_options
@@ -139,9 +148,8 @@ class SchemaConfigParser(BaseConfigParser, object):
             self.parse_all()
 
         except Exception, e:
-            if valid:
-                errors.append(e)
-                valid = False
+            errors.append(str(e))
+            valid = False
 
         if report:
             return valid, errors
@@ -494,10 +502,6 @@ class SchemaConfigParser(BaseConfigParser, object):
 
             # value found, so section and option exist
             # add it to the config
-            if not self.has_section(section):
-                # Don't call .add_section here because 2.6 complains
-                # about sections called '__main__'
-                self._sections[section] = {}
             self.set(section, option, value)
 
         # interpolate environment variables
@@ -527,6 +531,10 @@ class SchemaConfigParser(BaseConfigParser, object):
         # cast value to a string because SafeConfigParser only allows
         # strings to be set
         str_value = option_obj.to_string(value)
+        if not self.has_section(section):
+            # Don't call .add_section here because 2.6 complains
+            # about sections called '__main__'
+            self._sections[section] = {}
         super(SchemaConfigParser, self).set(section, option, str_value)
         filename = self.locate(option)
         self._dirty[filename][section][option] = str_value

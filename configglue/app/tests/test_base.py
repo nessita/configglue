@@ -64,7 +64,7 @@ class ConfigTestCase(TestCase):
     def test_glue_invalid_config(self):
         class MySchema(Schema):
             foo = IntOption(fatal=True)
-        self.assertRaises(NoOptionError, make_app, schema=MySchema)
+        self.assertRaises(SystemExit, make_app, schema=MySchema)
 
     def test_get_config_files(self):
         app = make_app()

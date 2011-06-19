@@ -1021,8 +1021,8 @@ class TestParserIsValid(unittest.TestCase):
 
         valid, errors = self.parser.is_valid(report=True)
         self.assertFalse(valid)
-        self.assertEqual(errors,
-            [u'Sections in configuration do not match schema: bar'])
+        self.assertEqual(errors[0],
+            u'Sections in configuration are missing from schema: bar')
 
     def test_different_sections(self):
         config = StringIO("[__main__]\nfoo=1\n[bar]\nbaz=2")
