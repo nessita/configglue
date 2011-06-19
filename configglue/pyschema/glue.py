@@ -63,7 +63,8 @@ def schemaconfigglue(parser, op=None, argv=None):
             kwargs = {}
             if option.help:
                 kwargs['help'] = option.help
-            kwargs['default'] = parser.get(section.name, option.name)
+            if not option.fatal:
+                kwargs['default'] = parser.get(section.name, option.name)
             kwargs['action'] = option.action
             og.add_option('--' + long_name(option), **kwargs)
     options, args = op.parse_args(argv)
