@@ -437,12 +437,13 @@ class SchemaConfigParser(BaseConfigParser, object):
         return result
 
     def interpolate_environment(self, rawval, raw=False):
-        if not raw:
-            # interpolate environment variables
-            rawval = re.sub(r'\${([A-Z_]+)}', r'%(\1)s', rawval)
-            rawval = re.sub(r'\$([A-Z_]+)', r'%(\1)s', rawval)
-            rawval = rawval % os.environ
-        return rawval
+        if raw:
+            return rawval
+        # interpolate environment variables
+        pattern = re.sub(r'\${([A-Z_]+)}', r'%(\1)s', rawval)
+        pattern = re.sub(r'\$([A-Z_]+)', r'%(\1)s', pattern)
+        interpolated = pattern % os.environ
+        return interpolated
 
     def _get_default(self, section, option):
         # mark the value as not initialized to be able to have a None default
