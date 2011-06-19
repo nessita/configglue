@@ -17,6 +17,7 @@
 ###############################################################################
 
 import unittest
+from ConfigParser import NoOptionError
 from StringIO import StringIO
 
 from configglue.pyschema.parser import (
@@ -962,7 +963,7 @@ class TestSection(unittest.TestCase):
         section.foo = IntOption()
 
         self.assertEqual(section.option('foo'), section.foo)
-        self.assertRaises(AssertionError, section.option, 'bar')
+        self.assertRaises(NoOptionError, section.option, 'bar')
 
     def test_options(self):
         """Test Section options method."""

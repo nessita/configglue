@@ -446,35 +446,19 @@ class SchemaConfigParser(BaseConfigParser, object):
         return interpolated
 
     def _get_default(self, section, option):
-        # mark the value as not initialized to be able to have a None default
-        marker = object()
-        value = marker
-
         # cater for 'special' sections
-        if section == '__main__':
-            opt = getattr(self.schema, option, None)
-            if opt is not None and not opt.fatal:
-                value = opt.default
-        elif section == '__noschema__':
+        if section == '__noschema__':
             value = super(SchemaConfigParser, self).get(section, option)
-        else:
-            try:
-                opt = self.schema.section(section).option(option)
-                if not opt.fatal:
-                    value = opt.default
-            except Exception:
-                pass
-
-        if value is marker:
-            # value was not set, so either section or option was not found
-            # or option was required (fatal set to True)
-            #if self.schema.has_section(section):
-            #    raise NoOptionError(option, section)
-            #else:
-            #    raise NoSectionError(section)
-            return None
-        else:
             return value
+
+        # any other section
+        opt = self.schema.section(section).option(option)
+        if not opt.fatal:
+            value = opt.default
+            return value
+
+        # no default value found, raise an error
+        raise NoOptionError(option, section)
 
     def get(self, section, option, raw=False, vars=None, parse=True):
         """Return the parsed value of an option.
@@ -507,8 +491,6 @@ class SchemaConfigParser(BaseConfigParser, object):
             # option not found in config, try to get its default value from
             # schema
             value = self._get_default(section, option)
-            if value is None:
-                raise
 
             # value found, so section and option exist
             # add it to the config

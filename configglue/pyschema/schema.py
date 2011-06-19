@@ -15,6 +15,10 @@
 #
 ###############################################################################
 
+from ConfigParser import (
+    NoSectionError,
+    NoOptionError,
+)
 from copy import deepcopy
 from inspect import getmembers
 from warnings import warn
@@ -175,7 +179,8 @@ class Schema(object):
     def section(self, name):
         """Return a Section by name"""
         section = self._sections.get(name)
-        assert section is not None, "Invalid Section name '%s'" % name
+        if section is None:
+            raise NoSectionError(name)
         return section
 
     def sections(self):
@@ -242,7 +247,8 @@ class Section(object):
     def option(self, name):
         """Return a Option by name"""
         opt = getattr(self, name, None)
-        assert opt is not None, "Invalid Option name '%s'" % name
+        if opt is None:
+            raise NoOptionError(name, self.name)
         return opt
 
     def options(self):
