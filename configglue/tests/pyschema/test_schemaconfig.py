@@ -37,8 +37,6 @@ from configglue.pyschema.schema import (
     ConfigSection,
     IntOption,
     Option,
-    Section,
-    IntOption,
     Schema,
     Section,
     StringOption,

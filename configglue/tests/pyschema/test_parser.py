@@ -279,6 +279,7 @@ class TestInterpolation(unittest.TestCase):
     @patch('configglue.pyschema.parser.os')
     def test_interpolate_environment_in_config(self, mock_os):
         mock_os.environ = {'PYTHONPATH': 'foo', 'PATH': 'bar'}
+
         class MySchema(Schema):
             pythonpath = StringOption()
             path = StringOption()
