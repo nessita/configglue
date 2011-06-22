@@ -484,10 +484,12 @@ class StringOption(Option):
         return result
 
     def to_string(self, value):
+        if value is None and self.null:
+            return 'None'
         return value
 
     def validate(self, value):
-        return isinstance(value, basestring)
+        return (self.null and value is None) or isinstance(value, basestring)
 
 
 class TupleOption(Option):
