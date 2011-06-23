@@ -263,6 +263,28 @@ class TestSchemaConfigGlue(unittest.TestCase):
         output = stdout.read()
         self.assertTrue(output.startswith('Usage:'))
 
+    def test_help_with_fatal(self):
+        """Test schemaconfigglue with --help and an undefined fatal option."""
+        class MySchema(Schema):
+            foo = IntOption(fatal=True)
+
+        self.parser = SchemaConfigParser(MySchema())
+
+        # replace stdout to capture its value
+        stdout = StringIO()
+        _stdout = sys.stdout
+        sys.stdout = stdout
+        # call the method and assert its value
+        self.assertRaises(SystemExit, schemaconfigglue, self.parser,
+            argv=['--help'])
+        # replace stdout again to cleanup
+        sys.stdout = _stdout
+
+        # assert the value of stdout is correct
+        stdout.seek(0)
+        output = stdout.read()
+        self.assertTrue(output.startswith('Usage:'))
+
     def test_parser_set_with_encoding(self):
         """Test schemaconfigglue override an option with a non-ascii value."""
         class MySchema(Schema):

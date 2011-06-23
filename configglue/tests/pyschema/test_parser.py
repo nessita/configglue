@@ -705,14 +705,12 @@ class TestSchemaConfigParser(unittest.TestCase):
         self.assertEqual(default, expected)
 
     def test_get_default_no_option(self):
-        expected = None
-        default = self.parser._get_default('__main__', 'bar')
-        self.assertEqual(default, expected)
+        self.assertRaises(NoOptionError, self.parser._get_default,
+            '__main__', 'bar')
 
     def test_get_default_no_section(self):
-        expected = None
-        default = self.parser._get_default('foo', 'bar')
-        self.assertEqual(default, expected)
+        self.assertRaises(NoSectionError, self.parser._get_default,
+            'foo', 'bar')
 
     def test_multi_file_dict_config(self):
         """Test parsing a dict option spanning multiple files."""
@@ -1023,8 +1021,8 @@ class TestParserIsValid(unittest.TestCase):
 
         valid, errors = self.parser.is_valid(report=True)
         self.assertFalse(valid)
-        self.assertEqual(errors,
-            [u'Sections in configuration do not match schema: bar'])
+        self.assertEqual(errors[0],
+            u'Sections in configuration are missing from schema: bar')
 
     def test_different_sections(self):
         config = StringIO("[__main__]\nfoo=1\n[bar]\nbaz=2")

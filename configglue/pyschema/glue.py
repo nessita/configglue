@@ -17,6 +17,10 @@
 
 import os
 import sys
+from ConfigParser import (
+    NoOptionError,
+    NoSectionError,
+)
 from optparse import OptionParser
 from collections import namedtuple
 
@@ -63,7 +67,8 @@ def schemaconfigglue(parser, op=None, argv=None):
             kwargs = {}
             if option.help:
                 kwargs['help'] = option.help
-            kwargs['default'] = parser.get(section.name, option.name)
+            if not option.fatal:
+                kwargs['default'] = parser.get(section.name, option.name)
             kwargs['action'] = option.action
             og.add_option('--' + long_name(option), **kwargs)
     options, args = op.parse_args(argv)
@@ -81,7 +86,10 @@ def schemaconfigglue(parser, op=None, argv=None):
             # 3. op value == parser value == env value or not env value
 
             op_value = getattr(options, opt_name(option))
-            parser_value = parser.get(section.name, option.name)
+            try:
+                parser_value = parser.get(section.name, option.name)
+            except (NoSectionError, NoOptionError):
+                parser_value = None
             env_value = os.environ.get("CONFIGGLUE_{0}".format(
                 long_name(option).upper()))
 
@@ -111,5 +119,5 @@ def configglue(schema_class, configs, usage=None):
     parser, opts, args = schemaconfigglue(scp, op=op)
     is_valid, reasons = scp.is_valid(report=True)
     if not is_valid:
-        parser.error(reasons[0])
+        parser.error('\n'.join(reasons))
     return SchemaGlue(scp, parser, opts, args)

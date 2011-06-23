@@ -1,5 +1,5 @@
 import user
-from ConfigParser import NoSectionError
+from ConfigParser import NoOptionError
 from unittest import TestCase
 
 from mock import (
@@ -64,7 +64,7 @@ class ConfigTestCase(TestCase):
     def test_glue_invalid_config(self):
         class MySchema(Schema):
             foo = IntOption(fatal=True)
-        self.assertRaises(NoSectionError, make_app, schema=MySchema)
+        self.assertRaises(SystemExit, make_app, schema=MySchema)
 
     def test_get_config_files(self):
         app = make_app()
