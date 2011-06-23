@@ -1,3 +1,19 @@
+python-configglue (0.11-0ubuntu1) natty; urgency=low
+
+  [Ricardo Kirkner]
+  * applied pep8 and pyflakes cleanups
+  * various smaller bug fixes
+  * moved tests into the configglue namespace
+  * added support for running the tests via tox
+  * added support for environment variables
+  * added basic class for simplifying creating configglue-enabled applications
+  * simplified section and option class names
+  * Bug (LP: #757955) fatal kwarg on option does not allow --help on cli for non existing config files
+  * Bug (LP: #793060) TypeError: option values must be strings
+  * Bug (LP: #753395) Update to schema definition syntax
+
+ -- Ricardo Kirkner <ricardo.kirkner@canonical.com>  Thu, 23 Jun 2011 20:44:24 -0300
+
 python-configglue (0.10-0ubuntu1) maverick; urgency=low
 
   [Ricardo Kirkner]

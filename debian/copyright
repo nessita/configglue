@@ -3,16 +3,16 @@ Fri, 20 Mar 2009 14:26:00 -0400.
 
 Copyright: 
 
-    Copyright (C) 2009 Canonical
+    Copyright (C) 2009-2011 Canonical
 
 License:
-    
+
     Upstream Author: John R. Lenton <john lenton at canonical com>
-	                 Ricardo Kirkner <ricardo kirkner at canonical com>
+                     Ricardo Kirkner <ricardo kirkner at canonical com>
     Project Homepage: https://launchpad.net/configglue
     Released under the BSD License
-    
-    Copyright (C) 2009, Canonical
+
+    Copyright (C) 2009-2011, Canonical
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,6 @@ License:
     CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
     ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
     POSSIBILITY OF SUCH DAMAGE
-    
-    The Debian packaging is (C) 2009, Canonical and is licensed under the BSD
-    license, see above.
+
+    The Debian packaging is (C) 2009-2011, Canonical and is licensed under the
+    BSD license, see above.
