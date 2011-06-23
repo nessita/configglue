@@ -361,8 +361,8 @@ class TestStringOption(unittest.TestCase):
         """Test OptionString to_string for a null string."""
         opt = StringOption(null=True)
         self.assertEqual(opt.to_string(None), 'None')
-        self.assertEqual(self.opt.to_string(''), '')
-        self.assertEqual(self.opt.to_string('foo'), 'foo')
+        self.assertEqual(opt.to_string(''), '')
+        self.assertEqual(opt.to_string('foo'), 'foo')
 
     def test_to_string_for_non_null_string(self):
         """Test OptionString to_string for non-null string."""
