@@ -290,6 +290,12 @@ class TestInterpolation(unittest.TestCase):
         self.assertEqual(parser.values('__main__'),
             {'pythonpath': 'foo', 'path': 'bar'})
 
+    def test_interpolate_environment_without_keys(self):
+        parser = SchemaConfigParser(Schema())
+        rawval = "['%H:%M:%S', '%Y-%m-%d']"
+        value = parser.interpolate_environment(rawval)
+        self.assertEqual(value, rawval)
+
     @patch('configglue.pyschema.parser.os')
     def test_get_with_environment_var(self, mock_os):
         mock_os.environ = {'FOO': '42'}
