@@ -352,6 +352,24 @@ class TestStringOption(unittest.TestCase):
         """Test OptionString validate a non-string value."""
         self.assertEqual(self.opt.validate(0), False)
 
+    def test_validate_null_string(self):
+        """Test OptionString validate a null string."""
+        opt = StringOption(null=True)
+        self.assertEqual(opt.validate(None), True)
+
+    def test_to_string_for_null_string(self):
+        """Test OptionString to_string for a null string."""
+        opt = StringOption(null=True)
+        self.assertEqual(opt.to_string(None), 'None')
+        self.assertEqual(opt.to_string(''), '')
+        self.assertEqual(opt.to_string('foo'), 'foo')
+
+    def test_to_string_for_non_null_string(self):
+        """Test OptionString to_string for non-null string."""
+        self.assertEqual(self.opt.to_string(None), None)
+        self.assertEqual(self.opt.to_string(''), '')
+        self.assertEqual(self.opt.to_string('foo'), 'foo')
+
 
 class TestStringConfigOption(TestStringOption):
     cls = StringConfigOption

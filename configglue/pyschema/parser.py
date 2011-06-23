@@ -390,17 +390,18 @@ class SchemaConfigParser(BaseConfigParser, object):
         """Return the location (file) where the option was last defined."""
         return self._location.get(option)
 
+    def _extract_interpolation_keys(self, item):
+        if isinstance(item, (list, tuple)):
+            keys = map(self._extract_interpolation_keys, item)
+            keys = reduce(set.union, keys, set())
+        else:
+            keys = set(self._KEYCRE.findall(item))
+        # remove invalid key
+        if '' in keys:
+            keys.remove('')
+        return keys
+
     def _get_interpolation_keys(self, section, option):
-        def extract_keys(item):
-            if isinstance(item, (list, tuple)):
-                keys = map(extract_keys, item)
-                keys = reduce(set.union, keys, set())
-            else:
-                keys = set(self._KEYCRE.findall(item))
-            # remove invalid key
-            if '' in keys:
-                keys.remove('')
-            return keys
 
         rawval = super(SchemaConfigParser, self).get(section, option, True)
         try:
@@ -409,7 +410,7 @@ class SchemaConfigParser(BaseConfigParser, object):
         except:
             value = rawval
 
-        keys = extract_keys(value)
+        keys = self._extract_interpolation_keys(value)
         return rawval, keys
 
     def _interpolate_value(self, section, option):
@@ -447,9 +448,16 @@ class SchemaConfigParser(BaseConfigParser, object):
     def interpolate_environment(self, rawval, raw=False):
         if raw:
             return rawval
+
         # interpolate environment variables
         pattern = re.sub(r'\${([A-Z_]+)}', r'%(\1)s', rawval)
         pattern = re.sub(r'\$([A-Z_]+)', r'%(\1)s', pattern)
+
+        keys = self._extract_interpolation_keys(pattern)
+        if not keys:
+            # interpolation keys are not valid
+            return rawval
+
         interpolated = pattern % os.environ
         return interpolated
 
@@ -508,12 +516,12 @@ class SchemaConfigParser(BaseConfigParser, object):
         if isinstance(value, basestring):
             try:
                 value = self.interpolate_environment(value, raw=raw)
+                if parse:
+                    value = self.parse(section, option, value)
             except KeyError:
                 # interpolation failed, fallback to default value
                 value = self._get_default(section, option)
 
-        if parse:
-            value = self.parse(section, option, value)
         return value
 
     def _get_option(self, section, option):
