@@ -101,7 +101,7 @@ class SchemaConfigParser(BaseConfigParser, object):
                     errors.append(error_msg % error_value)
             valid &= sections_match
 
-            for name in list(parsed_sections.union(schema_sections)):
+            for name in parsed_sections.union(schema_sections):
                 if name not in skip_sections:
                     if not self.schema.has_section(name):
                         # this should have been reported before
@@ -111,7 +111,7 @@ class SchemaConfigParser(BaseConfigParser, object):
                     section = self.schema.section(name)
                     try:
                         parsed_options = set(self.options(name))
-                    except:
+                    except NoSectionError:
                         parsed_options = set([])
                     schema_options = set(section.options())
 
