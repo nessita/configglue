@@ -15,6 +15,7 @@
 #
 ###############################################################################
 
+import ast
 import codecs
 import collections
 import copy
@@ -339,22 +340,29 @@ class SchemaConfigParser(BaseConfigParser, object):
             is_dict_option = isinstance(option_obj, DictOption)
             is_dict_lines_option = (hasattr(option_obj, 'item') and
                 isinstance(option_obj.item, DictOption))
-            is_default_value = unicode(option_obj.default) == value
+            is_default_value = value == option_obj.to_string(
+                option_obj.default)
 
             # avoid adding implicit sections for dict default value
-            if ((is_dict_option or is_dict_lines_option) and
-                not is_default_value):
-                sections = value.split()
-                self.extra_sections.update(set(sections))
+            if (is_dict_option or is_dict_lines_option):
+                try:
+                    is_default_value = (
+                        ast.literal_eval(value) == option_obj.default)
+                except:
+                    is_default_value = False
 
-                if is_dict_option:
-                    base = option_obj
-                else:
-                    base = option_obj.item
+                if not is_default_value:
+                    sections = value.split()
+                    self.extra_sections.update(set(sections))
 
-                for name in sections:
-                    nested = base.get_extra_sections(name, self)
-                    self.extra_sections.update(set(nested))
+                    if is_dict_option:
+                        base = option_obj
+                    else:
+                        base = option_obj.item
+
+                    for name in sections:
+                        nested = base.get_extra_sections(name, self)
+                        self.extra_sections.update(set(nested))
 
             if is_default_value:
                 value = option_obj.default
