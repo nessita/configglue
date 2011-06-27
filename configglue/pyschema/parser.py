@@ -340,40 +340,28 @@ class SchemaConfigParser(BaseConfigParser, object):
             is_dict_option = isinstance(option_obj, DictOption)
             is_dict_lines_option = (hasattr(option_obj, 'item') and
                 isinstance(option_obj.item, DictOption))
-            is_default_value = value == option_obj.to_string(
-                option_obj.default)
 
             # avoid adding implicit sections for dict default value
             if (is_dict_option or is_dict_lines_option):
-                try:
-                    is_default_value = (
-                        ast.literal_eval(value) == option_obj.default)
-                except:
-                    is_default_value = False
+                sections = value.split()
+                self.extra_sections.update(set(sections))
 
-                if not is_default_value:
-                    sections = value.split()
-                    self.extra_sections.update(set(sections))
+                if is_dict_option:
+                    base = option_obj
+                else:
+                    base = option_obj.item
 
-                    if is_dict_option:
-                        base = option_obj
-                    else:
-                        base = option_obj.item
+                for name in sections:
+                    nested = base.get_extra_sections(name, self)
+                    self.extra_sections.update(set(nested))
 
-                    for name in sections:
-                        nested = base.get_extra_sections(name, self)
-                        self.extra_sections.update(set(nested))
-
-            if is_default_value:
-                value = option_obj.default
-            elif isinstance(value, basestring):
-                try:
-                    value = option_obj.parse(value, **kwargs)
-                except ValueError, e:
-                    raise ValueError("Invalid value '%s' for %s '%s' in"
-                        " section '%s'. Original exception was: %s" %
-                        (value, option_obj.__class__.__name__, option,
-                         section, e))
+            try:
+                value = option_obj.parse(value, **kwargs)
+            except ValueError, e:
+                raise ValueError("Invalid value '%s' for %s '%s' in"
+                    " section '%s'. Original exception was: %s" %
+                    (value, option_obj.__class__.__name__, option,
+                     section, e))
         return value
 
     def parse_all(self):
@@ -515,10 +503,6 @@ class SchemaConfigParser(BaseConfigParser, object):
             # option not found in config, try to get its default value from
             # schema
             value = self._get_default(section, option)
-
-            # value found, so section and option exist
-            # add it to the config
-            self.set(section, option, value)
 
         # interpolate environment variables
         if isinstance(value, basestring):

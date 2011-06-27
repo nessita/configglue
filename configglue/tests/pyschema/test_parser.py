@@ -675,8 +675,8 @@ class TestSchemaConfigParser(unittest.TestCase):
                 'baz': BoolOption()})
 
         parser = SchemaConfigParser(MySchema())
-        parser.parse('__main__', 'foo', "{'bar': 0, 'baz': False}")
-
+        self.assertEqual(parser.get('__main__', 'foo'),
+            {'bar': 0, 'baz': False})
         self.assertEqual(parser.extra_sections, set([]))
 
     def test_multiple_extra_sections(self):
