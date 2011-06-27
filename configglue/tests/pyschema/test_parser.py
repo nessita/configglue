@@ -667,6 +667,18 @@ class TestSchemaConfigParser(unittest.TestCase):
         extra_sections = parser.extra_sections
         self.assertEqual(expected_sections, extra_sections)
 
+    def test_extra_sections_dict_default_value(self):
+        """Test parse dict with default value."""
+        class MySchema(Schema):
+            foo = DictOption(spec={
+                'bar': IntOption(),
+                'baz': BoolOption()})
+
+        parser = SchemaConfigParser(MySchema())
+        self.assertEqual(parser.get('__main__', 'foo'),
+            {'bar': 0, 'baz': False})
+        self.assertEqual(parser.extra_sections, set([]))
+
     def test_multiple_extra_sections(self):
         """Test parsing multiple extra sections."""
         class MySchema(Schema):
