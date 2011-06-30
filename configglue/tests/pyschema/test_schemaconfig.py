@@ -20,6 +20,7 @@ import unittest
 import os
 import sys
 from StringIO import StringIO
+from optparse import OptionConflictError
 
 from mock import (
     Mock,
@@ -296,6 +297,39 @@ class TestSchemaConfigGlue(unittest.TestCase):
         self.assertEqual(parser.get('__main__', 'foo', parse=False),
             'fóobâr')
         self.assertEqual(parser.get('__main__', 'foo'), 'fóobâr')
+
+    def test_option_short_name(self):
+        """Test schemaconfigglue support for short option names."""
+        class MySchema(Schema):
+            foo = IntOption(short_name='f')
+
+        parser = SchemaConfigParser(MySchema())
+        op, options, args = schemaconfigglue(
+            parser, argv=['-f', '42'])
+        self.assertEqual(parser.get('__main__', 'foo'), 42)
+
+    def test_option_conflicting_short_name(self):
+        """Test schemaconfigglue with conflicting short option names."""
+        class MySchema(Schema):
+            foo = IntOption(short_name='f')
+            flup = StringOption(short_name='f')
+
+        parser = SchemaConfigParser(MySchema())
+        self.assertRaises(OptionConflictError, schemaconfigglue, parser,
+            argv=['-f', '42'])
+
+    def test_option_specified_twice(self):
+        """Test schemaconfigglue with option name specified twice."""
+        class MySchema(Schema):
+            foo = IntOption(short_name='f')
+
+        parser = SchemaConfigParser(MySchema())
+        op, options, args = schemaconfigglue(
+            parser, argv=['-f', '42', '--foo', '24'])
+        self.assertEqual(parser.get('__main__', 'foo'), 24)
+        op, options, args = schemaconfigglue(
+            parser, argv=['-f', '24', '--foo', '42'])
+        self.assertEqual(parser.get('__main__', 'foo'), 42)
 
 
 class ConfigglueTestCase(unittest.TestCase):
