@@ -24,10 +24,12 @@ from configglue.pyschema import (
 def make_app(name=None, schema=None, plugin_manager=None):
     # patch sys.argv so that nose can be run with extra options
     # without conflicting with the schema validation
+    # patch sys.stderr to prevent spurious output
     mock_sys = Mock()
     mock_sys.argv = ['foo.py']
     with patch('configglue.pyschema.glue.sys', mock_sys):
-        app = App(name=name, schema=schema, plugin_manager=plugin_manager)
+        with patch('configglue.app.base.sys.stderr'):
+            app = App(name=name, schema=schema, plugin_manager=plugin_manager)
     return app
 
 
