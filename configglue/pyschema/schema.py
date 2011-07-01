@@ -288,8 +288,9 @@ class Option(object):
     require_parser = False
 
     def __init__(self, name='', raw=False, default=NO_DEFAULT, fatal=False,
-                 help='', section=None, action='store'):
+                 help='', section=None, action='store', short_name=''):
         self.name = name
+        self.short_name = short_name
         self.raw = raw
         self.fatal = fatal
         if default is NO_DEFAULT:
@@ -413,9 +414,13 @@ class ListOption(Option):
     """
 
     def __init__(self, name='', item=None, raw=False, default=NO_DEFAULT,
-        fatal=False, help='', action='store', remove_duplicates=False):
+        fatal=False, help='', action='store', remove_duplicates=False,
+        short_name=''):
         super(ListOption, self).__init__(name=name, raw=raw,
-            default=default, fatal=fatal, help=help, action=action)
+            default=default, fatal=fatal, help=help, action=action,
+            short_name=short_name)
+        if item is None:
+            item = StringOption()
         self.item = item
         self.require_parser = item.require_parser
         self.raw = item.raw
@@ -459,10 +464,11 @@ class StringOption(Option):
     """
 
     def __init__(self, name='', raw=False, default=NO_DEFAULT, fatal=False,
-        null=False, help='', action='store'):
+        null=False, help='', action='store', short_name=''):
         self.null = null
         super(StringOption, self).__init__(name=name, raw=raw,
-            default=default, fatal=fatal, help=help, action=action)
+            default=default, fatal=fatal, help=help, action=action,
+            short_name=short_name)
 
     def _get_default(self):
         return '' if not self.null else None
@@ -501,9 +507,10 @@ class TupleOption(Option):
     """
 
     def __init__(self, name='', length=0, raw=False, default=NO_DEFAULT,
-        fatal=False, help='', action='store'):
+        fatal=False, help='', action='store', short_name=''):
         super(TupleOption, self).__init__(name=name, raw=raw,
-            default=default, fatal=fatal, help=help, action=action)
+            default=default, fatal=fatal, help=help, action=action,
+            short_name=short_name)
         self.length = length
 
     def _get_default(self):
@@ -551,7 +558,7 @@ class DictOption(Option):
 
     def __init__(self, name='', spec=None, strict=False, raw=False,
                  default=NO_DEFAULT, fatal=False, help='', action='store',
-                 item=None):
+                 item=None, short_name=''):
         if spec is None:
             spec = {}
         if item is None:
@@ -560,7 +567,8 @@ class DictOption(Option):
         self.strict = strict
         self.item = item
         super(DictOption, self).__init__(name=name, raw=raw,
-            default=default, fatal=fatal, help=help, action=action)
+            default=default, fatal=fatal, help=help, action=action,
+            short_name=short_name)
 
     def _get_default(self):
         default = {}

@@ -201,8 +201,14 @@ class TestOption(unittest.TestCase):
         self.assertNotEqual(opt1, opt2)
 
     def test_validate(self):
+        """Test Option default validate behaviour."""
         opt = self.cls()
         self.assertRaises(NotImplementedError, opt.validate, 0)
+
+    def test_short_name(self):
+        """Test Option short name."""
+        opt = self.cls(short_name='f')
+        self.assertEqual(opt.short_name, 'f')
 
 
 class TestConfigOption(TestOption):
@@ -370,6 +376,11 @@ class TestStringOption(unittest.TestCase):
         self.assertEqual(self.opt.to_string(''), '')
         self.assertEqual(self.opt.to_string('foo'), 'foo')
 
+    def test_short_name(self):
+        """Test StringOption short name."""
+        opt = self.cls(short_name='f')
+        self.assertEqual(opt.short_name, 'f')
+
 
 class TestStringConfigOption(TestStringOption):
     cls = StringConfigOption
@@ -414,6 +425,11 @@ class TestIntOption(unittest.TestCase):
         """Test IntOption validate a non-integer value."""
         opt = self.cls()
         self.assertEqual(opt.validate(''), False)
+
+    def test_short_name(self):
+        """Test IntOption short name."""
+        opt = self.cls(short_name='f')
+        self.assertEqual(opt.short_name, 'f')
 
 
 class TestIntConfigOption(TestIntOption):
@@ -464,6 +480,11 @@ class TestBoolOption(unittest.TestCase):
         """Test BoolOption value a non-boolean value."""
         opt = self.cls()
         self.assertEqual(opt.validate(''), False)
+
+    def test_short_name(self):
+        """Test BoolOption short name."""
+        opt = self.cls(short_name='f')
+        self.assertEqual(opt.short_name, 'f')
 
 
 class TestBoolConfigOption(TestBoolOption):
@@ -564,6 +585,16 @@ class TestListOption(unittest.TestCase):
         opt = self.cls(item=IntOption())
         self.assertEqual(opt.validate(''), False)
 
+    def test_default_item(self):
+        """Test ListOption default item."""
+        opt = self.cls()
+        self.assertEqual(opt.item, StringOption())
+
+    def test_short_name(self):
+        """Test ListOption short name."""
+        opt = self.cls(short_name='f')
+        self.assertEqual(opt.short_name, 'f')
+
 
 class TestLinesConfigOption(TestListOption):
     cls = LinesConfigOption
@@ -630,6 +661,11 @@ class TestTupleOption(unittest.TestCase):
         """Test TupleOption validate a non-tuple value."""
         opt = self.cls(length=2)
         self.assertEqual(opt.validate(0), False)
+
+    def test_short_name(self):
+        """Test TupleOption short name."""
+        opt = self.cls(short_name='f')
+        self.assertEqual(opt.short_name, 'f')
 
 
 class TestTupleConfigOption(TupleOption):
@@ -832,6 +868,11 @@ wham=42
     def test_validate_nondict(self):
         opt = self.cls()
         self.assertEqual(opt.validate(0), False)
+
+    def test_short_name(self):
+        """Test DictOption short name."""
+        opt = self.cls(short_name='f')
+        self.assertEqual(opt.short_name, 'f')
 
 
 class TestDictConfigOption(TestDictOption):
