@@ -49,7 +49,6 @@ The configuration file
     * **Advanced:**
       :doc:`Environment variables <topics/environment-variables>`
 
-
 The command-line
 ================
 
@@ -58,6 +57,12 @@ The command-line
 
     * **Advanced:**
       :doc:`Environment variables <topics/environment-variables>`
+
+Applications
+============
+
+    * **Getting started:**
+      :doc:`Writing configglue-enabled applications <topics/base-app>`
 
 The configglue open-source project
 ==================================

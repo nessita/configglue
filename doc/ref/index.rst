@@ -6,4 +6,5 @@ API Reference
    :maxdepth: 1
 
    schemas/index
+   app/index
 

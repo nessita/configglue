@@ -11,4 +11,5 @@ Introductions to all the key parts of configglue you'll need to know:
    config-file
    command-line
    environment-variables
+   base-app
 
