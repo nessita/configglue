@@ -2,8 +2,6 @@
 Schemas
 =======
 
-.. module:: configglue.pyschema.schema
-
 A schema is a static declaration of all your configuration settings. It
 contains metadata about each setting so that the configuration can later
 be validated.
