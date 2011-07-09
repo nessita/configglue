@@ -10,4 +10,5 @@ Introductions to all the key parts of configglue you'll need to know:
    schemas
    config-file
    command-line
+   environment-variables
 

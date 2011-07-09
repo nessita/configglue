@@ -112,3 +112,12 @@ and the schema::
 
     {'foo': 1, 'bar': True}
 
+
+Environment variables
+=====================
+
+You can also specify the value in the configuration file as an expression
+involving environment variables.
+
+For more details, refer to the documentation about
+:ref:`environment-variables-config-file`.

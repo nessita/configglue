@@ -43,14 +43,21 @@ The schema
 The configuration file
 ======================
 
-    * **Configuration files:**
+    * **Basic:**
       :doc:`Syntax overview <topics/config-file>`
+
+    * **Advanced:**
+      :doc:`Environment variables <topics/environment-variables>`
+
 
 The command-line
 ================
 
-    * **Command-line integration:**
+    * **Basic:**
       :doc:`Overview <topics/command-line>`
+
+    * **Advanced:**
+      :doc:`Environment variables <topics/environment-variables>`
 
 The configglue open-source project
 ==================================
