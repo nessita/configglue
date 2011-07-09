@@ -24,3 +24,22 @@ Options that are within a section will be matched using the compound
 syntax; therefore it's not possible to have a section or option name contain
 underscore characters, as they would clash with the command line argument name
 resolution method.
+
+Short-form names
+================
+
+If the :class:`~configglue.pyschema.Option` has a non-empty
+:attr:`~configglue.pyschema.Option.short_name` set, this will be used as the short-form name for the
+command line parameter. For example, given the schema ::
+
+    class MySchema(pyschema.Schema):
+        foo = IntOption(short_name='f')
+
+the following forms of specifying a value for this option are equivalent::
+
+    --foo=1
+
+and
+::
+
+    -f 1

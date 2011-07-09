@@ -74,7 +74,7 @@ Default is ``False``.
 .. attribute:: Option.help
 
 The help text describing this option. This text will be used as the
-``optparse.OptParser`` help text.
+``optparse.OptionParser`` help text.
 
 Default is ``''``.
 
@@ -96,6 +96,14 @@ Default is ``None``.
 ..  lorem ipsum
 .. 
 ..  Default is ``'store'``.
+
+``short_name``
+--------------
+
+.. attribute:: Option.short_name
+
+The short form name of the option. This will be used to set the short form
+parameter of the ``optparse.OptionParser`` used for parsing the command line.
 
 .. _schema-option-types:
 
