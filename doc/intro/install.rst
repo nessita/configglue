@@ -35,7 +35,7 @@ Then at the Python prompt, try to import configglue::
 
     >>> import configglue
     >>> print configglue.__version__
-    0.10
+    |version|
 
 
 That's it!
