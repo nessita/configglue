@@ -7,3 +7,4 @@ python-build-stamp*
 build
 dist
 doc/_build
+.tox
