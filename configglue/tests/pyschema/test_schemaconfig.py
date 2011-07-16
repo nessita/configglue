@@ -443,3 +443,23 @@ class ConfigglueTestCase(unittest.TestCase):
         self.assertEqual(glue.option_parser, expected_option_parser)
         self.assertEqual(glue.options, expected_options)
         self.assertEqual(glue.args, expected_args)
+
+    @patch('configglue.pyschema.parser.SchemaConfigParser.is_valid')
+    def test_configglue_no_validate(self, mock_is_valid):
+        """Test configglue default value for 'validate'."""
+        mock_is_valid.return_value = (True, [])
+
+        configglue(Schema, [], validate=False)
+
+        # validation was not invoked
+        self.assertEqual(mock_is_valid.called, False)
+
+    @patch('configglue.pyschema.parser.SchemaConfigParser.is_valid')
+    def test_configglue_validate(self, mock_is_valid):
+        """Test configglue default value for 'validate'."""
+        mock_is_valid.return_value = (True, [])
+
+        configglue(Schema, [])
+
+        # validation was not invoked
+        self.assertEqual(mock_is_valid.called, True)
