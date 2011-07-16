@@ -15,7 +15,7 @@ Package: python-configglue
 Architecture: all
 XB-Python-Version: ${python:Versions}
 Depends: ${misc:Depends}, ${python:Depends},
- python-xdgapp
+ python-xdg
 Description: Glues together optparse.OptionParser and ConfigParser.ConfigParser
  Configglue is a library that glues together python's optparse.OptionParser 
  and ConfigParser.ConfigParser, so that the same options can be exported to a
