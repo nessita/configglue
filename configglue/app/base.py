@@ -2,7 +2,6 @@ import os.path
 import sys
 
 from xdg.BaseDirectory import load_config_paths
-from xdgapp import XdgApplication
 
 from configglue.pyschema import (
     Schema,
@@ -41,18 +40,15 @@ class Config(object):
             config_files.append(filename)
 
 
-class App(XdgApplication):
+class App(object):
     schema = Schema
     plugin_manager = PluginManager
 
-    def __init__(self, schema=None, plugin_manager=None, name=None,
-        create_dirs=True):
+    def __init__(self, schema=None, plugin_manager=None, name=None):
         # initialize app name
         if name is None:
             name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
         self.name = name
-
-        super(App, self).__init__(name, create_dirs)
 
         # setup plugins
         if plugin_manager is None:

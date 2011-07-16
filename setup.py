@@ -42,6 +42,8 @@ interface.
       author_email='john.lenton@canonical.com, ricardo.kirkner@canonical.com',
       url='https://launchpad.net/configglue',
       license='BSD License',
+      install_requires=['pyxdg'],
+      dependency_links=['http://www.freedesktop.org/wiki/Software/pyxdg'],
       packages=find_packages(),
       include_package_data=True,
       zip_safe=True,
