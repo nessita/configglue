@@ -55,18 +55,20 @@ class ConfigTestCase(TestCase):
             os.environ.get('XDG_CONFIG_DIRS', '/etc/xdg').split(':'))
         return xdg_config_dirs
 
+    @patch('configglue.app.base.OptionParser')
     @patch('configglue.app.base.merge')
     @patch('configglue.app.base.Config.get_config_files')
     @patch('configglue.app.base.configglue')
     def test_constructor(self, mock_configglue,
-        mock_get_config_files, mock_merge):
+        mock_get_config_files, mock_merge, mock_parser):
 
         config = Config(App())
 
         self.assertEqual(config.schema, mock_merge.return_value)
         self.assertEqual(config.glue, mock_configglue.return_value)
         mock_configglue.assert_called_with(
-            mock_merge.return_value, mock_get_config_files.return_value)
+            mock_merge.return_value, mock_get_config_files.return_value,
+            op=mock_parser.return_value)
 
     def test_glue_valid_config(self):
         config = make_config()
@@ -75,8 +77,8 @@ class ConfigTestCase(TestCase):
     def test_glue_validate_invalid_config(self):
         class MySchema(Schema):
             foo = IntOption(fatal=True)
-        self.assertRaises(SystemExit, make_app, schema=MySchema,
-            validate=True)
+
+        self.assertRaises(SystemExit, make_app, schema=MySchema, validate=True)
 
     def test_glue_no_validate_invalid_config(self):
         class MySchema(Schema):
