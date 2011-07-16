@@ -25,7 +25,8 @@ class Config(object):
 
         # create OptionParser with default options
         parser = OptionParser()
-        parser.add_option('--validate', dest='validate', action='store_true')
+        parser.add_option('--validate', dest='validate', action='store_true',
+            help="validate configuration")
         # initialize config
         config_files = self.get_config_files(app)
         self.glue = configglue(self.schema, config_files, op=parser)
