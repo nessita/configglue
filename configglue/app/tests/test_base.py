@@ -1,3 +1,18 @@
+###############################################################################
+#
+# configglue -- glue for your apps' configuration
+#
+# A library for simple, DRY configuration of applications
+#
+# (C) 2009--2011 by Canonical Ltd.
+# by John R. Lenton <john.lenton@canonical.com>
+# and Ricardo Kirkner <ricardo.kirkner@canonical.com>
+#
+# Released under the BSD License (see the file LICENSE)
+#
+# For bug reports, support, and new releases: http://launchpad.net/configglue
+#
+###############################################################################
 import os
 import user
 from unittest import TestCase
@@ -15,7 +30,7 @@ from configglue.app.plugin import (
     Plugin,
     PluginManager,
 )
-from configglue.pyschema import (
+from configglue.schema import (
     IntOption,
     Schema,
 )
@@ -27,7 +42,7 @@ def make_app(name=None, schema=None, plugin_manager=None):
     # patch sys.stderr to prevent spurious output
     mock_sys = Mock()
     mock_sys.argv = ['foo.py']
-    with patch('configglue.pyschema.glue.sys', mock_sys):
+    with patch('configglue.glue.sys', mock_sys):
         with patch('configglue.app.base.sys.stderr'):
             app = App(name=name, schema=schema, plugin_manager=plugin_manager)
     return app
@@ -40,7 +55,7 @@ def make_config(app=None):
     # without conflicting with the schema validation
     mock_sys = Mock()
     mock_sys.argv = ['foo.py']
-    with patch('configglue.pyschema.glue.sys', mock_sys):
+    with patch('configglue.glue.sys', mock_sys):
         config = Config(app)
     return config
 

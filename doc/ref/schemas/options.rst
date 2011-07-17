@@ -2,10 +2,10 @@
 Schema option reference
 =======================
 
-.. module:: configglue.pyschema.schema
+.. module:: configglue.schema
     :synopsis: Built-in options types.
 
-.. currentmodule:: configglue.pyschema
+.. currentmodule:: configglue
 
 This document contains details about the `option attributes`_ and
 `option types`_ included in configglue.
@@ -14,14 +14,6 @@ This document contains details about the `option attributes`_ and
 
     If the built-in options don't do the trick, you can easily
     :doc:`write your own custom schema options </howto/custom-schema-options>`. 
-
-.. note::
-
-    Technically, these classes are defined in
-    :mod:`configglue.pyschema.schema`, but for convenience they're imported
-    into :mod:`configglue.pyschema`; the standard convention is to use
-    ``from configglue import pyschema`` and refer to classes as
-    ``pyschema.<Foo>Option``.
 
 .. _common-schema-option-attributes:
 
@@ -55,7 +47,7 @@ Default is ``False``.
 
 The default value for this option, if none is provided in the config file.
 
-Default is ``configglue.pyschema.schema.NO_DEFAULT``.
+Default is ``configglue.schema.NO_DEFAULT``.
 
 ``fatal``
 ---------
@@ -83,7 +75,7 @@ Default is ``''``.
 
 .. attribute:: Option.section
 
-The :class:`~configglue.pyschema.Section` object where this option was
+The :class:`~configglue.Section` object where this option was
 defined.
 
 Default is ``None``.
@@ -110,7 +102,7 @@ parameter of the ``optparse.OptionParser`` used for parsing the command line.
 Option types
 ============
 
-.. currentmodule:: configglue.pyschema.schema
+.. currentmodule:: configglue.schema
 
 ``BoolOption``
 --------------------
@@ -138,7 +130,7 @@ A list of items.
     *Required*.
 
     List elements will be parsed as being of this type. Should be an
-    instance of a subclass of :class:`~configglue.pyschema.schema.Option`.
+    instance of a subclass of :class:`~configglue.schema.Option`.
 
 .. attribute:: ListOption.remove_duplicates
 
@@ -188,7 +180,7 @@ A dictionary.
 
     If not ``None``, should be a ``dict`` instance, such that its values
     are instances of a subclass of
-    :class:`~configglue.pyschema.schema.Option`.
+    :class:`~configglue.schema.Option`.
 
 .. attribute:: DictOption.strict
 
@@ -203,5 +195,5 @@ A dictionary.
 
     Any not explicitly defined attributes will be parsed as being
     of this type. This should be an instance of a subclass of
-    :class:`~configglue.pyschema.schema.Option`.
+    :class:`~configglue.schema.Option`.
 

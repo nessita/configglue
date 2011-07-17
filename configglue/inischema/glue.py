@@ -4,10 +4,9 @@
 #
 # A library for simple, DRY configuration of applications
 #
-# (C) 2009--2010 by Canonical Ltd.
-# originally by John R. Lenton <john.lenton@canonical.com>
-# incorporating schemaconfig as configglue.pyschema
-# schemaconfig originally by Ricardo Kirkner <ricardo.kirkner@canonical.com>
+# (C) 2009--2011 by Canonical Ltd.
+# by John R. Lenton <john.lenton@canonical.com>
+# and Ricardo Kirkner <ricardo.kirkner@canonical.com>
 #
 # Released under the BSD License (see the file LICENSE)
 #
@@ -24,9 +23,9 @@ from collections import namedtuple
 
 from configglue.inischema import parsers
 from configglue.inischema.attributed import AttributedConfigParser
-from configglue.pyschema.glue import schemaconfigglue
-from configglue.pyschema.parser import SchemaConfigParser
-from configglue.pyschema.schema import (
+from configglue.glue import schemaconfigglue
+from configglue.parser import SchemaConfigParser
+from configglue.schema import (
     BoolOption,
     Section,
     IntOption,

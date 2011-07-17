@@ -22,9 +22,9 @@ So, a very simple configuration file could look like::
 
 This configuration file would match with a schema like the following::
 
-    class MySchema(pyschema.Schema):
-        class MySection(pyschema.Section):
-            my_option = pyschema.StringOption()
+    class MySchema(schema.Schema):
+        class MySection(schema.Section):
+            my_option = schema.StringOption()
 
 ======================
 Special considerations
@@ -40,7 +40,7 @@ defined section called ``__main__``.
 
 Therefore, if you have a schema like::
 
-    class MySchema(pyschema.Schema):
+    class MySchema(schema.Schema):
         foo = IntOption()
 
 and you want to write a configuration file to match it, it would have to look
@@ -66,7 +66,7 @@ a few syntactic conventions you should be aware of.
 Tuples
 ------
 
-For specifying the value of a :class:`~configglue.pyschema.schema.TupleOption`,
+For specifying the value of a :class:`~configglue.schema.TupleOption`,
 you just put all the values in the same line, separated by `,`, as shown::
 
     my_tuple = 1, 2, 3
@@ -76,7 +76,7 @@ This will be parsed as the tuple `(1, 2, 3)`.
 Lists
 -----
 
-For specifying the value of a :class:`~configglue.pyschema.schema.ListOption`,
+For specifying the value of a :class:`~configglue.schema.ListOption`,
 you just put each value on a different line, as shown::
 
     my_list = 1
@@ -88,9 +88,9 @@ This will be parsed as the list `[1, 2, 3]`.
 Dictionaries
 ------------
 
-For specifying the value of a :class:`~configglue.pyschema.schema.DictOption`,
+For specifying the value of a :class:`~configglue.schema.DictOption`,
 a special syntax convention was defined. The value of a 
-:class:`~configglue.pyschema.schema.DictOption` is the name of a section
+:class:`~configglue.schema.DictOption` is the name of a section
 describing the structure of that dictionary.
 
 For example, given the configuration file::
@@ -103,10 +103,10 @@ For example, given the configuration file::
 
 and the schema::
 
-    class MySchema(pyschema.Schema):
-        my_dict = pyschema.DictOption(
-            spec={'foo': pyschema.IntOption(),
-                  'bar': pyschema.BoolOption()})
+    class MySchema(schema.Schema):
+        my_dict = schema.DictOption(
+            spec={'foo': schema.IntOption(),
+                  'bar': schema.BoolOption()})
 
 `my_dict` would be parsed as::
 

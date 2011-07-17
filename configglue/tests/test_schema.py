@@ -5,10 +5,9 @@
 #
 # A library for simple, DRY configuration of applications
 #
-# (C) 2009--2010 by Canonical Ltd.
-# originally by John R. Lenton <john.lenton@canonical.com>
-# incorporating schemaconfig as configglue.pyschema
-# schemaconfig originally by Ricardo Kirkner <ricardo.kirkner@canonical.com>
+# (C) 2009--2011 by Canonical Ltd.
+# by John R. Lenton <john.lenton@canonical.com>
+# and Ricardo Kirkner <ricardo.kirkner@canonical.com>
 #
 # Released under the BSD License (see the file LICENSE)
 #
@@ -20,11 +19,11 @@ import unittest
 from ConfigParser import NoOptionError
 from StringIO import StringIO
 
-from configglue.pyschema.parser import (
+from configglue.parser import (
     SchemaConfigParser,
     SchemaValidationError,
 )
-from configglue.pyschema.schema import (
+from configglue.schema import (
     BoolConfigOption,
     BoolOption,
     ConfigOption,
