@@ -82,12 +82,25 @@ def schemaconfigglue(parser, op=None, argv=None):
             value = option.parse(value)
         parser.set(section.name, option.name, value)
 
+    def set_value_with_precedence(op_value, parser_value, env_value,
+            fatal=True):
+        # 1. op_value != None (only if option is not fatal)
+        # => use op or env value
+        # 2. op_value is None (only if option is fatal)
+        # => use parser or env value
+        if not option.fatal:
+            if op_value != parser_value:
+                # value was overridden via command line
+                set_value(section, option, op_value)
+            elif env_value is not None and env_value != parser_value:
+                # value was overridden via environment variable
+                set_value(section, option, env_value)
+        elif env_value is not None and env_value != parser_value:
+            # value was overridden via environment variable
+            set_value(section, option, env_value)
+
     for section in schema.sections():
         for option in section.options():
-            # 1. op value != parser value
-            # 2. op value == parser value != env value
-            # 3. op value == parser value == env value or not env value
-
             op_value = getattr(options, opt_name(option))
             try:
                 parser_value = parser.get(section.name, option.name)
@@ -96,10 +109,9 @@ def schemaconfigglue(parser, op=None, argv=None):
             env_value = os.environ.get("CONFIGGLUE_{0}".format(
                 long_name(option).upper()))
 
-            if op_value != parser_value:
-                set_value(section, option, op_value)
-            elif env_value is not None and env_value != parser_value:
-                set_value(section, option, env_value)
+            assert option.fatal == (op_value is None)
+            set_value_with_precedence(op_value, parser_value, env_value,
+                fatal=option.fatal)
 
     return op, options, args
 
