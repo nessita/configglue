@@ -24,22 +24,14 @@ from configglue.parser import (
     SchemaValidationError,
 )
 from configglue.schema import (
-    BoolConfigOption,
     BoolOption,
-    ConfigOption,
     Option,
-    ConfigSection,
     Section,
-    DictConfigOption,
     DictOption,
-    IntConfigOption,
     IntOption,
-    LinesConfigOption,
     ListOption,
     Schema,
-    StringConfigOption,
     StringOption,
-    TupleConfigOption,
     TupleOption,
     get_config_objects,
     merge,
@@ -210,10 +202,6 @@ class TestOption(unittest.TestCase):
         self.assertEqual(opt.short_name, 'f')
 
 
-class TestConfigOption(TestOption):
-    cls = ConfigOption
-
-
 class TestSchemaInheritance(unittest.TestCase):
     def setUp(self):
         class SchemaA(Schema):
@@ -381,10 +369,6 @@ class TestStringOption(unittest.TestCase):
         self.assertEqual(opt.short_name, 'f')
 
 
-class TestStringConfigOption(TestStringOption):
-    cls = StringConfigOption
-
-
 class TestIntOption(unittest.TestCase):
     cls = IntOption
 
@@ -429,10 +413,6 @@ class TestIntOption(unittest.TestCase):
         """Test IntOption short name."""
         opt = self.cls(short_name='f')
         self.assertEqual(opt.short_name, 'f')
-
-
-class TestIntConfigOption(TestIntOption):
-    cls = IntConfigOption
 
 
 class TestBoolOption(unittest.TestCase):
@@ -484,10 +464,6 @@ class TestBoolOption(unittest.TestCase):
         """Test BoolOption short name."""
         opt = self.cls(short_name='f')
         self.assertEqual(opt.short_name, 'f')
-
-
-class TestBoolConfigOption(TestBoolOption):
-    cls = BoolConfigOption
 
 
 class TestListOption(unittest.TestCase):
@@ -595,10 +571,6 @@ class TestListOption(unittest.TestCase):
         self.assertEqual(opt.short_name, 'f')
 
 
-class TestLinesConfigOption(TestListOption):
-    cls = LinesConfigOption
-
-
 class TestTupleOption(unittest.TestCase):
     cls = TupleOption
 
@@ -665,10 +637,6 @@ class TestTupleOption(unittest.TestCase):
         """Test TupleOption short name."""
         opt = self.cls(short_name='f')
         self.assertEqual(opt.short_name, 'f')
-
-
-class TestTupleConfigOption(TupleOption):
-    cls = TupleConfigOption
 
 
 class TestDictOption(unittest.TestCase):
@@ -874,10 +842,6 @@ wham=42
         self.assertEqual(opt.short_name, 'f')
 
 
-class TestDictConfigOption(TestDictOption):
-    cls = DictConfigOption
-
-
 class TestListOfDictOption(unittest.TestCase):
     def test_parse_lines_of_dict(self):
         """Test ListOption parse a list of dicts."""
@@ -1030,10 +994,6 @@ class TestSection(unittest.TestCase):
         section.bar = 4
 
         self.assertEqual(section.options(), [section.foo])
-
-
-class TestConfigSection(TestSection):
-    cls = ConfigSection
 
 
 class MultiSchemaTestCase(unittest.TestCase):

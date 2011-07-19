@@ -20,26 +20,17 @@ from ConfigParser import (
 )
 from copy import deepcopy
 from inspect import getmembers
-from warnings import warn
 
 
 __all__ = [
-    'BoolConfigOption',
     'BoolOption',
-    'ConfigOption',
     'Option',
-    'ConfigSection',
     'Section',
-    'DictConfigOption',
     'DictOption',
-    'IntConfigOption',
     'IntOption',
-    'LinesConfigOption',
     'ListOption',
     'Schema',
-    'StringConfigOption',
     'StringOption',
-    'TupleConfigOption',
     'TupleOption',
     'merge',
 ]
@@ -655,46 +646,3 @@ class DictOption(Option):
                 sections.extend(extra)
 
         return sections
-
-#
-# deprecated
-#
-
-
-class Deprecated(type):
-    def __init__(cls, name, bases, attrs):
-        warn('{0} is deprecated; use {1} instead.'.format(
-            name, bases[0].__name__), DeprecationWarning)
-        type.__init__(cls, name, bases, attrs)
-
-
-class StringConfigOption(StringOption):
-    __metaclass__ = Deprecated
-
-
-class IntConfigOption(IntOption):
-    __metaclass__ = Deprecated
-
-
-class BoolConfigOption(BoolOption):
-    __metaclass__ = Deprecated
-
-
-class DictConfigOption(DictOption):
-    __metaclass__ = Deprecated
-
-
-class LinesConfigOption(ListOption):
-    __metaclass__ = Deprecated
-
-
-class TupleConfigOption(TupleOption):
-    __metaclass__ = Deprecated
-
-
-class ConfigOption(Option):
-    __metaclass__ = Deprecated
-
-
-class ConfigSection(Section):
-    __metaclass__ = Deprecated
