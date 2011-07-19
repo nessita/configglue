@@ -1,11 +1,26 @@
+###############################################################################
+#
+# configglue -- glue for your apps' configuration
+#
+# A library for simple, DRY configuration of applications
+#
+# (C) 2009--2011 by Canonical Ltd.
+# by John R. Lenton <john.lenton@canonical.com>
+# and Ricardo Kirkner <ricardo.kirkner@canonical.com>
+#
+# Released under the BSD License (see the file LICENSE)
+#
+# For bug reports, support, and new releases: http://launchpad.net/configglue
+#
+###############################################################################
 import os.path
 import sys
 
 from xdg.BaseDirectory import load_config_paths
 
-from configglue.pyschema import (
+from configglue.glue import configglue
+from configglue.schema import (
     Schema,
-    configglue,
     merge,
 )
 from .plugin import PluginManager

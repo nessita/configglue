@@ -23,7 +23,7 @@ integrate with your configglue-enabled application.
     This is the schema class describing any configuration specific to your
     plugin.
 
-    By default a standard :class:`~configglue.pyschema.schema.Schema` is used.
+    By default a standard :class:`~configglue.schema.Schema` is used.
 
 .. attribute:: Plugin.enabled
 

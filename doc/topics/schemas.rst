@@ -9,32 +9,32 @@ be validated.
 The basics:
 
     * Each schema is a Python class that subclasses
-      :class:`~configglue.pyschema.schema.Schema`.
+      :class:`~configglue.schema.Schema`.
 
     * Each attribute of the schema represents either a configuration section
-      (see :class:`~configglue.pyschema.schema.Section`) or
-      option (see :class:`~configglue.pyschema.schema.Option`).
+      (see :class:`~configglue.schema.Section`) or
+      option (see :class:`~configglue.schema.Option`).
 
 Quick example
 =============
 
 This example schema defines the configuration for a database connection::
 
-    from configglue import pyschema
+    from configglue import schema
 
-    class DatabaseConnection(pyschema.Schema):
-        host = pyschema.StringOption(
+    class DatabaseConnection(schema.Schema):
+        host = schema.StringOption(
             default='localhost',
             help='Host where the database engine is listening on')
-        port = pyschema.IntOption(
+        port = schema.IntOption(
             default=5432,
             help='Port where the database engine is listening on')
-        dbname = pyschema.StringOption(
+        dbname = schema.StringOption(
             fatal=True,
             help='Name of the database to connect to')
-        user = pyschema.StringOption(
+        user = schema.StringOption(
             help='Username to use for the connection')
-        password = pyschema.StringOption(
+        password = schema.StringOption(
             help='Password to use fot the connection')
 
 ``host``, ``port``, ``dbname``, ``user`` and ``password`` are options_ of the
@@ -48,15 +48,15 @@ defines. Options are specified by class attributes.
 
 Example::
 
-    class OvenSettings(pyschema.Schema):
-        temperature = pyschema.IntOption()
-        time = pyschema.IntOption()
+    class OvenSettings(schema.Schema):
+        temperature = schema.IntOption()
+        time = schema.IntOption()
 
 Option types
 ------------
 
 Each option in your schema should be an instance of the appropriate
-:class:`~configglue.pyschema.schema.Option` class.
+:class:`~configglue.schema.Option` class.
 
 configglue ships with a couple of built-in option types; you can find the
 complete list in the :ref:`schema option reference <schema-option-types>`. You
@@ -68,8 +68,8 @@ Option attributes
 
 Each option takes a certain set of option-specific arguments (documented in
 the :ref:`schema option reference <schema-option-types>`). For example,
-:class:`~configglue.pyschema.schema.ListOption` (and its subclasses)
-require a :attr:`~configglue.pyschema.schema.ListOption.item` argument
+:class:`~configglue.schema.ListOption` (and its subclasses)
+require a :attr:`~configglue.schema.ListOption.item` argument
 which specifies the type of the items contained in the list.
 
 There's also a set of common arguments available to all option types. All are
@@ -79,7 +79,7 @@ often-used ones:
 
     :attr:`~Option.default`
         The default value for this option, if none is provided in the config file.
-        Default is :attr:`configglue.pyschema.schema.NO_DEFAULT`.
+        Default is :attr:`configglue.schema.NO_DEFAULT`.
 
     :attr:`~Option.fatal`
         If ``True``, :func:`SchemaConfigParser.parse_all` will raise an exception if no
@@ -103,8 +103,8 @@ configglue places only one restriction on schema option names:
     A option name cannot be a Python reserved word, because that would
     result in a Python syntax error. For example::
 
-        class Example(pyschema.Schema):
-            pass = pyschema.IntOption() # 'pass' is a reserved word!
+        class Example(schema.Schema):
+            pass = schema.IntOption() # 'pass' is a reserved word!
 
 Custom option types
 -------------------
@@ -132,33 +132,29 @@ Python inheritance model. Whenever a schema is created, it will inherit all
 its attributes from the base classes.
 
 This poses a slight problem for attributes of type
-:class:`~configglue.pyschema.schema.Section`. Usually, you'll want to
-extend a :class:`~configglue.pyschema.schema.Section` instead of
+:class:`~configglue.schema.Section`. Usually, you'll want to
+extend a :class:`~configglue.schema.Section` instead of
 overriding it. In order to achieve this, in your schema subclass, copy the
 parent's attribute explicitely, to avoid modifying the parent schema class.
 Option attributes (derived from
-:class:`~configglue.pyschema.schema.Option`) will be overridden, as
+:class:`~configglue.schema.Option`) will be overridden, as
 expected.
 
 For example::
 
-    from copy import deepcopy
+    from configglue import schema
 
-    from configglue import pyschema
+    class BaseSchema(schema.Schema):
+        option1 = schema.IntOption()
 
-
-    class BaseSchema(pyschema.Schema):
-        option1 = pyschema.IntOption()
-
-        class MySection(pyschema.Section):
-            option1 = pyschema.BoolOption()
-
+        class MySection(schema.Section):
+            option1 = schema.BoolOption()
 
     class ChildSchema(BaseSchema):
-        option2 = pyschema.IntOption()
+        option2 = schema.IntOption()
 
         class MySection(BaseSchema.MySection):
-            option2 = IntOption()
+            option2 = schema.IntOption()
 
 In this example :class:`ChildSchema` will have two top-level options,
 :attr:`option1` and :attr:`option2`, and one section :attr:`MySection`, which
@@ -167,15 +163,15 @@ will have also two options within in (:attr:`MySection.option1` and
 produces the same result as explicitely describing each attribute, as
 expected::
 
-    from configglue import pyschema
+    from configglue import schema
 
-    class ChildSchema(pyschema.Schema):
-        option1 = pyschema.IntOption()
-        option2 = pyschema.IntOption()
+    class ChildSchema(schema.Schema):
+        option1 = schema.IntOption()
+        option2 = schema.IntOption()
 
-        class MySection(pyschema.Section):
-            option1 = pyschema.BoolOption()
-            option2 = IntOption()
+        class MySection(schema.Section):
+            option1 = schema.BoolOption()
+            option2 = schema.IntOption()
 
 
 Multiple inheritance

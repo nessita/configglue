@@ -1,10 +1,25 @@
+###############################################################################
+#
+# configglue -- glue for your apps' configuration
+#
+# A library for simple, DRY configuration of applications
+#
+# (C) 2009--2011 by Canonical Ltd.
+# by John R. Lenton <john.lenton@canonical.com>
+# and Ricardo Kirkner <ricardo.kirkner@canonical.com>
+#
+# Released under the BSD License (see the file LICENSE)
+#
+# For bug reports, support, and new releases: http://launchpad.net/configglue
+#
+###############################################################################
 from unittest import TestCase
 
 from configglue.app.plugin import (
     Plugin,
     PluginManager,
 )
-from configglue.pyschema import Schema
+from configglue.schema import Schema
 
 
 def make_plugins(available=None, enabled=None):

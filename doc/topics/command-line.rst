@@ -28,12 +28,12 @@ resolution method.
 Short-form names
 ================
 
-If the :class:`~configglue.pyschema.Option` has a non-empty
-:attr:`~configglue.pyschema.Option.short_name` set, this will be used as the
+If the :class:`~configglue.schema.Option` has a non-empty
+:attr:`~configglue.schema.Option.short_name` set, this will be used as the
 short-form name for the command line parameter. For example, given the
 schema ::
 
-    class MySchema(pyschema.Schema):
+    class MySchema(schema.Schema):
         foo = IntOption(short_name='f')
 
 the following forms of specifying a value for this option are equivalent::
