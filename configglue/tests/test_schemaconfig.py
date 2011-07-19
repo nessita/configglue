@@ -320,6 +320,17 @@ class TestSchemaConfigGlue(unittest.TestCase):
             parser, argv=['-f', '24', '--foo', '42'])
         self.assertEqual(parser.get('__main__', 'foo'), 42)
 
+    def test_fatal_option_with_config(self):
+        class MySchema(Schema):
+            foo = IntOption(fatal=True)
+
+        config = StringIO("[__main__]\nfoo=1")
+        parser = SchemaConfigParser(MySchema())
+        parser.readfp(config)
+
+        op, options, args = schemaconfigglue(parser)
+        self.assertEqual(parser.values(), {'__main__': {'foo': 1}})
+
 
 class ConfigglueTestCase(unittest.TestCase):
     @patch('configglue.glue.SchemaConfigParser')
