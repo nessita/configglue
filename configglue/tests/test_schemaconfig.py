@@ -33,8 +33,6 @@ from configglue.glue import (
 )
 from configglue.parser import SchemaConfigParser
 from configglue.schema import (
-    ConfigOption,
-    ConfigSection,
     IntOption,
     Option,
     Schema,
@@ -91,10 +89,6 @@ class TestOption(unittest.TestCase):
         self.assertNotEqual(opt1, None)
 
 
-class TestConfigOption(TestOption):
-    cls = ConfigOption
-
-
 class TestSection(unittest.TestCase):
     cls = Section
 
@@ -125,10 +119,6 @@ class TestSection(unittest.TestCase):
         sec1 = MySection()
         self.assertTrue(sec1.has_option('foo'))
         self.assertFalse(sec1.has_option('bar'))
-
-
-class TestConfigSection(TestSection):
-    cls = ConfigSection
 
 
 class TestSchemaConfigGlue(unittest.TestCase):
