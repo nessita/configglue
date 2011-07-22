@@ -5,10 +5,9 @@
 #
 # A library for simple, DRY configuration of applications
 #
-# (C) 2009--2010 by Canonical Ltd.
-# originally by John R. Lenton <john.lenton@canonical.com>
-# incorporating schemaconfig as configglue.pyschema
-# schemaconfig originally by Ricardo Kirkner <ricardo.kirkner@canonical.com>
+# (C) 2009--2011 by Canonical Ltd.
+# by John R. Lenton <john.lenton@canonical.com>
+# and Ricardo Kirkner <ricardo.kirkner@canonical.com>
 #
 # Released under the BSD License (see the file LICENSE)
 #
@@ -20,27 +19,19 @@ import unittest
 from ConfigParser import NoOptionError
 from StringIO import StringIO
 
-from configglue.pyschema.parser import (
+from configglue.parser import (
     SchemaConfigParser,
     SchemaValidationError,
 )
-from configglue.pyschema.schema import (
-    BoolConfigOption,
+from configglue.schema import (
     BoolOption,
-    ConfigOption,
     Option,
-    ConfigSection,
     Section,
-    DictConfigOption,
     DictOption,
-    IntConfigOption,
     IntOption,
-    LinesConfigOption,
     ListOption,
     Schema,
-    StringConfigOption,
     StringOption,
-    TupleConfigOption,
     TupleOption,
     get_config_objects,
     merge,
@@ -211,10 +202,6 @@ class TestOption(unittest.TestCase):
         self.assertEqual(opt.short_name, 'f')
 
 
-class TestConfigOption(TestOption):
-    cls = ConfigOption
-
-
 class TestSchemaInheritance(unittest.TestCase):
     def setUp(self):
         class SchemaA(Schema):
@@ -382,10 +369,6 @@ class TestStringOption(unittest.TestCase):
         self.assertEqual(opt.short_name, 'f')
 
 
-class TestStringConfigOption(TestStringOption):
-    cls = StringConfigOption
-
-
 class TestIntOption(unittest.TestCase):
     cls = IntOption
 
@@ -430,10 +413,6 @@ class TestIntOption(unittest.TestCase):
         """Test IntOption short name."""
         opt = self.cls(short_name='f')
         self.assertEqual(opt.short_name, 'f')
-
-
-class TestIntConfigOption(TestIntOption):
-    cls = IntConfigOption
 
 
 class TestBoolOption(unittest.TestCase):
@@ -485,10 +464,6 @@ class TestBoolOption(unittest.TestCase):
         """Test BoolOption short name."""
         opt = self.cls(short_name='f')
         self.assertEqual(opt.short_name, 'f')
-
-
-class TestBoolConfigOption(TestBoolOption):
-    cls = BoolConfigOption
 
 
 class TestListOption(unittest.TestCase):
@@ -596,10 +571,6 @@ class TestListOption(unittest.TestCase):
         self.assertEqual(opt.short_name, 'f')
 
 
-class TestLinesConfigOption(TestListOption):
-    cls = LinesConfigOption
-
-
 class TestTupleOption(unittest.TestCase):
     cls = TupleOption
 
@@ -666,10 +637,6 @@ class TestTupleOption(unittest.TestCase):
         """Test TupleOption short name."""
         opt = self.cls(short_name='f')
         self.assertEqual(opt.short_name, 'f')
-
-
-class TestTupleConfigOption(TupleOption):
-    cls = TupleConfigOption
 
 
 class TestDictOption(unittest.TestCase):
@@ -875,10 +842,6 @@ wham=42
         self.assertEqual(opt.short_name, 'f')
 
 
-class TestDictConfigOption(TestDictOption):
-    cls = DictConfigOption
-
-
 class TestListOfDictOption(unittest.TestCase):
     def test_parse_lines_of_dict(self):
         """Test ListOption parse a list of dicts."""
@@ -1031,10 +994,6 @@ class TestSection(unittest.TestCase):
         section.bar = 4
 
         self.assertEqual(section.options(), [section.foo])
-
-
-class TestConfigSection(TestSection):
-    cls = ConfigSection
 
 
 class MultiSchemaTestCase(unittest.TestCase):

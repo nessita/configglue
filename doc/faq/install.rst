@@ -17,10 +17,12 @@ What are configglue's prerequisites?
 ------------------------------------
 
 configglue requires Python_, specifically any version of Python from 2.6
-through 2.7. No other Python libraries are required for basic configglue
-usage.
+through 2.7. It also requires pyxdg_, for automatically finding configuration
+files from standard locations, when using the provided
+:class:`~configglue.app.base.App` base class.
 
 .. _Python: http://www.python.org/
+.. _pyxdg: http://www.freedesktop.org/wiki/Software/pyxdg
 
 Can I use Django with Python 3?
 -------------------------------

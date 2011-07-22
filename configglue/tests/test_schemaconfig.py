@@ -5,10 +5,9 @@
 #
 # A library for simple, DRY configuration of applications
 #
-# (C) 2009--2010 by Canonical Ltd.
-# originally by John R. Lenton <john.lenton@canonical.com>
-# incorporating schemaconfig as configglue.pyschema
-# schemaconfig originally by Ricardo Kirkner <ricardo.kirkner@canonical.com>
+# (C) 2009--2011 by Canonical Ltd.
+# by John R. Lenton <john.lenton@canonical.com>
+# and Ricardo Kirkner <ricardo.kirkner@canonical.com>
 #
 # Released under the BSD License (see the file LICENSE)
 #
@@ -31,14 +30,12 @@ from mock import (
     patch_object,
 )
 
-from configglue.pyschema.glue import (
+from configglue.glue import (
     configglue,
     schemaconfigglue,
 )
-from configglue.pyschema.parser import SchemaConfigParser
-from configglue.pyschema.schema import (
-    ConfigOption,
-    ConfigSection,
+from configglue.parser import SchemaConfigParser
+from configglue.schema import (
     IntOption,
     Option,
     Schema,
@@ -95,10 +92,6 @@ class TestOption(unittest.TestCase):
         self.assertNotEqual(opt1, None)
 
 
-class TestConfigOption(TestOption):
-    cls = ConfigOption
-
-
 class TestSection(unittest.TestCase):
     cls = Section
 
@@ -129,10 +122,6 @@ class TestSection(unittest.TestCase):
         sec1 = MySection()
         self.assertTrue(sec1.has_option('foo'))
         self.assertFalse(sec1.has_option('bar'))
-
-
-class TestConfigSection(TestSection):
-    cls = ConfigSection
 
 
 class TestSchemaConfigGlue(unittest.TestCase):
@@ -183,7 +172,7 @@ class TestSchemaConfigGlue(unittest.TestCase):
         self.assertEqual(self.parser.values(),
                          {'foo': {'bar': 2}, '__main__': {'baz': 0}})
 
-    @patch('configglue.pyschema.glue.os')
+    @patch('configglue.glue.os')
     def test_glue_environ(self, mock_os):
         mock_os.environ = {'CONFIGGLUE_FOO_BAR': '42', 'CONFIGGLUE_BAZ': 3}
         config = StringIO("[foo]\nbar=1")
@@ -197,7 +186,7 @@ class TestSchemaConfigGlue(unittest.TestCase):
         finally:
             sys.argv = _argv
 
-    @patch('configglue.pyschema.glue.os')
+    @patch('configglue.glue.os')
     def test_glue_environ_bad_name(self, mock_os):
         mock_os.environ = {'FOO_BAR': 2, 'BAZ': 3}
         config = StringIO("[foo]\nbar=1")
@@ -334,6 +323,17 @@ class TestSchemaConfigGlue(unittest.TestCase):
             parser, argv=['-f', '24', '--foo', '42'])
         self.assertEqual(parser.get('__main__', 'foo'), 42)
 
+    def test_fatal_option_with_config(self):
+        class MySchema(Schema):
+            foo = IntOption(fatal=True)
+
+        config = StringIO("[__main__]\nfoo=1")
+        parser = SchemaConfigParser(MySchema())
+        parser.readfp(config)
+
+        op, options, args = schemaconfigglue(parser)
+        self.assertEqual(parser.values(), {'__main__': {'foo': 1}})
+
 
 class ConfigglueTestCase(unittest.TestCase):
     def setUp(self):
@@ -343,8 +343,8 @@ class ConfigglueTestCase(unittest.TestCase):
     def tearDown(self):
         self.mock_argv.stop()
 
-    @patch('configglue.pyschema.glue.SchemaConfigParser')
-    @patch('configglue.pyschema.glue.schemaconfigglue')
+    @patch('configglue.glue.SchemaConfigParser')
+    @patch('configglue.glue.schemaconfigglue')
     def test_configglue_no_errors(self, mock_schemaconfigglue,
         mock_schema_parser):
         """Test configglue when no errors occur."""
@@ -379,8 +379,8 @@ class ConfigglueTestCase(unittest.TestCase):
         self.assertEqual(glue.options, expected_options)
         self.assertEqual(glue.args, expected_args)
 
-    @patch('configglue.pyschema.glue.SchemaConfigParser')
-    @patch('configglue.pyschema.glue.schemaconfigglue')
+    @patch('configglue.glue.SchemaConfigParser')
+    @patch('configglue.glue.schemaconfigglue')
     def test_configglue_with_errors(self, mock_schemaconfigglue,
         mock_schema_parser):
         """Test configglue when an error happens."""
@@ -416,8 +416,8 @@ class ConfigglueTestCase(unittest.TestCase):
         self.assertEqual(glue.options, expected_options)
         self.assertEqual(glue.args, expected_args)
 
-    @patch('configglue.pyschema.glue.SchemaConfigParser')
-    @patch('configglue.pyschema.glue.schemaconfigglue')
+    @patch('configglue.glue.SchemaConfigParser')
+    @patch('configglue.glue.schemaconfigglue')
     def test_configglue_with_options(self, mock_schemaconfigglue,
         mock_schema_parser):
         """Test configglue with a custom OptionParser."""

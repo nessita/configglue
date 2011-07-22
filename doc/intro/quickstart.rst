@@ -24,19 +24,19 @@ will look like the following snippet, so let's look at it in detail::
                 print "%s option has default value: %s" % (opt, option.default)
 
     if __name__ == '__main__':
-        from configglue import pyschema
+        from configglue import schema
 
         # create the schema
-        class MySchema(pyschema.Schema):
-            foo = pyschema.IntOption()
-            bar = pyschema.BoolOption()
+        class MySchema(schema.Schema):
+            foo = schema.IntOption()
+            bar = schema.BoolOption()
 
         # read the configuration files
-        scp = pyschema.SchemaConfigParser(MySchema())
+        scp = schema.SchemaConfigParser(MySchema())
         scp.read(['config.ini'])
 
         # support command-line integration
-        op, opts, args = pyschema.schemaconfigglue(scp)
+        op, opts, args = schema.schemaconfigglue(scp)
 
         # validate the config (after taking into account any command-line
         # provided options
@@ -72,15 +72,15 @@ The general structure is:
 
     ::
 
-        class MySchema(pyschema.Schema):
-            foo = pyschema.IntOption()
-            bar = pyschema.BoolOption()
+        class MySchema(schema.Schema):
+            foo = schema.IntOption()
+            bar = schema.BoolOption()
 
 #. Create a parser for that schema
 
     ::
 
-        scp = pyschema.SchemaConfigParser(MySchema())
+        scp = schema.SchemaConfigParser(MySchema())
 
 #. Read the configuration files (to get the statically defined configuration
    values)
@@ -94,7 +94,7 @@ The general structure is:
 
     ::
 
-        op, opts, args = pyschema.schemaconfigglue(scp)
+        op, opts, args = schema.schemaconfigglue(scp)
 
 #. (Optional) Validate the effective configuration (to capture any
    configuration issues)
@@ -109,7 +109,7 @@ Since this code will be structured the same for any configglue-enabled project
 you do, there is also a utility function you can use to avoid repeating
 yourself.
 
-When using that function (see :func:`configglue.pyschema.glue.configglue`),
+When using that function (see :func:`configglue.glue.configglue`),
 this code would look like::
 
     def main(config, opts):
@@ -125,15 +125,15 @@ this code would look like::
                 print "%s option has default value: %s" % (opt, option.default)
 
     if __name__ == '__main__':
-        from configglue import pyschema
+        from configglue import schema, glue
 
         # create the schema
-        class MySchema(pyschema.Schema):
-            foo = pyschema.IntOption()
-            bar = pyschema.BoolOption()
+        class MySchema(schema.Schema):
+            foo = schema.IntOption()
+            bar = schema.BoolOption()
 
         # glue everything together
-        glue = pyschema.configglue(MySchema, ['config.ini'])
+        glue = glue.configglue(MySchema, ['config.ini'])
 
         # run
         main(glue.schema_parser, glue.options)

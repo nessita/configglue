@@ -5,10 +5,9 @@
 #
 # A library for simple, DRY configuration of applications
 #
-# (C) 2009--2010 by Canonical Ltd.
-# originally by John R. Lenton <john.lenton@canonical.com>
-# incorporating schemaconfig as configglue.pyschema
-# schemaconfig originally by Ricardo Kirkner <ricardo.kirkner@canonical.com>
+# (C) 2009--2011 by Canonical Ltd.
+# by John R. Lenton <john.lenton@canonical.com>
+# and Ricardo Kirkner <ricardo.kirkner@canonical.com>
 #
 # Released under the BSD License (see the file LICENSE)
 #
@@ -36,13 +35,13 @@ from mock import (
     patch_object,
 )
 
-from configglue.pyschema.parser import (
+from configglue.parser import (
     CONFIG_FILE_ENCODING,
     NoOptionError,
     SchemaConfigParser,
     SchemaValidationError,
 )
-from configglue.pyschema.schema import (
+from configglue.schema import (
     BoolOption,
     Section,
     DictOption,
@@ -262,21 +261,21 @@ class TestInterpolation(unittest.TestCase):
         self.assertRaises(InterpolationMissingOptionError, parser.get,
                           'foo', 'bar')
 
-    @patch('configglue.pyschema.parser.os')
+    @patch('configglue.parser.os')
     def test_interpolate_environment_basic_syntax(self, mock_os):
         mock_os.environ = {'PATH': 'foo'}
         parser = SchemaConfigParser(Schema())
         result = parser.interpolate_environment("$PATH")
         self.assertEqual(result, 'foo')
 
-    @patch('configglue.pyschema.parser.os')
+    @patch('configglue.parser.os')
     def test_interpolate_environment_extended_syntax(self, mock_os):
         mock_os.environ = {'PATH': 'foo'}
         parser = SchemaConfigParser(Schema())
         result = parser.interpolate_environment("${PATH}")
         self.assertEqual(result, 'foo')
 
-    @patch('configglue.pyschema.parser.os')
+    @patch('configglue.parser.os')
     def test_interpolate_environment_in_config(self, mock_os):
         mock_os.environ = {'PYTHONPATH': 'foo', 'PATH': 'bar'}
 
@@ -296,7 +295,7 @@ class TestInterpolation(unittest.TestCase):
         value = parser.interpolate_environment(rawval)
         self.assertEqual(value, rawval)
 
-    @patch('configglue.pyschema.parser.os')
+    @patch('configglue.parser.os')
     def test_get_with_environment_var(self, mock_os):
         mock_os.environ = {'FOO': '42'}
         class MySchema(Schema):
