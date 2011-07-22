@@ -452,7 +452,7 @@ class ConfigglueTestCase(unittest.TestCase):
         self.assertEqual(glue.options, op.values)
         self.assertEqual(glue.args, expected_args)
 
-    @patch('configglue.pyschema.parser.SchemaConfigParser.is_valid')
+    @patch('configglue.parser.SchemaConfigParser.is_valid')
     def test_configglue_no_validate(self, mock_is_valid):
         """Test configglue with validation disabled."""
         mock_is_valid.return_value = (True, [])
@@ -462,7 +462,7 @@ class ConfigglueTestCase(unittest.TestCase):
         # validation was not invoked
         self.assertEqual(mock_is_valid.called, False)
 
-    @patch('configglue.pyschema.parser.SchemaConfigParser.is_valid')
+    @patch('configglue.parser.SchemaConfigParser.is_valid')
     def test_configglue_validate(self, mock_is_valid):
         """Test configglue with validation enabled."""
         mock_is_valid.return_value = (True, [])
@@ -472,7 +472,7 @@ class ConfigglueTestCase(unittest.TestCase):
         # validation was not invoked
         self.assertEqual(mock_is_valid.called, True)
 
-    @patch('configglue.pyschema.parser.SchemaConfigParser.is_valid')
+    @patch('configglue.parser.SchemaConfigParser.is_valid')
     def test_configglue_validate_default_value(self, mock_is_valid):
         """Test configglue validation default."""
         mock_is_valid.return_value = (True, [])
@@ -482,7 +482,7 @@ class ConfigglueTestCase(unittest.TestCase):
         # validation was not invoked
         self.assertEqual(mock_is_valid.called, False)
 
-    @patch('configglue.pyschema.parser.SchemaConfigParser.is_valid')
+    @patch('configglue.parser.SchemaConfigParser.is_valid')
     def test_configglue_validate_from_options(self, mock_is_valid):
         """Test configglue with validation from options."""
         mock_is_valid.return_value = (True, [])
@@ -494,7 +494,7 @@ class ConfigglueTestCase(unittest.TestCase):
 
         self.assertEqual(mock_is_valid.called, True)
 
-    @patch('configglue.pyschema.parser.SchemaConfigParser.is_valid')
+    @patch('configglue.parser.SchemaConfigParser.is_valid')
     def test_configglue_validate_without_option(self, mock_is_valid):
         """Test configglue with validation from options."""
         mock_is_valid.return_value = (True, [])
