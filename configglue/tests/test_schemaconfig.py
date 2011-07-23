@@ -336,13 +336,6 @@ class TestSchemaConfigGlue(unittest.TestCase):
 
 
 class ConfigglueTestCase(unittest.TestCase):
-    def setUp(self):
-        self.mock_argv = patch_object(sys, 'argv', ['foo'])
-        self.mock_argv.start()
-
-    def tearDown(self):
-        self.mock_argv.stop()
-
     @patch('configglue.glue.SchemaConfigParser')
     @patch('configglue.glue.schemaconfigglue')
     def test_configglue_no_errors(self, mock_schemaconfigglue,
