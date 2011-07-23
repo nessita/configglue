@@ -488,7 +488,7 @@ class ConfigglueTestCase(unittest.TestCase):
 
         op = OptionParser()
         op.add_option('--validate', dest='validate', action='store_true')
-        with patch_object(sys, 'argv', ['foo', '--validate']):
+        with patch.object(sys, 'argv', ['foo', '--validate']):
             configglue(Schema, [], op=op)
 
         self.assertEqual(mock_is_valid.called, True)
@@ -499,7 +499,7 @@ class ConfigglueTestCase(unittest.TestCase):
         mock_is_valid.return_value = (True, [])
 
         op = OptionParser()
-        with patch_object(sys, 'argv', ['foo']):
+        with patch.object(sys, 'argv', ['foo']):
             configglue(Schema, [], op=op)
 
         self.assertEqual(mock_is_valid.called, False)
