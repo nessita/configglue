@@ -24,7 +24,6 @@ from optparse import OptionConflictError
 from mock import (
     Mock,
     patch,
-    patch_object,
 )
 
 from configglue.glue import (
@@ -39,6 +38,13 @@ from configglue.schema import (
     Section,
     StringOption,
 )
+
+
+# backwards compatibility
+if not hasattr(patch, 'object'):
+    # mock < 0.8
+    from mock import patch_object
+    patch.object = patch_object
 
 
 class TestOption(unittest.TestCase):
@@ -198,7 +204,7 @@ class TestSchemaConfigGlue(unittest.TestCase):
             sys.argv = _argv
 
     def test_glue_environ_precedence(self):
-        with patch_object(os, 'environ',
+        with patch.object(os, 'environ',
             {'CONFIGGLUE_FOO_BAR': '42', 'BAR': '1'}):
 
             config = StringIO("[foo]\nbar=$BAR")
