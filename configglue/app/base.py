@@ -15,6 +15,7 @@
 ###############################################################################
 import os.path
 import sys
+from optparse import OptionParser
 
 from xdg.BaseDirectory import load_config_paths
 
@@ -36,9 +37,13 @@ class Config(object):
         schemas = [app.schema] + app.plugins.schemas
         self.schema = merge(*schemas)
 
+        # create OptionParser with default options
+        parser = OptionParser()
+        parser.add_option('--validate', dest='validate', action='store_true',
+            help="validate configuration")
         # initialize config
         config_files = self.get_config_files(app)
-        self.glue = configglue(self.schema, config_files)
+        self.glue = configglue(self.schema, config_files, op=parser)
 
     def get_config_files(self, app):
         config_files = []

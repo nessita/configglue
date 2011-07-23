@@ -19,7 +19,10 @@ import unittest
 import os
 import sys
 from StringIO import StringIO
-from optparse import OptionConflictError
+from optparse import (
+    OptionConflictError,
+    OptionParser,
+)
 
 from mock import (
     Mock,
@@ -412,30 +415,29 @@ class ConfigglueTestCase(unittest.TestCase):
         self.assertEqual(glue.options, expected_options)
         self.assertEqual(glue.args, expected_args)
 
-    @patch('configglue.glue.OptionParser')
     @patch('configglue.glue.SchemaConfigParser')
     @patch('configglue.glue.schemaconfigglue')
-    def test_configglue_with_usage(self, mock_schemaconfigglue,
-        mock_schema_parser, mock_option_parser):
-        """Test configglue with the 'usage' parameter set."""
-        # prepare mocks
-        expected_schema_parser = Mock()
-        expected_schema_parser.is_valid.return_value = (True, None)
-        expected_option_parser = mock_option_parser.return_value
-        expected_options = Mock()
-        expected_args = Mock()
-        mock_schemaconfigglue.return_value = (expected_option_parser,
-            expected_options, expected_args)
-        mock_schema_parser.return_value = expected_schema_parser
-
+    def test_configglue_with_options(self, mock_schemaconfigglue,
+        mock_schema_parser):
+        """Test configglue with a custom OptionParser."""
         # define the inputs
         class MySchema(Schema):
             foo = IntOption()
 
         configs = ['config.ini']
 
+        op = OptionParser(usage='foo')
+
+        # prepare mocks
+        expected_schema_parser = Mock()
+        expected_schema_parser.is_valid.return_value = (True, None)
+        expected_args = Mock()
+        mock_schemaconfigglue.return_value = (op,
+            op.values, expected_args)
+        mock_schema_parser.return_value = expected_schema_parser
+
         # call the function under test
-        glue = configglue(MySchema, configs, usage='foo')
+        glue = configglue(MySchema, configs, op=op)
 
         # schema_parse is a SchemaConfigParser, initialized with MySchema
         # and fed with the configs file list
@@ -444,8 +446,60 @@ class ConfigglueTestCase(unittest.TestCase):
         mock_schema_parser.return_value.read.assert_called_with(configs)
         # the other attributes are the result of calling schemaconfigglue
         mock_schemaconfigglue.assert_called_with(expected_schema_parser,
-            op=expected_option_parser)
-        mock_option_parser.assert_called_with(usage='foo')
-        self.assertEqual(glue.option_parser, expected_option_parser)
-        self.assertEqual(glue.options, expected_options)
+            op=op)
+        self.assertEqual(glue.option_parser, op)
+        self.assertEqual(glue.options, op.values)
         self.assertEqual(glue.args, expected_args)
+
+    @patch('configglue.parser.SchemaConfigParser.is_valid')
+    def test_configglue_no_validate(self, mock_is_valid):
+        """Test configglue with validation disabled."""
+        mock_is_valid.return_value = (True, [])
+
+        configglue(Schema, [], validate=False)
+
+        # validation was not invoked
+        self.assertEqual(mock_is_valid.called, False)
+
+    @patch('configglue.parser.SchemaConfigParser.is_valid')
+    def test_configglue_validate(self, mock_is_valid):
+        """Test configglue with validation enabled."""
+        mock_is_valid.return_value = (True, [])
+
+        configglue(Schema, [], validate=True)
+
+        # validation was not invoked
+        self.assertEqual(mock_is_valid.called, True)
+
+    @patch('configglue.parser.SchemaConfigParser.is_valid')
+    def test_configglue_validate_default_value(self, mock_is_valid):
+        """Test configglue validation default."""
+        mock_is_valid.return_value = (True, [])
+
+        configglue(Schema, [])
+
+        # validation was not invoked
+        self.assertEqual(mock_is_valid.called, False)
+
+    @patch('configglue.parser.SchemaConfigParser.is_valid')
+    def test_configglue_validate_from_options(self, mock_is_valid):
+        """Test configglue with validation from options."""
+        mock_is_valid.return_value = (True, [])
+
+        op = OptionParser()
+        op.add_option('--validate', dest='validate', action='store_true')
+        with patch.object(sys, 'argv', ['foo', '--validate']):
+            configglue(Schema, [], op=op)
+
+        self.assertEqual(mock_is_valid.called, True)
+
+    @patch('configglue.parser.SchemaConfigParser.is_valid')
+    def test_configglue_validate_without_option(self, mock_is_valid):
+        """Test configglue with validation from options."""
+        mock_is_valid.return_value = (True, [])
+
+        op = OptionParser()
+        with patch.object(sys, 'argv', ['foo']):
+            configglue(Schema, [], op=op)
+
+        self.assertEqual(mock_is_valid.called, False)

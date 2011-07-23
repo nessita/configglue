@@ -116,7 +116,7 @@ def schemaconfigglue(parser, op=None, argv=None):
     return op, options, args
 
 
-def configglue(schema_class, configs, usage=None):
+def configglue(schema_class, configs, op=None, validate=False):
     """Parse configuration files using a provided schema.
 
     The standard workflow for configglue is to instantiate a schema class,
@@ -127,12 +127,9 @@ def configglue(schema_class, configs, usage=None):
     """
     scp = SchemaConfigParser(schema_class())
     scp.read(configs)
-    if usage is not None:
-        op = OptionParser(usage=usage)
-    else:
-        op = None
     parser, opts, args = schemaconfigglue(scp, op=op)
-    is_valid, reasons = scp.is_valid(report=True)
-    if not is_valid:
-        parser.error('\n'.join(reasons))
+    if validate or getattr(opts, 'validate', False):
+        is_valid, reasons = scp.is_valid(report=True)
+        if not is_valid:
+            parser.error('\n'.join(reasons))
     return SchemaGlue(scp, parser, opts, args)
