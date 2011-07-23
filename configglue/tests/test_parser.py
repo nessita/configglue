@@ -32,7 +32,6 @@ from StringIO import StringIO
 from mock import (
     Mock,
     patch,
-    patch_object,
 )
 
 from configglue.parser import (
@@ -51,6 +50,13 @@ from configglue.schema import (
     StringOption,
     TupleOption,
 )
+
+
+# backwards compatibility
+if not hasattr(patch, 'object'):
+    # mock < 0.8
+    from mock import patch_object
+    patch.object = patch_object
 
 
 class TestIncludes(unittest.TestCase):
@@ -443,7 +449,7 @@ class TestInterpolation(unittest.TestCase):
 
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
-        with patch_object(parser, '_get_interpolation_keys',
+        with patch.object(parser, '_get_interpolation_keys',
                 mock_get_interpolation_keys):
 
             value = parser._interpolate_value('__main__', 'foo')
