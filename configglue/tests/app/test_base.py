@@ -15,6 +15,7 @@
 ###############################################################################
 import os
 import user
+from optparse import OptionParser
 from unittest import TestCase
 
 from mock import (
@@ -36,7 +37,8 @@ from configglue.schema import (
 )
 
 
-def make_app(name=None, schema=None, plugin_manager=None, validate=False):
+def make_app(name=None, schema=None, plugin_manager=None, validate=False,
+        parser=None):
     # patch sys.argv so that nose can be run with extra options
     # without conflicting with the schema validation
     # patch sys.stderr to prevent spurious output
@@ -46,7 +48,8 @@ def make_app(name=None, schema=None, plugin_manager=None, validate=False):
         mock_sys.argv.append('--validate')
     with patch('configglue.glue.sys', mock_sys):
         with patch('configglue.app.base.sys.stderr'):
-            app = App(name=name, schema=schema, plugin_manager=plugin_manager)
+            app = App(name=name, schema=schema, plugin_manager=plugin_manager,
+                parser=parser)
     return app
 
 
@@ -70,20 +73,20 @@ class ConfigTestCase(TestCase):
             os.environ.get('XDG_CONFIG_DIRS', '/etc/xdg').split(':'))
         return xdg_config_dirs
 
-    @patch('configglue.app.base.OptionParser')
     @patch('configglue.app.base.merge')
     @patch('configglue.app.base.Config.get_config_files')
     @patch('configglue.app.base.configglue')
     def test_constructor(self, mock_configglue,
-        mock_get_config_files, mock_merge, mock_parser):
+        mock_get_config_files, mock_merge):
 
-        config = Config(App())
+        app = App()
+        config = Config(app)
 
         self.assertEqual(config.schema, mock_merge.return_value)
         self.assertEqual(config.glue, mock_configglue.return_value)
         mock_configglue.assert_called_with(
             mock_merge.return_value, mock_get_config_files.return_value,
-            op=mock_parser.return_value)
+            op=app.parser)
 
     def test_glue_valid_config(self):
         config = make_config()
@@ -93,7 +96,8 @@ class ConfigTestCase(TestCase):
         class MySchema(Schema):
             foo = IntOption(fatal=True)
 
-        self.assertRaises(SystemExit, make_app, schema=MySchema, validate=True)
+        self.assertRaises(SystemExit, make_app, schema=MySchema,
+            validate=True)
 
     def test_glue_no_validate_invalid_config(self):
         class MySchema(Schema):
@@ -165,3 +169,19 @@ class AppTestCase(TestCase):
     def test_config(self, mock_config):
         app = make_app()
         self.assertEqual(app.config, mock_config.return_value)
+
+    def test_default_parser(self):
+        app = make_app()
+        # parser is configured
+        self.assertNotEqual(app.parser, None)
+        self.assertEqual(app.config.glue.option_parser, app.parser)
+        # there is only one option by default: --validate
+        self.assertEqual(app.parser.values.__dict__, {'validate': False})
+
+    def test_custom_parser(self):
+        custom_parser = OptionParser()
+        custom_parser.add_option('-f', '--foo')
+        app = make_app(parser=custom_parser)
+        # parser is configured
+        self.assertEqual(app.parser, custom_parser)
+        self.assertEqual(app.config.glue.option_parser, custom_parser)
