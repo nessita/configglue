@@ -295,12 +295,15 @@ class Option(object):
             equal = (
                 type(self) == type(other) and
                 self.name == other.name and
+                self.short_name == other.short_name and
                 self.raw == other.raw and
                 self.fatal == other.fatal and
                 self.default == other.default and
-                self.help == other.help)
+                self.help == other.help and
+                self.action == other.action)
             if self.section is not None and other.section is not None:
-                # only test for section name to avoid recursion
+                # sections might be different while the options are the
+                # same; the section names though should be the same
                 equal &= self.section.name == other.section.name
             else:
                 equal &= (self.section is None and other.section is None)
@@ -413,8 +416,19 @@ class ListOption(Option):
             item = StringOption()
         self.item = item
         self.require_parser = item.require_parser
-        self.raw = item.raw
+        self.raw = raw or item.raw
         self.remove_duplicates = remove_duplicates
+
+    def __eq__(self, other):
+        equal = super(ListOption, self).__eq__(other)
+        if equal:
+            # we can be sure both objects are of the same type by now
+            equal &= (self.item == other.item and
+                self.require_parser == other.require_parser and
+                self.raw == other.raw and
+                self.remove_duplicates == other.remove_duplicates)
+
+        return equal
 
     def _get_default(self):
         return []
@@ -460,6 +474,14 @@ class StringOption(Option):
             default=default, fatal=fatal, help=help, action=action,
             short_name=short_name)
 
+    def __eq__(self, other):
+        equal = super(StringOption, self).__eq__(other)
+        if equal:
+            # we can be sure both objects are of the same type by now
+            equal &= self.null == other.null
+
+        return equal
+
     def _get_default(self):
         return '' if not self.null else None
 
@@ -502,6 +524,14 @@ class TupleOption(Option):
             default=default, fatal=fatal, help=help, action=action,
             short_name=short_name)
         self.length = length
+
+    def __eq__(self, other):
+        equal = super(TupleOption, self).__eq__(other)
+        if equal:
+            # we can be sure both objects are of the same type by now
+            equal &= self.length == other.length
+
+        return equal
 
     def _get_default(self):
         return ()
@@ -559,6 +589,16 @@ class DictOption(Option):
         super(DictOption, self).__init__(name=name, raw=raw,
             default=default, fatal=fatal, help=help, action=action,
             short_name=short_name)
+
+    def __eq__(self, other):
+        equal = super(DictOption, self).__eq__(other)
+        if equal:
+            # we can be sure both objects are of the same type by now
+            equal &= (self.spec == other.spec and
+                self.strict == other.strict and
+                self.item == other.item)
+
+        return equal
 
     def _get_default(self):
         default = {}

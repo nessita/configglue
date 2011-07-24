@@ -368,6 +368,14 @@ class TestStringOption(unittest.TestCase):
         opt = self.cls(short_name='f')
         self.assertEqual(opt.short_name, 'f')
 
+    def test_equal(self):
+        """Test StringOption equality."""
+        option1 = StringOption()
+        option2 = StringOption(null=True)
+
+        self.assertEqual(option1, option1)
+        self.assertNotEqual(option1, option2)
+
 
 class TestIntOption(unittest.TestCase):
     cls = IntOption
@@ -570,6 +578,24 @@ class TestListOption(unittest.TestCase):
         opt = self.cls(short_name='f')
         self.assertEqual(opt.short_name, 'f')
 
+    def test_equal(self):
+        """Test ListOption equality."""
+        option1 = ListOption()
+        option2 = ListOption(name='foo')
+        option3 = ListOption(item=StringOption())
+        option4 = ListOption(item=DictOption())
+        option5 = ListOption(raw=True)
+        option6 = ListOption(remove_duplicates=True)
+        option7 = ListOption(raw=False, item=StringOption(raw=True))
+
+        self.assertEqual(option1, option1)
+        self.assertNotEqual(option1, option2)
+        self.assertEqual(option1, option3)
+        self.assertNotEqual(option1, option4)
+        self.assertNotEqual(option1, option5)
+        self.assertNotEqual(option1, option6)
+        self.assertNotEqual(option1, option7)
+
 
 class TestTupleOption(unittest.TestCase):
     cls = TupleOption
@@ -637,6 +663,14 @@ class TestTupleOption(unittest.TestCase):
         """Test TupleOption short name."""
         opt = self.cls(short_name='f')
         self.assertEqual(opt.short_name, 'f')
+
+    def test_equal(self):
+        """Test TupleOption equality."""
+        option1 = TupleOption()
+        option2 = TupleOption(length=2)
+
+        self.assertEqual(option1, option1)
+        self.assertNotEqual(option1, option2)
 
 
 class TestDictOption(unittest.TestCase):
@@ -840,6 +874,20 @@ wham=42
         """Test DictOption short name."""
         opt = self.cls(short_name='f')
         self.assertEqual(opt.short_name, 'f')
+
+    def test_equal(self):
+        """Test DictOption equality."""
+        option1 = DictOption()
+        option2 = DictOption(spec={'foo': BoolOption()})
+        option3 = DictOption(strict=True)
+        option4 = DictOption(item=StringOption())
+        option5 = DictOption(item=IntOption())
+
+        self.assertEqual(option1, option1)
+        self.assertNotEqual(option1, option2)
+        self.assertNotEqual(option1, option3)
+        self.assertEqual(option1, option4)
+        self.assertNotEqual(option1, option5)
 
 
 class TestListOfDictOption(unittest.TestCase):
