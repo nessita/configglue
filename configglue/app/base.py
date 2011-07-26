@@ -37,13 +37,9 @@ class Config(object):
         schemas = [app.schema] + app.plugins.schemas
         self.schema = merge(*schemas)
 
-        # create OptionParser with default options
-        parser = OptionParser()
-        parser.add_option('--validate', dest='validate', action='store_true',
-            help="validate configuration")
         # initialize config
         config_files = self.get_config_files(app)
-        self.glue = configglue(self.schema, config_files, op=parser)
+        self.glue = configglue(self.schema, config_files, op=app.parser)
 
     def get_config_files(self, app):
         config_files = []
@@ -64,7 +60,8 @@ class App(object):
     schema = Schema
     plugin_manager = PluginManager
 
-    def __init__(self, schema=None, plugin_manager=None, name=None):
+    def __init__(self, schema=None, plugin_manager=None, name=None,
+            parser=None):
         # initialize app name
         if name is None:
             name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
@@ -75,7 +72,14 @@ class App(object):
             self.plugins = self.plugin_manager()
         else:
             self.plugins = plugin_manager
-        # setup config
+        # setup schema
         if schema is not None:
             self.schema = schema
+        # setup option parser
+        if parser is None:
+            parser = OptionParser()
+            parser.add_option('--validate', dest='validate', default=False,
+                action='store_true', help="validate configuration")
+        self.parser = parser
+        # setup config
         self.config = Config(self)
