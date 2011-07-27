@@ -234,6 +234,34 @@ class TestSchemaConfigGlue(unittest.TestCase):
             finally:
                 sys.argv = _argv
 
+    def test_glue_environ_precedence_null_option(self):
+        class MySchema(Schema):
+            foo = StringOption(null=True)
+
+        parser = SchemaConfigParser(MySchema())
+
+        with patch.object(os, 'environ', {'CONFIGGLUE_FOO': '42'}):
+            _argv, sys.argv = sys.argv, ['prognam']
+            try:
+                op, options, args = schemaconfigglue(parser)
+                self.assertEqual(parser.get('__main__', 'foo'), '42')
+            finally:
+                sys.argv = _argv
+
+    def test_glue_environ_precedence_null_and_fatal_option(self):
+        class MySchema(Schema):
+            foo = StringOption(null=True, fatal=True)
+
+        parser = SchemaConfigParser(MySchema())
+
+        with patch.object(os, 'environ', {'CONFIGGLUE_FOO': '42'}):
+            _argv, sys.argv = sys.argv, ['prognam']
+            try:
+                op, options, args = schemaconfigglue(parser)
+                self.assertEqual(parser.get('__main__', 'foo'), '42')
+            finally:
+                sys.argv = _argv
+
     def test_ambiguous_option(self):
         """Test schemaconfigglue when an ambiguous option is specified."""
         class MySchema(Schema):
