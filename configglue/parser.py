@@ -80,27 +80,37 @@ class SchemaConfigParser(BaseConfigParser, object):
         errors = []
         try:
             # validate structure
-            parsed_sections = set(self.sections())
+            config_sections = set(self.sections())
             schema_sections = set(s.name for s in self.schema.sections())
             skip_sections = self.extra_sections
-            if '__noschema__' in parsed_sections:
-                skip_sections.add('__noschema__')
-            schema_sections.update(skip_sections)
-            sections_match = (parsed_sections == schema_sections)
-            if not sections_match:
-                unmatched_sections = list(parsed_sections - schema_sections)
-                if len(unmatched_sections) > 0:
-                    error_msg = "Sections in configuration are missing from schema: %s"
-                    error_value = ', '.join(unmatched_sections)
-                    errors.append(error_msg % error_value)
-                unmatched_sections = list(schema_sections - parsed_sections)
-                if len(unmatched_sections) > 0:
-                    error_msg = "Sections in schema are missing from configuration: %s"
-                    error_value = ', '.join(unmatched_sections)
-                    errors.append(error_msg % error_value)
-            valid &= sections_match
+            magic_sections = set(['__main__', '__noschema__'])
+            # test1: no undefined implicit sections
+            unmatched_sections = (skip_sections - config_sections)
+            if unmatched_sections:
+                error_msg = "Undefined sections in configuration: %s"
+                error_value = ', '.join(unmatched_sections)
+                errors.append(error_msg % error_value)
+                valid = False
+            # remove sections to skip from config sections
+            config_sections.difference_update(skip_sections)
+            # test2: no missing schema sections
+            unmatched_sections = (
+                schema_sections - magic_sections - config_sections)
+            if unmatched_sections:
+                error_msg = "Sections in schema are missing from configuration: %s"
+                error_value = ', '.join(unmatched_sections)
+                errors.append(error_msg % error_value)
+                valid = False
+            # test3: no extra sections that are not implicit sections
+            unmatched_sections = (
+                config_sections - magic_sections - schema_sections)
+            if unmatched_sections:
+                error_msg = "Sections in configuration are missing from schema: %s"
+                error_value = ', '.join(unmatched_sections)
+                errors.append(error_msg % error_value)
+                valid = False
 
-            for name in parsed_sections.union(schema_sections):
+            for name in config_sections.union(schema_sections):
                 if name not in skip_sections:
                     if not self.schema.has_section(name):
                         # this should have been reported before
