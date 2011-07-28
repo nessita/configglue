@@ -684,6 +684,21 @@ class TestSchemaConfigParser(unittest.TestCase):
             {'bar': 0, 'baz': False})
         self.assertEqual(parser.extra_sections, set([]))
 
+    def test_extra_sections_missing_section(self):
+        """Test parse dict with missing referenced section."""
+        class MySchema(Schema):
+            foo = DictOption()
+
+        config = StringIO(textwrap.dedent("""
+            [__main__]
+            foo = dict1
+            """))
+        parser = SchemaConfigParser(MySchema())
+        parser.readfp(config)
+        parser.parse_all()
+
+        self.assertEqual(parser.extra_sections, set(['dict1']))
+
     def test_multiple_extra_sections(self):
         """Test parsing multiple extra sections."""
         class MySchema(Schema):
@@ -1220,6 +1235,23 @@ swoosh = 4
                 {'bar': [{'wham': '1'}, {'whaz': '2'}]},
                 {'baz': [{'whoosh': '3'}, {'swoosh': '4'}]}]}})
         self.assertTrue(parser.is_valid())
+
+    def test_extra_sections_with_missing_section(self):
+        """Test parser.is_valid with dict referencing missing section."""
+        class MySchema(Schema):
+            foo = DictOption()
+
+        config = StringIO(textwrap.dedent("""
+            [__main__]
+            foo = dict1
+            """))
+        parser = SchemaConfigParser(MySchema())
+        parser.readfp(config)
+        parser.parse_all()
+
+        self.assertRaises(NoSectionError, parser.values)
+        # config is not valid
+        self.assertFalse(parser.is_valid())
 
     def test_multiple_extra_sections(self):
         """Test parser.is_valid with multiple extra sections."""

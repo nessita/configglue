@@ -66,8 +66,10 @@ def schemaconfigglue(parser, op=None, argv=None):
             kwargs = {}
             if option.help:
                 kwargs['help'] = option.help
-            if not option.fatal:
+            try:
                 kwargs['default'] = parser.get(section.name, option.name)
+            except (NoSectionError, NoOptionError):
+                pass
             kwargs['action'] = option.action
             args = ['--' + long_name(option)]
             if option.short_name:
