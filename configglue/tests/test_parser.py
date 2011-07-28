@@ -15,6 +15,7 @@
 #
 ###############################################################################
 
+import logging
 import os
 import shutil
 import tempfile
@@ -68,8 +69,15 @@ class TestIncludes(unittest.TestCase):
         os.write(fd, '[__main__]\nfoo=bar\n')
         os.close(fd)
 
+        # disable logging output during test
+        self.level = logging.getLogger().level
+        logging.disable('ERROR')
+
     def tearDown(self):
         os.remove(self.name)
+
+        # re-enable original logging level
+        logging.getLogger().setLevel(self.level)
 
     def test_basic_include(self):
         config = StringIO('[__main__]\nincludes=%s' % self.name)
@@ -86,17 +94,18 @@ class TestIncludes(unittest.TestCase):
         expected_location = self.name
         self.assertEqual(expected_location, location)
 
-    def test_read_ioerror(self):
-        def mock_open(filename, mode='r', encoding='ascii'):
-            raise IOError
-        _open = __builtins__['open']
-        __builtins__['open'] = mock_open
+    @patch('configglue.parser.logging.warn')
+    @patch('configglue.parser.codecs.open')
+    def test_read_ioerror(self, mock_open, mock_warn):
+        mock_open.side_effect = IOError
 
         parser = SchemaConfigParser(self.schema)
         read_ok = parser.read(self.name)
-        self.assertEqual(read_ok, [])
 
-        __builtins__['open'] = _open
+        self.assertEqual(read_ok, [])
+        self.assertEqual(mock_warn.call_args_list,
+            [(("File {0} could not be read. Skipping.".format(self.name),),
+              {})])
 
     def test_relative_include(self):
         """Test parser include files using relative paths."""
