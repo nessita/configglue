@@ -33,8 +33,12 @@ from configglue.glue import (
     configglue,
     schemaconfigglue,
 )
-from configglue.parser import SchemaConfigParser
+from configglue.parser import (
+    NoSectionError,
+    SchemaConfigParser,
+)
 from configglue.schema import (
+    DictOption,
     IntOption,
     Option,
     Schema,
@@ -177,6 +181,25 @@ class TestSchemaConfigGlue(unittest.TestCase):
                                              argv=['--foo_bar', '2'])
         self.assertEqual(self.parser.values(),
                          {'foo': {'bar': 2}, '__main__': {'baz': 0}})
+
+    def test_glue_missing_section(self):
+        """Test schemaconfigglue with missing section."""
+        class MySchema(Schema):
+            foo = DictOption()
+
+        config = StringIO("[__main__]\nfoo = bar")
+        parser = SchemaConfigParser(MySchema())
+        parser.readfp(config)
+
+        # hitting the parser directly raises an exception
+        self.assertRaises(NoSectionError, parser.values)
+        self.assertFalse(parser.is_valid())
+
+        # which is nicely handled by the glue code, so as not to crash it
+        op, options, args = schemaconfigglue(parser)
+
+        # there is no value for 'foo' due to the missing section
+        self.assertEqual(options, {'foo': None})
 
     @patch('configglue.glue.os')
     def test_glue_environ(self, mock_os):
@@ -510,7 +533,7 @@ class ConfigglueTestCase(unittest.TestCase):
 
         configglue(Schema, [], validate=True)
 
-        # validation was not invoked
+        # validation was invoked
         self.assertEqual(mock_is_valid.called, True)
 
     @patch('configglue.parser.SchemaConfigParser.is_valid')
