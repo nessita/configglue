@@ -572,6 +572,30 @@ class TestSchemaConfigParser(unittest.TestCase):
         values = self.parser.values(section='__main__')
         self.assertEqual(expected_values['__main__'], values)
 
+    def test_values_case_sensitive_options(self):
+        class MySchema(Schema):
+            foo = DictOption()
+        parser = SchemaConfigParser(MySchema())
+        config = StringIO(textwrap.dedent("""
+            [__main__]
+            foo = mydict
+            [mydict]
+            lowercase = lowercase
+            UPPERCASE = UPPERCASE
+            MixedCase = MixedCase
+            """))
+        parser.readfp(config)
+
+        self.assertEqual(parser.values(), {
+            '__main__': {
+                'foo': {
+                    'lowercase': 'lowercase',
+                    'UPPERCASE': 'UPPERCASE',
+                    'MixedCase': 'MixedCase',
+                },
+            },
+        })
+
     def test_values_many_sections_same_option(self):
         """Test parser.values for many section with the same option."""
         class MySchema(Schema):
@@ -758,6 +782,11 @@ class TestSchemaConfigParser(unittest.TestCase):
     def test_get_default_no_section(self):
         self.assertRaises(NoSectionError, self.parser._get_default,
             'foo', 'bar')
+
+    def test_optionxform(self):
+        self.assertEqual(self.parser.optionxform('lowercase'), 'lowercase')
+        self.assertEqual(self.parser.optionxform('UPPERCASE'), 'UPPERCASE')
+        self.assertEqual(self.parser.optionxform('MixedCase'), 'MixedCase')
 
     def test_multi_file_dict_config(self):
         """Test parsing a dict option spanning multiple files."""
