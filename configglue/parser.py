@@ -17,6 +17,7 @@
 import codecs
 import collections
 import copy
+import logging
 import os
 import re
 import string
@@ -254,6 +255,8 @@ class SchemaConfigParser(BaseConfigParser, object):
             try:
                 fp = codecs.open(path, 'r', CONFIG_FILE_ENCODING)
             except IOError:
+                logging.warn(
+                    'File {0} could not be read. Skipping.'.format(path))
                 continue
             self._read(fp, path, already_read=already_read)
             fp.close()
