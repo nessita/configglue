@@ -606,13 +606,21 @@ class DictOption(Option):
             default[key] = value.default
         return default
 
-    def parse(self, section, parser=None, raw=False):
+    def parse(self, section, parser, raw=False):
         """Parse the given value.
 
         A *parser* object is used to parse individual dict items.
         If *raw* is *True*, return the value unparsed.
 
         """
+        # process extra sections
+        sections = section.split()
+        parser.extra_sections.update(set(sections))
+        for name in sections:
+            nested = self.get_extra_sections(name, parser)
+            parser.extra_sections.update(set(nested))
+
+        # parse dict
         parsed = dict(parser.items(section))
         result = {}
 
