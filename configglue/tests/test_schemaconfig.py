@@ -201,6 +201,18 @@ class TestSchemaConfigGlue(unittest.TestCase):
         # there is no value for 'foo' due to the missing section
         self.assertEqual(options, {'foo': None})
 
+    def test_glue_json_dict(self):
+        class MySchema(Schema):
+            foo = DictOption()
+
+        parser = SchemaConfigParser(MySchema())
+        op, options, args = schemaconfigglue(parser,
+            argv=['--foo', '{"bar": "baz"}'])
+
+        self.assertEqual(options, {'foo': '{"bar": "baz"}'})
+        self.assertEqual(parser.values(),
+            {'__main__': {'foo': {'bar': 'baz'}}})
+
     @patch('configglue.glue.os')
     def test_glue_environ(self, mock_os):
         mock_os.environ = {'CONFIGGLUE_FOO_BAR': '42', 'CONFIGGLUE_BAZ': 3}

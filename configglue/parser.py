@@ -347,25 +347,6 @@ class SchemaConfigParser(BaseConfigParser, object):
             if option_obj.require_parser:
                 kwargs = {'parser': self}
 
-            # hook to save extra sections
-            is_dict_option = isinstance(option_obj, DictOption)
-            is_dict_lines_option = (hasattr(option_obj, 'item') and
-                isinstance(option_obj.item, DictOption))
-
-            # avoid adding implicit sections for dict default value
-            if (is_dict_option or is_dict_lines_option):
-                sections = value.split()
-                self.extra_sections.update(set(sections))
-
-                if is_dict_option:
-                    base = option_obj
-                else:
-                    base = option_obj.item
-
-                for name in sections:
-                    nested = base.get_extra_sections(name, self)
-                    self.extra_sections.update(set(nested))
-
             try:
                 value = option_obj.parse(value, **kwargs)
             except ValueError, e:

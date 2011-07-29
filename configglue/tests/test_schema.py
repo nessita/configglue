@@ -15,8 +15,12 @@
 #
 ###############################################################################
 
+import textwrap
 import unittest
-from ConfigParser import NoOptionError
+from ConfigParser import (
+    NoOptionError,
+    NoSectionError,
+)
 from StringIO import StringIO
 
 from configglue.parser import (
@@ -737,6 +741,116 @@ bla=Yes
         parser.readfp(config)
         self.assertEqual(parser.values(), expected_values)
 
+    def test_parse_dict_no_json(self):
+        """Test DictOption parse a dict when json is disabled."""
+        class MySchema(Schema):
+            foo = self.cls(spec={
+                'bar': StringOption(),
+                'baz': IntOption(),
+                'bla': BoolOption(),
+            }, parse_json=False)
+
+        config = StringIO("""[__main__]
+foo = mydict
+[mydict]
+bar=baz
+baz=42
+bla=Yes
+""")
+        expected_values = {
+            '__main__': {
+                'foo': {'bar': 'baz', 'baz': 42, 'bla': True}}}
+
+        schema = MySchema()
+        parser = SchemaConfigParser(schema)
+        parser.readfp(config)
+        self.assertEqual(parser.values(), expected_values)
+
+    def test_parse_dict_json(self):
+        """Test DictOption parse a json dict."""
+        class MySchema(Schema):
+            foo = self.cls(spec={
+                'bar': StringOption(),
+                'baz': IntOption(),
+                'bla': BoolOption(),
+            })
+
+        config = StringIO(textwrap.dedent("""
+            [__main__]
+            foo = {
+                "bar": "baz",
+                "baz": "42",
+                "bla": "Yes"}
+            """))
+        expected_values = {
+            '__main__': {
+                'foo': {'bar': 'baz', 'baz': 42, 'bla': True}}}
+
+        schema = MySchema()
+        parser = SchemaConfigParser(schema)
+        parser.readfp(config)
+        self.assertEqual(parser.values(), expected_values)
+
+    def test_parse_dict_json_invalid_json(self):
+        """Test DictOption parse invalid json."""
+        class MySchema(Schema):
+            foo = self.cls(spec={
+                'bar': StringOption(),
+                'baz': IntOption(),
+                'bla': BoolOption(),
+            })
+
+        config = StringIO(textwrap.dedent("""
+            [__main__]
+            foo = {'bar': 23}
+            """))
+
+        schema = MySchema()
+        parser = SchemaConfigParser(schema)
+        parser.readfp(config)
+        self.assertRaises(NoSectionError, parser.values)
+
+    def test_parse_dict_json_non_dict_json(self):
+        """Test DictOption parse json not representing a dict."""
+        class MySchema(Schema):
+            foo = self.cls(spec={
+                'bar': StringOption(),
+                'baz': IntOption(),
+                'bla': BoolOption(),
+            })
+
+        config = StringIO(textwrap.dedent("""
+            [__main__]
+            foo = [1, 2, 3]
+            """))
+
+        schema = MySchema()
+        parser = SchemaConfigParser(schema)
+        parser.readfp(config)
+        self.assertRaises(NoSectionError, parser.values)
+
+    def test_parse_dict_no_json_with_json(self):
+        """Test DictOption parse json when json is disabled."""
+        class MySchema(Schema):
+            foo = self.cls(spec={
+                'bar': StringOption(),
+                'baz': IntOption(),
+                'bla': BoolOption(),
+            }, parse_json=False)
+
+        config = StringIO(textwrap.dedent("""
+            [__main__]
+            foo = {
+                "bar": "baz",
+                "baz": "42",
+                "bla": "Yes"}
+            """))
+
+        schema = MySchema()
+        parser = SchemaConfigParser(schema)
+        parser.readfp(config)
+        self.assertRaises(NoSectionError, parser.values)
+
     def test_parse_raw(self):
         """Test DictOption parse using raw=True."""
         class MySchema(Schema):
@@ -888,6 +1002,16 @@ wham=42
         self.assertNotEqual(option1, option3)
         self.assertEqual(option1, option4)
         self.assertNotEqual(option1, option5)
+
+    def test_to_string_when_json(self):
+        option = DictOption()
+        result = option.to_string({'foo': '1'})
+        self.assertEqual(result, '{"foo": "1"}')
+
+    def test_to_string_when_no_json(self):
+        option = DictOption(parse_json=False)
+        result = option.to_string({'foo': '1'})
+        self.assertEqual(result, str({'foo': '1'}))
 
 
 class TestListOfDictOption(unittest.TestCase):
