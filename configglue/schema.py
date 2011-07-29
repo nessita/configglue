@@ -14,6 +14,7 @@
 #
 ###############################################################################
 
+import json
 from ConfigParser import (
     NoSectionError,
     NoOptionError,
@@ -578,7 +579,7 @@ class DictOption(Option):
 
     def __init__(self, name='', spec=None, strict=False, raw=False,
                  default=NO_DEFAULT, fatal=False, help='', action='store',
-                 item=None, short_name=''):
+                 item=None, short_name='', json=True):
         if spec is None:
             spec = {}
         if item is None:
@@ -586,6 +587,7 @@ class DictOption(Option):
         self.spec = spec
         self.strict = strict
         self.item = item
+        self.json = json
         super(DictOption, self).__init__(name=name, raw=raw,
             default=default, fatal=fatal, help=help, action=action,
             short_name=short_name)
@@ -606,29 +608,37 @@ class DictOption(Option):
             default[key] = value.default
         return default
 
-    def parse(self, section, parser, raw=False):
+    def parse(self, value, parser, raw=False):
         """Parse the given value.
 
         A *parser* object is used to parse individual dict items.
         If *raw* is *True*, return the value unparsed.
 
         """
-        # process extra sections
-        sections = section.split()
-        parser.extra_sections.update(set(sections))
-        for name in sections:
-            nested = self.get_extra_sections(name, parser)
-            parser.extra_sections.update(set(nested))
+        is_json = self.json
+        if is_json:
+            try:
+                parsed = json.loads(value)
+                is_json = isinstance(parsed, dict)
+            except Exception:
+                is_json = False
 
-        # parse dict
-        parsed = dict(parser.items(section))
+        if not is_json:
+            # process extra sections
+            sections = value.split()
+            parser.extra_sections.update(set(sections))
+            for name in sections:
+                nested = self.get_extra_sections(name, parser)
+                parser.extra_sections.update(set(nested))
+
+            parsed = dict(parser.items(value))
+
         result = {}
-
         # parse config items according to spec
         for key, value in parsed.items():
             if self.strict and not key in self.spec:
-                raise ValueError("Invalid key %s in section %s" % (key,
-                                                                   section))
+                raise ValueError("Invalid key %s in section %s" % (
+                    key, value))
             option = self.spec.get(key, None)
             if option is None:
                 # option not part of spec, but we are in non-strict mode
@@ -649,7 +659,7 @@ class DictOption(Option):
                 option = self.spec[key]
                 if option.fatal:
                     raise ValueError("No option '%s' in section '%s'" %
-                        (key, section))
+                        (key, value))
                 else:
                     if not raw:
                         value = option.default
