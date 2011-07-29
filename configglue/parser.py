@@ -261,6 +261,7 @@ class SchemaConfigParser(BaseConfigParser, object):
             self._read(fp, path, already_read=already_read)
             fp.close()
             read_ok.append(path)
+            self._last_location = filename
         return read_ok
 
     def readfp(self, fp, filename=None):
@@ -278,11 +279,11 @@ class SchemaConfigParser(BaseConfigParser, object):
         already_read.add(fpname)
 
         if self.has_option('__main__', 'includes'):
-            old_basedir, self._basedir = self._basedir, os.path.dirname(fpname)
+            old_basedir, self._basedir = self._basedir, os.path.dirname(
+                fpname)
             includes = self.get('__main__', 'includes')
             filenames = map(string.strip, includes)
-            for filename in filenames:
-                self.read(filename, already_read=already_read)
+            self.read(filenames, already_read=already_read)
             self._basedir = old_basedir
 
             if filenames:
@@ -533,6 +534,9 @@ class SchemaConfigParser(BaseConfigParser, object):
 
     def write(self, fp):
         """Write an .ini-format representation of the configuration state."""
+        # make sure the parser is populated
+        self._fill_parser()
+
         if self._defaults:
             fp.write("[%s]\n" % DEFAULTSECT)
             for (key, value) in self._defaults.items():
@@ -564,6 +568,18 @@ class SchemaConfigParser(BaseConfigParser, object):
             # write to the original files
             for filename, sections in self._dirty.items():
 
+                if filename is None:
+                    # default option was overridden. figure out where to
+                    # save it
+                    if not getattr(self, '_last_location', None):
+                        # no files where read, there is no possible
+                        # location for the customized setting.
+                        raise ValueError("No config files where read and no "
+                            "location was specified for writing the "
+                            "configuration.")
+                    else:
+                        filename = self._last_location
+
                 parser = BaseConfigParser()
                 parser.read(filename)
 
@@ -578,3 +594,12 @@ class SchemaConfigParser(BaseConfigParser, object):
                     os.rename(filename, "%s.old" % filename)
                 # rename new file
                 os.rename("%s.new" % filename, filename)
+
+    def _fill_parser(self):
+        """Populate parser with current values for each option."""
+        values = self.values()
+        for section, options in values.items():
+            for option, value in options.items():
+                self.set(section, option, value)
+        # make sure having set the options didn't change anything
+        assert values == self.values()

@@ -912,6 +912,24 @@ class TestSchemaConfigParser(unittest.TestCase):
             # remove the file
             os.unlink(filename)
 
+    def test_write_prefill_parser(self):
+        """Test parser write config to a file."""
+        class MySchema(Schema):
+            foo = IntOption()
+
+        parser = SchemaConfigParser(MySchema())
+        expected = u"[__main__]\nfoo = 0"
+
+        # create config file
+        fp, filename = tempfile.mkstemp()
+        try:
+            parser.write(open(filename, 'w'))
+            result = open(filename, 'r').read().strip()
+            self.assertEqual(result, expected)
+        finally:
+            # remove the file
+            os.unlink(filename)
+
     def test_save_config(self):
         expected = u'[__main__]\nfoo = 42'
         self._check_save_file(expected)
@@ -920,9 +938,10 @@ class TestSchemaConfigParser(unittest.TestCase):
         expected = u'[__main__]\nfoo = fóobâr'
         self._check_save_file(expected)
 
-    def _check_save_file(self, expected):
+    def _check_save_file(self, expected, read_config=True):
         config = StringIO(expected.encode(CONFIG_FILE_ENCODING))
-        self.parser.readfp(config)
+        if read_config:
+            self.parser.readfp(config)
 
         # create config file
         fp, filename = tempfile.mkstemp()
@@ -937,6 +956,19 @@ class TestSchemaConfigParser(unittest.TestCase):
         finally:
             # remove the file
             os.unlink(filename)
+
+    def test_save_config_prefill_parser(self):
+        """Test parser save config when no config files read."""
+        expected = u'[__main__]\nfoo ='
+        self._check_save_file(expected, read_config=False)
+
+    def test_save_no_config_same_files(self):
+        class MySchema(Schema):
+            foo = IntOption()
+
+        parser = SchemaConfigParser(MySchema())
+        parser.set('__main__', 'foo', 2)
+        self.assertRaises(ValueError, parser.save)
 
     def test_save_config_same_files(self):
         """Test parser save config values to original files."""
@@ -957,6 +989,7 @@ class TestSchemaConfigParser(unittest.TestCase):
         class MySchema(Schema):
             foo = StringOption()
             bar = StringOption()
+            baz = IntOption()
 
         self.parser = SchemaConfigParser(MySchema())
 
@@ -964,15 +997,70 @@ class TestSchemaConfigParser(unittest.TestCase):
         self.parser.read(files)
         self.parser.set('__main__', 'foo', '42')
         self.parser.set('__main__', 'bar', '42')
+        self.parser.set('__main__', 'baz', 42)
         self.parser.save()
 
         # test the changes were correctly saved
         data = open("%s/first.cfg" % folder).read()
         self.assertTrue('foo = 42' in data)
         self.assertFalse('bar = 42' in data)
+        # new value goes into last read config file
+        self.assertFalse('baz = 42' in data)
         data = open("%s/second.cfg" % folder).read()
         self.assertFalse('foo = 42' in data)
         self.assertTrue('bar = 42' in data)
+        # new value goes into last read config file
+        self.assertTrue('baz = 42' in data)
+
+        # silently remove any created files
+        try:
+            shutil.rmtree(folder)
+        except:
+            pass
+
+    def test_save_config_last_location_nested_includes(self):
+        def setup_config():
+            folder = tempfile.mkdtemp()
+
+            f = open("%s/first.cfg" % folder, 'w')
+            f.write("[__main__]\nfoo=1")
+            f.close()
+
+            f = open("%s/second.cfg" % folder, 'w')
+            f.write("[__main__]\nbar=2\nincludes = third.cfg")
+            f.close()
+
+            f = open("%s/third.cfg" % folder, 'w')
+            f.write("[__main__]\nfoo=3")
+            f.close()
+
+            files = ["%s/first.cfg" % folder, "%s/second.cfg" % folder]
+            return files, folder
+
+        class MySchema(Schema):
+            foo = StringOption()
+            bar = StringOption()
+            baz = IntOption()
+
+        self.parser = SchemaConfigParser(MySchema())
+
+        files, folder = setup_config()
+        self.parser.read(files)
+        self.parser.set('__main__', 'foo', '42')
+        self.parser.set('__main__', 'bar', '42')
+        self.parser.set('__main__', 'baz', 42)
+        self.parser.save()
+
+        # test the changes were correctly saved
+        data = open("%s/first.cfg" % folder).read()
+        self.assertEqual(data.strip(), '[__main__]\nfoo=1')
+        data = open("%s/third.cfg" % folder).read()
+        self.assertEqual(data.strip(), '[__main__]\nfoo = 42')
+        data = open("%s/second.cfg" % folder).read()
+        self.assertTrue('bar = 42' in data)
+        # new value goes into last read config file
+        # not in the last included config file
+        self.assertTrue('baz = 42' in data)
 
         # silently remove any created files
         try:
