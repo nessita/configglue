@@ -671,6 +671,12 @@ class DictOption(Option):
     def validate(self, value):
         return isinstance(value, dict)
 
+    def to_string(self, value):
+        if self.json:
+            return json.dumps(value)
+        else:
+            return super(DictOption, self).to_string(value)
+
     def get_extra_sections(self, section, parser):
         """Return the list of implicit sections.
 

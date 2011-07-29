@@ -1003,6 +1003,16 @@ wham=42
         self.assertEqual(option1, option4)
         self.assertNotEqual(option1, option5)
 
+    def test_to_string_when_json(self):
+        option = DictOption()
+        result = option.to_string({'foo': '1'})
+        self.assertEqual(result, '{"foo": "1"}')
+
+    def test_to_string_when_no_json(self):
+        option = DictOption(json=False)
+        result = option.to_string({'foo': '1'})
+        self.assertEqual(result, str({'foo': '1'}))
+
 
 class TestListOfDictOption(unittest.TestCase):
     def test_parse_lines_of_dict(self):
