@@ -573,6 +573,9 @@ class SchemaConfigParser(BaseConfigParser, object):
         The data will be saved as a ini file.
 
         """
+        # make sure the parser is populated
+        self._fill_parser()
+
         if fp is not None:
             if isinstance(fp, basestring):
                 fp = open(fp, 'w')
@@ -597,3 +600,12 @@ class SchemaConfigParser(BaseConfigParser, object):
                     os.rename(filename, "%s.old" % filename)
                 # rename new file
                 os.rename("%s.new" % filename, filename)
+
+    def _fill_parser(self):
+        """Populate parser with current values for each option."""
+        values = self.values()
+        for section, options in values.items():
+            for option, value in options.items():
+                self.set(section, option, value)
+        # make sure having set the options didn't change anything
+        assert values == self.values()

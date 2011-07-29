@@ -920,9 +920,10 @@ class TestSchemaConfigParser(unittest.TestCase):
         expected = u'[__main__]\nfoo = fóobâr'
         self._check_save_file(expected)
 
-    def _check_save_file(self, expected):
+    def _check_save_file(self, expected, read_config=True):
         config = StringIO(expected.encode(CONFIG_FILE_ENCODING))
-        self.parser.readfp(config)
+        if read_config:
+            self.parser.readfp(config)
 
         # create config file
         fp, filename = tempfile.mkstemp()
@@ -937,6 +938,11 @@ class TestSchemaConfigParser(unittest.TestCase):
         finally:
             # remove the file
             os.unlink(filename)
+
+    def test_save_config_prefill_parser(self):
+        """Test parser save config when no config files read."""
+        expected = u'[__main__]\nfoo ='
+        self._check_save_file(expected, read_config=False)
 
     def test_save_config_same_files(self):
         """Test parser save config values to original files."""
