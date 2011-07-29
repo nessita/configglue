@@ -81,7 +81,10 @@ def schemaconfigglue(parser, op=None, argv=None):
     def set_value(section, option, value):
         # if value is not of the right type, cast it
         if not option.validate(value):
-            value = option.parse(value)
+            kwargs = {}
+            if option.require_parser:
+                kwargs['parser'] = parser
+            value = option.parse(value, **kwargs)
         parser.set(section.name, option.name, value)
 
     for section in schema.sections():
