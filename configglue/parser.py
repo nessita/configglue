@@ -166,10 +166,6 @@ class SchemaConfigParser(BaseConfigParser, object):
         else:
             return valid
 
-    def optionxform(self, optionstr):
-        # allow case-sensitive options
-        return optionstr
-
     def items(self, section, raw=False, vars=None):
         """Return the list of all options in a section.
 
