@@ -579,7 +579,7 @@ class DictOption(Option):
 
     def __init__(self, name='', spec=None, strict=False, raw=False,
                  default=NO_DEFAULT, fatal=False, help='', action='store',
-                 item=None, short_name='', json=True):
+                 item=None, short_name='', parse_json=True):
         if spec is None:
             spec = {}
         if item is None:
@@ -587,7 +587,7 @@ class DictOption(Option):
         self.spec = spec
         self.strict = strict
         self.item = item
-        self.json = json
+        self.parse_json = parse_json
         super(DictOption, self).__init__(name=name, raw=raw,
             default=default, fatal=fatal, help=help, action=action,
             short_name=short_name)
@@ -615,7 +615,7 @@ class DictOption(Option):
         If *raw* is *True*, return the value unparsed.
 
         """
-        is_json = self.json
+        is_json = self.parse_json
         if is_json:
             try:
                 parsed = json.loads(value)
@@ -672,7 +672,7 @@ class DictOption(Option):
         return isinstance(value, dict)
 
     def to_string(self, value):
-        if self.json:
+        if self.parse_json:
             return json.dumps(value)
         else:
             return super(DictOption, self).to_string(value)

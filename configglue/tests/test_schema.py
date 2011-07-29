@@ -748,7 +748,7 @@ bla=Yes
                 'bar': StringOption(),
                 'baz': IntOption(),
                 'bla': BoolOption(),
-            }, json=False)
+            }, parse_json=False)
 
         config = StringIO("""[__main__]
 foo = mydict
@@ -836,7 +836,7 @@ bla=Yes
                 'bar': StringOption(),
                 'baz': IntOption(),
                 'bla': BoolOption(),
-            }, json=False)
+            }, parse_json=False)
 
         config = StringIO(textwrap.dedent("""
             [__main__]
@@ -1009,7 +1009,7 @@ wham=42
         self.assertEqual(result, '{"foo": "1"}')
 
     def test_to_string_when_no_json(self):
-        option = DictOption(json=False)
+        option = DictOption(parse_json=False)
         result = option.to_string({'foo': '1'})
         self.assertEqual(result, str({'foo': '1'}))
 
