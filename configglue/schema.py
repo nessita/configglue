@@ -450,11 +450,10 @@ class ListOption(Option):
             return value
 
         is_json = self.parse_json
-        if self.parse_json:
+        if is_json:
             try:
                 parsed = json.loads(value)
-                if not isinstance(parsed, list):
-                    is_json = False
+                is_json = isinstance(parsed, list)
             except:
                 is_json = False
 
@@ -639,7 +638,7 @@ class DictOption(Option):
             try:
                 parsed = json.loads(value)
                 is_json = isinstance(parsed, dict)
-            except Exception:
+            except:
                 is_json = False
 
         if not is_json:
