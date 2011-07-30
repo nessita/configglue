@@ -121,7 +121,7 @@ An integer.
 ``ListOption``
 ---------------------
 
-.. class:: ListOption(item, [remove_duplicates=False, **attributes])
+.. class:: ListOption(item, [remove_duplicates=False, parse_json=True, **attributes])
 
 A list of items.
 
@@ -138,6 +138,23 @@ A list of items.
 
     If ``True``, duplicate elements will be removed from the parsed
     value.
+
+.. attribute:: DictOption.parse_json
+
+    .. versionadded:: 1.0
+
+    *Optional*.
+
+    The value for this option can be specified as a json string representing
+    the list.
+
+    Parsing will be attempted as if the value is a json string; if it fails,
+    or the json string doesn't represent a list, the original semantics
+    will be applied (ie, the value is interpreted as a newline-separated
+    string).
+
+    If ``False``, no attempt is made at trying to parse the value as a json
+    string.
 
 ``StringOption``
 ----------------------
@@ -170,7 +187,7 @@ A tuple of elements.
 ``DictOption``
 --------------------
 
-.. class:: DictOption([spec=None, strict=False, item=None, **attributes])
+.. class:: DictOption([spec=None, strict=False, item=None, parse_json=True, **attributes])
 
 A dictionary.
 
@@ -197,3 +214,19 @@ A dictionary.
     of this type. This should be an instance of a subclass of
     :class:`~configglue.schema.Option`.
 
+.. attribute:: DictOption.parse_json
+
+    .. versionadded:: 1.0
+
+    *Optional*.
+
+    The value for this option can be specified as a json string representing
+    the dictionary.
+
+    Parsing will be attempted as if the value is a json string; if it fails,
+    or the json string doesn't represent a dictionary, the original semantics
+    will be applied (ie, the value represents the name of a section defining
+    the dictionary).
+
+    If ``False``, no attempt is made at trying to parse the value as a json
+    string.
