@@ -94,15 +94,7 @@ class SchemaConfigParser(BaseConfigParser, object):
                 valid = False
             # remove sections to skip from config sections
             config_sections.difference_update(skip_sections)
-            # test2: no missing schema sections
-            unmatched_sections = (
-                schema_sections - magic_sections - config_sections)
-            if unmatched_sections:
-                error_msg = "Sections in schema are missing from configuration: %s"
-                error_value = ', '.join(unmatched_sections)
-                errors.append(error_msg % error_value)
-                valid = False
-            # test3: no extra sections that are not implicit sections
+            # test2: no extra sections that are not implicit sections
             unmatched_sections = (
                 config_sections - magic_sections - schema_sections)
             if unmatched_sections:

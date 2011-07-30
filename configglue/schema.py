@@ -409,7 +409,7 @@ class ListOption(Option):
 
     def __init__(self, name='', item=None, raw=False, default=NO_DEFAULT,
         fatal=False, help='', action='store', remove_duplicates=False,
-        short_name=''):
+        short_name='', parse_json=True):
         super(ListOption, self).__init__(name=name, raw=raw,
             default=default, fatal=fatal, help=help, action=action,
             short_name=short_name)
@@ -419,6 +419,7 @@ class ListOption(Option):
         self.require_parser = item.require_parser
         self.raw = raw or item.raw
         self.remove_duplicates = remove_duplicates
+        self.parse_json = parse_json
 
     def __eq__(self, other):
         equal = super(ListOption, self).__eq__(other)
@@ -447,17 +448,34 @@ class ListOption(Option):
             else:
                 value = self.item.parse(value, raw=raw)
             return value
-        items = [_parse_item(x) for x in value.split('\n') if len(x)]
+
+        is_json = self.parse_json
+        if is_json:
+            try:
+                parsed = json.loads(value)
+                is_json = isinstance(parsed, list)
+            except:
+                is_json = False
+
+        if not is_json:
+            parsed = [_parse_item(x) for x in value.split('\n') if len(x)]
+
         if self.remove_duplicates:
             filtered_items = []
-            for item in items:
+            for item in parsed:
                 if not item in filtered_items:
                     filtered_items.append(item)
-            items = filtered_items
-        return items
+            parsed = filtered_items
+        return parsed
 
     def validate(self, value):
         return isinstance(value, list)
+
+    def to_string(self, value):
+        if self.parse_json:
+            return json.dumps(value)
+        else:
+            return super(ListOption, self).to_string(value)
 
 
 class StringOption(Option):
@@ -620,7 +638,7 @@ class DictOption(Option):
             try:
                 parsed = json.loads(value)
                 is_json = isinstance(parsed, dict)
-            except Exception:
+            except:
                 is_json = False
 
         if not is_json:

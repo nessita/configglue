@@ -1373,6 +1373,24 @@ swoosh = 4
 
         self.assertTrue(parser.is_valid())
 
+    def test_missing_schema_sections(self):
+        class MySchema(Schema):
+            class foo(Section):
+                bar = IntOption()
+
+            class bar(Section):
+                baz = BoolOption()
+
+        config = StringIO(textwrap.dedent("""
+            [foo]
+            bar = 3
+            """))
+        parser = SchemaConfigParser(MySchema())
+        parser.readfp(config)
+        parser.parse_all()
+
+        self.assertTrue(parser.is_valid())
+
 
 if __name__ == '__main__':
     unittest.main()

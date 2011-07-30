@@ -493,6 +493,58 @@ class TestListOption(unittest.TestCase):
         parser.readfp(config)
         self.assertEqual(parser.values(), expected_values)
 
+    def test_parse_no_json(self):
+        class MySchema(Schema):
+            foo = self.cls(item=IntOption(), parse_json=False)
+
+        config = StringIO("[__main__]\nfoo = 42\n 43\n 44")
+        expected_values = {'__main__': {'foo': [42, 43, 44]}}
+        schema = MySchema()
+        parser = SchemaConfigParser(schema)
+        parser.readfp(config)
+        self.assertEqual(parser.values(), expected_values)
+
+    def test_parse_no_json_with_json(self):
+        class MySchema(Schema):
+            foo = self.cls(item=IntOption(), parse_json=False)
+
+        config = StringIO("[__main__]\nfoo = [42, 43, 44]")
+        schema = MySchema()
+        parser = SchemaConfigParser(schema)
+        parser.readfp(config)
+        self.assertRaises(ValueError, parser.values)
+
+    def test_parse_json(self):
+        class MySchema(Schema):
+            foo = self.cls(item=IntOption())
+
+        config = StringIO("[__main__]\nfoo = [42, 43, 44]")
+        expected_values = {'__main__': {'foo': [42, 43, 44]}}
+        schema = MySchema()
+        parser = SchemaConfigParser(schema)
+        parser.readfp(config)
+        self.assertEqual(parser.values(), expected_values)
+
+    def test_parse_invalid_json(self):
+        class MySchema(Schema):
+            foo = self.cls(item=IntOption())
+
+        config = StringIO('[__main__]\nfoo = 1, 2, 3')
+        schema = MySchema()
+        parser = SchemaConfigParser(schema)
+        parser.readfp(config)
+        self.assertRaises(ValueError, parser.values)
+
+    def test_parse_non_list_json(self):
+        class MySchema(Schema):
+            foo = self.cls(item=IntOption())
+
+        config = StringIO('[__main__]\nfoo = {"foo": "bar"}')
+        schema = MySchema()
+        parser = SchemaConfigParser(schema)
+        parser.readfp(config)
+        self.assertRaises(ValueError, parser.values)
+
     def test_parse_bool_lines(self):
         """Test ListOption parse a list of booleans."""
         class MySchema(Schema):
@@ -599,6 +651,17 @@ class TestListOption(unittest.TestCase):
         self.assertNotEqual(option1, option5)
         self.assertNotEqual(option1, option6)
         self.assertNotEqual(option1, option7)
+
+    def test_to_string_when_json(self):
+        option = ListOption()
+        result = option.to_string(['1', '2', '3'])
+        self.assertEqual(result, '["1", "2", "3"]')
+        self.assertNotEqual(result, "['1', '2', '3']")
+
+    def test_to_string_when_no_json(self):
+        option = ListOption(parse_json=False)
+        result = option.to_string(['1', '2', '3'])
+        self.assertEqual(result, "['1', '2', '3']")
 
 
 class TestTupleOption(unittest.TestCase):
