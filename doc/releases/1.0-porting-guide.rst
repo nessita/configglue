@@ -1,0 +1,51 @@
+===============================================
+Porting your apps from configglue 0.11.1 to 1.0
+===============================================
+
+.. highlight:: python
+
+configglue 1.0 breaks compatibility with 0.11.1 in some areas.
+
+This guide will help you port 0.11.1 projects and apps to 1.0. The first part of
+this document includes the common changes needed to run with 1.0.
+
+.. seealso::
+
+    The :doc:`1.0 release notes </releases/1.0>`. That document explains the new
+    features in 1.0 more deeply; the porting guide is more concerned with
+    helping you quickly update your code.
+
+Common changes
+==============
+
+This section describes the changes between 0.11.1 and 1.0 that most users will
+need to make.
+
+Remove ``pyschema`` from the package namespace
+----------------------------------------------
+
+All the code in the ``configglue.pyschema`` namespace was moved to the
+``configglue`` namespace. Therefore, just rename all your imports that look
+like
+
+::
+
+    import configglue.pyschema.schema
+    from configglue.pyschema.schema import Schema
+
+to
+
+::
+
+    import configglue.schema
+    from configglue.schema import Schema
+
+Rename options
+--------------
+
+All option classes called ``<Foo>ConfigOption`` were being deprecated in favour
+of the corresponding ``<Foo>Option`` classes. The ``<Foo>ConfigOption``
+classes have now been removed, so make sure you rename them to the new names.
+
+The same applies to the ``ConfigOption`` and ``ConfigSection`` classes, which
+have been renamed to ``Option`` and ``Section`` respetively.

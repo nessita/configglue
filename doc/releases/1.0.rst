@@ -1,0 +1,96 @@
+============================
+configglue 1.0 release notes
+============================
+
+Welcome to configglue 1.0!
+
+Stability and forwards-compatibility
+====================================
+
+:doc:`The release of configglue 1.0 </releases/1.0>` comes with a promise of API
+stability and forwards-compatibility. In a nutshell, this means that code you
+develop against configglue 1.0 will continue to work against 1.1 unchanged, and you
+should need to make only minor changes for any 1.X release.
+
+See the :doc:`API stability guide </misc/api-stability>` for full details.
+
+Backwards-incompatible changes
+==============================
+
+configglue 1.0 has a number of backwards-incompatible changes from configglue 0.11.1. If
+you have apps written against configglue 0.11.1 that you need to port, see our
+detailed porting guide:
+
+.. toctree::
+   :maxdepth: 1
+
+   1.0-porting-guide
+
+What changed in configglue 1.0
+==============================
+
+We are including here the main changes in configglue 1.0. Please refer to the
+documentation as your definitive guide. Anywhere you see something like:
+
+.. versionadded:: 1.0
+
+You'll know that you're looking at something new or changed.
+
+The major highlights of configglue 1.0 are:
+
+Removal of deprecated features
+------------------------------
+
+A number of features and methods which had previously been marked as deprecated,
+and which were scheduled for removal prior to the 1.0 release, are no longer
+present in configglue. These include:
+
+    - the ``configglue.pyschema`` namespace was dropped in favor of
+      ``configglue``. All modules under the ``configglue.pyschema`` namespace
+      can now be found under the ``configglue`` namespace.
+    - all ``<Foo>ConfigOption`` classes are now called ``<Foo>Option``
+    - the ``ConfigOption`` class is now called ``Option``
+    - the ``ConfigSection`` class is now called ``Section``
+
+Support for customizing the OptionParser
+----------------------------------------
+
+When using the configglue-enabled application base class (see
+:class:`~configglue.app.base.App`), you can pass in a custom
+:class:`optparse.OptionParser` instance to be used as the base commandline
+parser that configglue will extend with the options from the schema.
+
+.. note:: If you provide a custom parser, you'll need to include a boolean
+    option named 'validate' or else, config validation will not be available on
+    the commandline.
+
+Support for specifying complex options using json
+-------------------------------------------------
+
+Certain option types, like :class:`~configglue.schema.DictOption` and
+:class:`~configglue.schema.ListOption` now support being specified as json on
+the configuration files and commandline.
+
+For example, in order to override a :class:`~configglue.schema.DictOption`
+called ``foo`` on the commandline, you can do so by passing in::
+
+    --foo='{"bar": "42"}'
+
+In order to specify the value for this option in the configuration file, you
+can choose between any of the following approaches.
+
+1. Standard syntax (pre 1.0)
+::
+
+    [__main__]
+    foo = mydict
+
+    [mydict]
+    bar = 42
+
+2. JSON-enabled syntax
+::
+
+    [__main__]
+    foo = {"bar": "42"}
+

@@ -70,3 +70,6 @@ The configglue open-source project
     * **Third-party distributions:**
       :doc:`Overview <misc/distributions>`
 
+    * **configglue over time:**
+      :doc:`Release notes and upgrading instructions <releases/index>`
+

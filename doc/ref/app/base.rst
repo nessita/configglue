@@ -13,7 +13,7 @@ for writing configglue-enabled applications.
 ``App``
 -------
 
-.. class:: App([schema=None, plugin_manager=None, name=None, create_dirs=True])
+.. class:: App([schema=None, plugin_manager=None, name=None, parser=None])
 
 This is the base class from which your application should inherit in order to
 easily integrate itself with configglue.
@@ -55,13 +55,18 @@ introduction to
     If none is provided, the application will take the name of the script used
     to invoke it from the command line.
 
-.. attribute:: App.create_dirs
+.. attribute:: App.parser
+
+    .. versionadded:: 1.0
 
     *Optional*.
 
-    If ``False``, directories where configuration files are looked for will
-    not get created if they don't exist.
+    If provided, it will be used as the parser for commandline options to
+    be extended by configglue.
 
-    The default is to create non-existant directories.
+    .. note:: The custom parser is responsible for providing a 'validate' option,
+        or else validation will not be available on the commandline.
 
+    By default a :class:`optparse.OptionParser` instance will be created with an
+    option named 'validate' to allow triggering configuration validation.
 

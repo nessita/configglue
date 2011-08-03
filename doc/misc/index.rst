@@ -8,3 +8,4 @@ your kitchen with the scissors, batteries, duct tape, and other junk.
    :maxdepth: 2
    
    distributions
+   api-stability
