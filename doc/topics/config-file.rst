@@ -85,6 +85,15 @@ you just put each value on a different line, as shown::
 
 This will be parsed as the list `[1, 2, 3]`.
 
+.. note::
+    If the :class:`~configglue.schema.ListOption` was initialized with
+    ``parse_json=True`` (the default), then an alternative syntax is available.
+    You can specify the list value as::
+
+        my_list = [1, 2, 3]
+
+    .. versionadded:: 1.0
+
 Dictionaries
 ------------
 
@@ -112,6 +121,14 @@ and the schema::
 
     {'foo': 1, 'bar': True}
 
+.. note::
+    If the :class:`~configglue.schema.DictOption` was initialized with
+    ``parse_json=True`` (the default), then an alternative syntax is available.
+    You can specify the dictionary value as::
+
+        my_dict = {"foo": "1", "bar": "true"}
+
+    .. versionadded:: 1.0
 
 Environment variables
 =====================

@@ -125,7 +125,8 @@ this code would look like::
                 print "%s option has default value: %s" % (opt, option.default)
 
     if __name__ == '__main__':
-        from configglue import schema, glue
+        from configglue import schema
+        from configglue.glue import configglue
 
         # create the schema
         class MySchema(schema.Schema):
@@ -133,7 +134,7 @@ this code would look like::
             bar = schema.BoolOption()
 
         # glue everything together
-        glue = glue.configglue(MySchema, ['config.ini'])
+        glue = configglue(MySchema, ['config.ini'])
 
         # run
         main(glue.schema_parser, glue.options)
