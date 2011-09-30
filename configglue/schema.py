@@ -332,7 +332,7 @@ class Option(object):
     def _get_default(self):
         return None
 
-    def parse(self, value, raw=False, interpolate=True):
+    def parse(self, value, raw=False):
         """Parse the given value."""
         raise NotImplementedError()
 
@@ -350,7 +350,7 @@ class BoolOption(Option):
     def _get_default(self):
         return False
 
-    def parse(self, value, raw=False, interpolate=True):
+    def parse(self, value, raw=False):
         """Parse the given value.
 
         If *raw* is *True*, return the value unparsed.
@@ -376,7 +376,7 @@ class IntOption(Option):
     def _get_default(self):
         return 0
 
-    def parse(self, value, raw=False, interpolate=True):
+    def parse(self, value, raw=False):
         """Parse the given value.
 
         If *raw* is *True*, return the value unparsed.
@@ -435,7 +435,7 @@ class ListOption(Option):
     def _get_default(self):
         return []
 
-    def parse(self, value, parser=None, raw=False, interpolate=True):
+    def parse(self, value, parser=None, raw=False):
         """Parse the given value.
 
         A *parser* object is used to parse individual list items.
@@ -504,7 +504,7 @@ class StringOption(Option):
     def _get_default(self):
         return '' if not self.null else None
 
-    def parse(self, value, raw=False, interpolate=True):
+    def parse(self, value, raw=False):
         """Parse the given value.
 
         If *raw* is *True*, return the value unparsed.
@@ -555,7 +555,7 @@ class TupleOption(Option):
     def _get_default(self):
         return ()
 
-    def parse(self, value, raw=False, interpolate=True):
+    def parse(self, value, raw=False):
         """Parse the given value.
 
         If *raw* is *True*, return the value unparsed.
@@ -626,7 +626,7 @@ class DictOption(Option):
             default[key] = value.default
         return default
 
-    def parse(self, value, parser, raw=False, interpolate=True):
+    def parse(self, value, parser, raw=False):
         """Parse the given value.
 
         A *parser* object is used to parse individual dict items.
@@ -649,7 +649,7 @@ class DictOption(Option):
                 nested = self.get_extra_sections(name, parser)
                 parser.extra_sections.update(set(nested))
 
-            parsed = dict(parser.items(value, raw=not interpolate))
+            parsed = dict(parser.items(value))
 
         result = {}
         # parse config items according to spec
@@ -665,10 +665,7 @@ class DictOption(Option):
 
             if not option.validate(value):
                 # parse option
-                kwargs = {
-                    'raw': raw,
-                    'interpolate': interpolate and option.raw,
-                }
+                kwargs = {}
                 if option.require_parser:
                     kwargs['parser'] = parser
                 if not raw:

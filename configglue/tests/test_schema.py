@@ -968,7 +968,7 @@ baz=42
             sample = sample_formatter
 
             [sample_formatter]
-            format = %(name)s
+            format = %%(name)s
             """))
         expected = {'sample': {'format': '%(name)s'}}
 
