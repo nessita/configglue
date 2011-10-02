@@ -332,7 +332,7 @@ class Option(object):
     def _get_default(self):
         return None
 
-    def parse(self, value):
+    def parse(self, value, raw=False):
         """Parse the given value."""
         raise NotImplementedError()
 
@@ -663,12 +663,13 @@ class DictOption(Option):
                 # parse it using the default item parser
                 option = self.item
 
-            # parse option
-            kwargs = {}
-            if option.require_parser:
-                kwargs['parser'] = parser
-            if not raw:
-                value = option.parse(value, **kwargs)
+            if not option.validate(value):
+                # parse option
+                kwargs = {}
+                if option.require_parser:
+                    kwargs['parser'] = parser
+                if not raw:
+                    value = option.parse(value, **kwargs)
             result[key] = value
 
         # fill in missing items with default values

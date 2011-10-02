@@ -936,6 +936,48 @@ baz=42
         parsed = schema.foo.parse('mydict', parser, True)
         self.assertEqual(parsed, expected)
 
+    def test_parse_json_raw_with_interpolation_marks(self):
+        """Test DictOption parse json using raw=True when data has interpolation marks."""
+        class MySchema(Schema):
+            class logging(Section):
+                formatters = self.cls(raw=True, item=self.cls())
+
+        config = StringIO(textwrap.dedent("""
+            [logging]
+            formatters = {"sample": {"format": "%(name)s"}}
+            """))
+        expected = {'sample': {'format': '%(name)s'}}
+
+        schema = MySchema()
+        parser = SchemaConfigParser(schema)
+        parser.readfp(config)
+        parsed = parser.values('logging')['formatters']
+        self.assertEqual(parsed, expected)
+
+    def test_parse_no_json_raw_with_interpolation_marks(self):
+        """Test DictOption parse non-json using raw=True when data has interpolation marks."""
+        class MySchema(Schema):
+            class logging(Section):
+                formatters = self.cls(raw=True, item=self.cls())
+
+        config = StringIO(textwrap.dedent("""
+            [logging]
+            formatters = logging_formatters
+
+            [logging_formatters]
+            sample = sample_formatter
+
+            [sample_formatter]
+            format = %%(name)s
+            """))
+        expected = {'sample': {'format': '%(name)s'}}
+
+        schema = MySchema()
+        parser = SchemaConfigParser(schema)
+        parser.readfp(config)
+        parsed = parser.values('logging')['formatters']
+        self.assertEqual(parsed, expected)
+
     def test_parse_invalid_key_in_parsed(self):
         """Test DictOption parse with an invalid key in the config."""
         class MySchema(Schema):
