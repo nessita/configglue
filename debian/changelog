@@ -1,3 +1,31 @@
+python-configglue (1.0.1-0ubuntu1) oneiric; urgency=low
+
+  [Ricardo Kirkner]
+  * updated version for release
+  * support python %(name)s string formatting syntax
+  * some final improvements to the docs
+  * updated docs for the 1.0 release
+  * add support to ListOption to parse json
+  * some small improvements
+  * allow DictOption to be specified in the config using json
+  * log a WARNING when a file could not be read
+  * Better error handling and reporting during configuration validation
+  * simplified option precedence
+  * allow to override App's default option parser
+  * improved equality checks on Option subclasses
+  * added --validate option to App base class to enable config validation
+  * handle different mock versions for backwards compatibility
+  * include testing dependencies as build dependencies
+  * run tests during package build
+  * fixed bug due to incorrect handling of option override precedence when an option is marked as fatal.
+  * Preparing for the 1.0 release.
+  * removed deprecated classes and deprecation warnings
+  * Move configglue.pyschema into configglue to simplify the namespace.
+  * removed dependency on python-xdgapp
+  * added .tox folder to ignore list
+
+ -- Ricardo Kirkner <ricardo.kirkner@canonical.com>  Thu, 05 Jan 2012 13:43:07 -0300
+
 python-configglue (0.11.1-0ubuntu1) natty; urgency=low
 
   [Ricardo Kirkner]
