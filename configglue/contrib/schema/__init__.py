@@ -20,7 +20,7 @@ from .nexus import NexusSchema
 from .openid import OpenIdSchema
 from .preflight import PreflightSchema
 from .saml2idp import Saml2IdpSchema
-from .sentry import SentrySchema
+from .raven import RavenSchema
 from .statsd import StatsdSchema
 
 
@@ -31,6 +31,6 @@ __all__ = [
     'OpenIdSchema',
     'PreflightSchema',
     'Saml2IdpSchema',
-    'SentrySchema',
+    'RavenSchema',
     'StatsdSchema',
     ]
