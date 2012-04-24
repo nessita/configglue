@@ -57,7 +57,7 @@ class RavenSchema(Schema):
         sentry_processors = ListOption(
             item=StringOption(),
             default=[
-                'raven.processors.SanitizePasswordProcessor',
+                'raven.processors.SanitizePasswordsProcessor',
                 ],
             help='List of processors to apply to events before sending them '
                 'to the Sentry server.')
