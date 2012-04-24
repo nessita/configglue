@@ -8,13 +8,25 @@ from configglue.schema import (
 
 
 class DjangoJenkinsSchema(Schema):
+    """Configglue schema for django-jenkins."""
+
+    __version__ = '0.12.1'
+
     class django_jenkins(Section):
-        project_apps = ListOption()
+        project_apps = ListOption(
+            item=StringOption(),
+            default=[],
+            help='List of of django apps for Jenkins to run.')
         jenkins_tasks = TupleOption(
             default=(
                 'django_jenkins.tasks.run_pylint',
                 'django_jenkins.tasks.with_coverage',
                 'django_jenkins.tasks.django_tests',
-            ))
-        jenkins_test_runner = StringOption()
-
+            ),
+            help='List of Jenkins tasks executed by ./manage.py jenkins '
+                'command.')
+        jenkins_test_runner = StringOption(
+            default='',
+            help='The name of the class to use for starting the test suite for '
+                'jenkins and jtest commands. Class should be inherited from '
+                'django_jenkins.runner.CITestSuiteRunner.')
