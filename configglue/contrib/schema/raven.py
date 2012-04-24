@@ -28,7 +28,7 @@ class RavenSchema(Schema):
             null=True,
             help='This will override the server_name value for this installation.')
         sentry_auto_log_stacks = BoolOption(
-            defaul=False,
+            default=False,
             help='Should raven automatically log frame stacks (including '
                 'locals) all calls as it would for exceptions.')
         sentry_key = StringOption(
