@@ -17,20 +17,20 @@
 from .devserver import DevServerSchema
 from .django_jenkins import DjangoJenkinsSchema
 from .nexus import NexusSchema
-from .openid import OpenIdSchema
+from .django_openid_auth import DjangoOpenIdAuthSchema
 from .preflight import PreflightSchema
 from .saml2idp import Saml2IdpSchema
 from .raven import RavenSchema
-from .statsd import StatsdSchema
+from .pystatsd import PyStatsdSchema
 
 
 __all__ = [
     'DevServerSchema',
     'DjangoJenkinsSchema',
     'NexusSchema',
-    'OpenIdSchema',
+    'DjangoOpenIdAuthSchema',
     'PreflightSchema',
     'Saml2IdpSchema',
     'RavenSchema',
-    'StatsdSchema',
+    'PyStatsdSchema',
     ]
