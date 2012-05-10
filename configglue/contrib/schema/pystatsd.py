@@ -1,7 +1,7 @@
 from configglue.schema import IntOption, Schema, Section, StringOption
 
 
-class StatsdSchema(Schema):
+class PyStatsdSchema(Schema):
     """Configglue schema for pystatsd."""
 
     __version__ = '0.1.6'

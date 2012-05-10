@@ -8,7 +8,7 @@ from configglue.schema import (
     )
 
 
-class OpenIdSchema(Schema):
+class DjangoOpenIdAuthSchema(Schema):
     """Configglue schema for django-openid-auth."""
 
     __version__ = '0.4'
