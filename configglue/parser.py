@@ -38,7 +38,13 @@ __all__ = [
 
 CONFIG_FILE_ENCODING = 'utf-8'
 
+class NullHandler(logging.Handler):
+    def emit(self, record):
+        pass
+
+
 logger = logging.getLogger(__name__)
+logger.addHandler(NullHandler())
 
 
 class SchemaValidationError(Exception):
