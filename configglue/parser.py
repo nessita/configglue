@@ -30,8 +30,6 @@ from ConfigParser import (
     NoSectionError,
 )
 
-from configglue.schema import DictOption
-
 
 __all__ = [
     'SchemaValidationError',
@@ -39,6 +37,14 @@ __all__ = [
 ]
 
 CONFIG_FILE_ENCODING = 'utf-8'
+
+class NullHandler(logging.Handler):
+    def emit(self, record):
+        pass
+
+
+logger = logging.getLogger(__name__)
+logger.addHandler(NullHandler())
 
 
 class SchemaValidationError(Exception):
@@ -247,7 +253,7 @@ class SchemaConfigParser(BaseConfigParser, object):
             try:
                 fp = codecs.open(path, 'r', CONFIG_FILE_ENCODING)
             except IOError:
-                logging.warn(
+                logger.warn(
                     'File {0} could not be read. Skipping.'.format(path))
                 continue
             self._read(fp, path, already_read=already_read)

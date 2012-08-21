@@ -15,7 +15,6 @@
 #
 ###############################################################################
 
-import logging
 import os
 import shutil
 import tempfile
@@ -69,15 +68,8 @@ class TestIncludes(unittest.TestCase):
         os.write(fd, '[__main__]\nfoo=bar\n')
         os.close(fd)
 
-        # disable logging output during test
-        self.level = logging.getLogger().level
-        logging.disable('ERROR')
-
     def tearDown(self):
         os.remove(self.name)
-
-        # re-enable original logging level
-        logging.getLogger().setLevel(self.level)
 
     def test_basic_include(self):
         config = StringIO('[__main__]\nincludes=%s' % self.name)
@@ -94,7 +86,7 @@ class TestIncludes(unittest.TestCase):
         expected_location = self.name
         self.assertEqual(expected_location, location)
 
-    @patch('configglue.parser.logging.warn')
+    @patch('configglue.parser.logger.warn')
     @patch('configglue.parser.codecs.open')
     def test_read_ioerror(self, mock_open, mock_warn):
         mock_open.side_effect = IOError

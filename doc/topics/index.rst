@@ -12,4 +12,5 @@ Introductions to all the key parts of configglue you'll need to know:
    command-line
    environment-variables
    base-app
+   logging
 
