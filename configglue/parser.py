@@ -438,19 +438,15 @@ class SchemaConfigParser(BaseConfigParser, object):
 
         # interpolate environment variables
         default = None
-        pattern = name = rawval
+        pattern = rawval
         match = re.match(r'\${([A-Z_]+)(:-(.+))?}', rawval)
         if match:
             groups = match.groups()
-            name = groups[0]
-            pattern = '%(' + name + ')s'
+            pattern = '%%(%s)s' % groups[0]
             if len(groups) > 2:
                 default = groups[2]
-        else:
-            match = re.match(r'\$([A-Z_]+)', rawval)
-            if match:
-                name = match.group(1)
-                pattern = '%(' + name + ')s'
+
+        pattern = re.sub(r'\$([A-Z_]+)', r'%(\1)s', pattern)
 
         keys = self._extract_interpolation_keys(pattern)
         if not keys:
