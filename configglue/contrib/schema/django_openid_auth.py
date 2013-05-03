@@ -11,7 +11,7 @@ from configglue.schema import (
 class DjangoOpenIdAuthSchema(Schema):
     """Configglue schema for django-openid-auth."""
 
-    __version__ = '0.4'
+    __version__ = '0.5'
 
     class openid(Section):
         openid_use_as_admin_login = BoolOption(
@@ -36,6 +36,8 @@ class DjangoOpenIdAuthSchema(Schema):
             item=StringOption())
         openid_launchpad_teams_mapping = DictOption()
         openid_launchpad_staff_teams = ListOption(
+            item=StringOption())
+        openid_launchpad_teams_required = ListOption(
             item=StringOption())
         openid_disallow_inames = BoolOption(
             default=False)
