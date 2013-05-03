@@ -76,7 +76,9 @@ ${FOO}
 
 it will be interpolated using the FOO environment variable, or if that
 variable is not defined, it will fallback to the default value for that
-option.
+option. Alternatively, you can specific a default using bash-like syntax
+
+${FOO:-default}
 
 Using the same example as shown in the :doc:`quickstart guide
 </intro/quickstart>`, this use case can be illustrated as follows.
@@ -93,3 +95,12 @@ If the environment variable is not defined, fallback to the default value
 
     $ python app.py
     foo option has default value: 0
+
+If the environment variable is not defined, use the specified default
+::
+
+    $ echo "[__main__]\nfoo = \${BAZ:-bar}" > config.ini
+    $ BAZ=33 python app.py
+    foo option has been configured with value: 33
+    $ python app.py
+    foo option has been configured with value: bar
