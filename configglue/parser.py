@@ -439,12 +439,12 @@ class SchemaConfigParser(BaseConfigParser, object):
         # interpolate environment variables
         default = None
         pattern = rawval
-        match = re.match(r'\${([A-Z_]+)(:-(.+))?}', rawval)
+        match = re.match(r'\${(?P<name>[A-Z_]+)(:-(?P<default>.*))?}', rawval)
         if match:
-            groups = match.groups()
-            pattern = '%%(%s)s' % groups[0]
-            if len(groups) > 2:
-                default = groups[2]
+            groups = match.groupdict()
+            pattern = '%%(%s)s' % groups['name']
+            if groups['default'] is not None:
+                default = groups['default']
 
         pattern = re.sub(r'\$([A-Z_]+)', r'%(\1)s', pattern)
 
@@ -456,10 +456,9 @@ class SchemaConfigParser(BaseConfigParser, object):
         try:
             return pattern % os.environ
         except KeyError:
-            if default is None:
-                raise
-            else:
+            if default is not None:
                 return default
+            raise
 
     def _get_default(self, section, option):
         # cater for 'special' sections
