@@ -433,32 +433,45 @@ class SchemaConfigParser(BaseConfigParser, object):
         return result
 
     def interpolate_environment(self, rawval, raw=False):
+        """Interpolate environment variables"""
         if raw:
             return rawval
 
-        # interpolate environment variables
-        default = None
-        pattern = rawval
-        match = re.match(r'\${(?P<name>[A-Z_]+)(:-(?P<default>.*))?}', rawval)
-        if match:
-            groups = match.groupdict()
-            pattern = '%%(%s)s' % groups['name']
-            if groups['default'] is not None:
-                default = groups['default']
-
+        # this allows both nested and mutliple environment variable
+        # interpolation in a single value
+        pattern = re.sub(r'\${([A-Z_]+)}', r'%(\1)s', rawval)
         pattern = re.sub(r'\$([A-Z_]+)', r'%(\1)s', pattern)
+
+        # counter to protect against infinite loops
+        num_interpolations = 0
+        # save simple result in case we need it
+        simple_pattern = pattern
+
+        # handle complex case of env vars with defaults
+        env = os.environ.copy()
+        env_re = re.compile(r'\${(?P<name>[A-Z_]+):-(?P<default>.*?)}')
+        match = env_re.search(pattern)
+        while match and num_interpolations < 50:
+            groups = match.groupdict()
+            name = groups['name']
+            pattern = pattern.replace(match.group(), '%%(%s)s' % name)
+            if name not in env and groups['default'] is not None:
+                # interpolate defaults as well to allow ${FOO:-$BAR}
+                env[name] = groups['default'] % os.environ
+
+            num_interpolations += 1
+            match = env_re.search(pattern)
+
+        if num_interpolations >= 50:
+            # blown loop, restore earlier simple interpolation
+            pattern = simple_pattern
 
         keys = self._extract_interpolation_keys(pattern)
         if not keys:
             # interpolation keys are not valid
             return rawval
 
-        try:
-            return pattern % os.environ
-        except KeyError:
-            if default is not None:
-                return default
-            raise
+        return pattern % env
 
     def _get_default(self, section, option):
         # cater for 'special' sections
