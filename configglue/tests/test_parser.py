@@ -286,22 +286,45 @@ class TestInterpolation(unittest.TestCase):
     def test_interpolate_environment_with_default_uses_env(self, mock_os):
         mock_os.environ = {'PATH': 'foo'}
         parser = SchemaConfigParser(Schema())
-        result = parser.interpolate_environment("${PATH:-bar}")
-        self.assertEqual(result, 'foo')
+        result = parser.interpolate_environment("X${PATH:-bar}X")
+        self.assertEqual(result, 'XfooX')
 
     @patch('configglue.parser.os')
     def test_interpolate_environment_with_default_uses_default(self, mock_os):
         mock_os.environ = {}
         parser = SchemaConfigParser(Schema())
-        result = parser.interpolate_environment("${PATH:-bar}")
-        self.assertEqual(result, 'bar')
+        result = parser.interpolate_environment("X${PATH:-bar}X")
+        self.assertEqual(result, 'XbarX')
 
     @patch('configglue.parser.os')
     def test_interpolate_environment_with_empty_default(self, mock_os):
         mock_os.environ = {}
         parser = SchemaConfigParser(Schema())
-        result = parser.interpolate_environment("${PATH:-}")
-        self.assertEqual(result, '')
+        result = parser.interpolate_environment("X${PATH:-}X")
+        self.assertEqual(result, 'XX')
+
+    @patch('configglue.parser.os')
+    def test_interpolate_environment_multiple(self, mock_os):
+        mock_os.environ = {'FOO': 'foo', 'BAR': 'bar', 'BAZ': 'baz'}
+        parser = SchemaConfigParser(Schema())
+        result = parser.interpolate_environment(
+            "$FOO, ${BAR}, ${BAZ:-default}")
+        self.assertEqual(result, 'foo, bar, baz')
+
+    @patch('configglue.parser.os')
+    def test_interpolate_environment_multiple_with_default(self, mock_os):
+        mock_os.environ = {'FOO': 'foo', 'BAR': 'bar'}
+        parser = SchemaConfigParser(Schema())
+        result = parser.interpolate_environment(
+            "$FOO, ${BAR}, ${BAZ:-default}")
+        self.assertEqual(result, 'foo, bar, default')
+
+    def test_interpolate_environment_multiple_defaults(self):
+        "Only the first default is used"
+        parser = SchemaConfigParser(Schema())
+        result = parser.interpolate_environment(
+                "${FOO:-default1}, ${FOO:-default2}")
+        self.assertEqual(result, 'default1, default1')
 
     @patch('configglue.parser.os')
     def test_interpolate_environment_in_config(self, mock_os):
