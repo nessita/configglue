@@ -433,26 +433,38 @@ class SchemaConfigParser(BaseConfigParser, object):
         return result
 
     def interpolate_environment(self, rawval, raw=False):
+        """Interpolate environment variables"""
         if raw:
             return rawval
 
-        # interpolate environment variables
-        env = os.environ.copy()
-
-        # substitute simple patterns
+        # this allows both nested and mutliple environment variable
+        # interpolation in a single value
         pattern = re.sub(r'\${([A-Z_]+)}', r'%(\1)s', rawval)
         pattern = re.sub(r'\$([A-Z_]+)', r'%(\1)s', pattern)
 
-        # handle env vars with defaults
+        # counter to protect against infinite loops
+        num_interpolations = 0
+        # save simple result in case we need it
+        simple_pattern = pattern
+
+        # handle complex case of env vars with defaults
+        env = os.environ.copy()
         env_re = re.compile(r'\${(?P<name>[A-Z_]+):-(?P<default>.*?)}')
         match = env_re.search(pattern)
-        while match:
+        while match and num_interpolations < 50:
             groups = match.groupdict()
             name = groups['name']
             pattern = pattern.replace(match.group(), '%%(%s)s' % name)
             if name not in env and groups['default'] is not None:
-                env[name] = groups['default']
+                # interpolate defaults as well to allow ${FOO:-$BAR}
+                env[name] = groups['default'] % os.environment
+
+            num_interpolations += 1
             match = env_re.search(pattern)
+
+        if num_interpolations >= 50:
+            # blown loop, restore earlier simple interpolation
+            pattern = simple_pattern
 
         keys = self._extract_interpolation_keys(pattern)
         if not keys:

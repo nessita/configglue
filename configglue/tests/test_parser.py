@@ -327,6 +327,14 @@ class TestInterpolation(unittest.TestCase):
         self.assertEqual(result, 'default1, default1')
 
     @patch('configglue.parser.os')
+    def test_interpolate_environment_defaults_nested(self, mock_os):
+        mock_os.environ = {'BAR': 'bar'}
+        import pdb; pdb.set_trace()
+        parser = SchemaConfigParser(Schema())
+        result = parser.interpolate_environment("${FOO:-$BAR}")
+        self.assertEqual(result, 'bar')
+
+    @patch('configglue.parser.os')
     def test_interpolate_environment_in_config(self, mock_os):
         mock_os.environ = {'PYTHONPATH': 'foo', 'PATH': 'bar'}
 
