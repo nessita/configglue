@@ -457,7 +457,7 @@ class SchemaConfigParser(BaseConfigParser, object):
             pattern = pattern.replace(match.group(), '%%(%s)s' % name)
             if name not in env and groups['default'] is not None:
                 # interpolate defaults as well to allow ${FOO:-$BAR}
-                env[name] = groups['default'] % os.environment
+                env[name] = groups['default'] % os.environ
 
             num_interpolations += 1
             match = env_re.search(pattern)

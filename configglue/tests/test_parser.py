@@ -30,6 +30,7 @@ from ConfigParser import (
 from StringIO import StringIO
 
 from mock import (
+    MagicMock,
     Mock,
     patch,
 )
@@ -329,10 +330,21 @@ class TestInterpolation(unittest.TestCase):
     @patch('configglue.parser.os')
     def test_interpolate_environment_defaults_nested(self, mock_os):
         mock_os.environ = {'BAR': 'bar'}
-        import pdb; pdb.set_trace()
         parser = SchemaConfigParser(Schema())
         result = parser.interpolate_environment("${FOO:-$BAR}")
         self.assertEqual(result, 'bar')
+
+    @patch('configglue.parser.os')
+    @patch('configglue.parser.re.compile')
+    def test_interpolate_environment_default_loop(self, mock_compile, mock_os):
+        mock_os.environ = {'FOO': 'foo'}
+        parser = SchemaConfigParser(Schema())
+        mock_match = MagicMock()
+        mock_match.group.return_value = "FOO"
+        mock_compile.return_value.search.return_value = mock_match
+        result = parser.interpolate_environment("${FOO:-bar}")
+        # should be uninterpolated result
+        self.assertEqual(result, '${FOO:-bar}')
 
     @patch('configglue.parser.os')
     def test_interpolate_environment_in_config(self, mock_os):
