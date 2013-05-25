@@ -20,7 +20,7 @@ import shutil
 import tempfile
 import textwrap
 import unittest
-from ConfigParser import (
+from configparser import (
     DEFAULTSECT,
     InterpolationDepthError,
     InterpolationMissingOptionError,

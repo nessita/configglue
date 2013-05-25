@@ -22,7 +22,7 @@ import os
 import re
 import string
 
-from ConfigParser import (
+from configparser import (
     DEFAULTSECT,
     SafeConfigParser as BaseConfigParser,
     InterpolationMissingOptionError,
@@ -75,6 +75,8 @@ class SchemaConfigParser(BaseConfigParser, object):
         self._basedir = ''
         self._dirty = collections.defaultdict(
             lambda: collections.defaultdict(dict))
+        # map to location in configparser
+        self._KEYCRE = self._interpolation._KEYCRE
 
     def is_valid(self, report=False):
         """Return if the state of the parser is valid.
@@ -390,7 +392,7 @@ class SchemaConfigParser(BaseConfigParser, object):
 
     def _get_interpolation_keys(self, section, option):
 
-        rawval = super(SchemaConfigParser, self).get(section, option, True)
+        rawval = super(SchemaConfigParser, self).get(section, option, raw=True)
         try:
             opt = self.schema.section(section).option(option)
             value = opt.parse(rawval, raw=True)
@@ -399,6 +401,10 @@ class SchemaConfigParser(BaseConfigParser, object):
 
         keys = self._extract_interpolation_keys(value)
         return rawval, keys
+
+    def _interpolate(self, *args, **kwargs):
+        """Helper method for transition to configparser."""
+        return self._interpolation.before_get(self, *args, **kwargs)
 
     def _interpolate_value(self, section, option):
         rawval, keys = self._get_interpolation_keys(section, option)
@@ -508,7 +514,7 @@ class SchemaConfigParser(BaseConfigParser, object):
                 pass
             # value is defined entirely in current section
             value = super(SchemaConfigParser, self).get(section, option,
-                                                        raw, vars)
+                                                        raw=raw, vars=vars)
         except InterpolationMissingOptionError, e:
             # interpolation key not in same section
             value = self._interpolate_value(section, option)

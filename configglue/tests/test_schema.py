@@ -17,7 +17,7 @@
 
 import textwrap
 import unittest
-from ConfigParser import (
+from configparser import (
     NoOptionError,
     NoSectionError,
 )

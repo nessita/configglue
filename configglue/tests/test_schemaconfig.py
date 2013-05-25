@@ -368,10 +368,10 @@ class TestSchemaConfigGlue(unittest.TestCase):
 
         parser = SchemaConfigParser(MySchema())
         op, options, args = schemaconfigglue(
-            parser, argv=['--foo', 'fóobâr'])
+            parser, argv=[u'--foo', u'fóobâr'])
         self.assertEqual(parser.get('__main__', 'foo', parse=False),
-            'fóobâr')
-        self.assertEqual(parser.get('__main__', 'foo'), 'fóobâr')
+            u'fóobâr')
+        self.assertEqual(parser.get('__main__', 'foo'), u'fóobâr')
 
     def test_option_short_name(self):
         """Test schemaconfigglue support for short option names."""

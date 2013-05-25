@@ -15,7 +15,7 @@
 ###############################################################################
 
 import json
-from ConfigParser import (
+from configparser import (
     NoSectionError,
     NoOptionError,
 )
