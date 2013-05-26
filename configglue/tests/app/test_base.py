@@ -14,7 +14,6 @@
 #
 ###############################################################################
 import os
-import user
 from optparse import OptionParser
 from unittest import TestCase
 
@@ -68,8 +67,8 @@ def make_config(app=None):
 class ConfigTestCase(TestCase):
     def get_xdg_config_dirs(self):
         xdg_config_home = os.environ.get('XDG_CONFIG_HOME',
-            os.path.join(user.home, '.config'))
-        xdg_config_dirs = ([xdg_config_home] + 
+            os.path.join(os.path.expanduser('~'), '.config'))
+        xdg_config_dirs = ([xdg_config_home] +
             os.environ.get('XDG_CONFIG_DIRS', '/etc/xdg').split(':'))
         return xdg_config_dirs
 
