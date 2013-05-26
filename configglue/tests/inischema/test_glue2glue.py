@@ -64,11 +64,9 @@ class TestGlueConvertor(unittest.TestCase):
         self.assertEqual(vars(cg), vars(sg))
 
     def test_parser_unicode(self):
-        s = textwrap.dedent("""
+        s = textwrap.dedent(u"""
             [__main__]
             bar = zátrapa
-            bar.parser = unicode
-            bar.parser.args = utf-8
         """)
         _, cg, _ = configglue(StringIO(s))
         _, sg, _ = schemaconfigglue(ini2schema(StringIO(s)))

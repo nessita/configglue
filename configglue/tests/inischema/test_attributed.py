@@ -18,7 +18,7 @@
 # runner's output, so pylint: disable-msg=C0111
 
 import unittest
-from ConfigParser import RawConfigParser
+from configparser import RawConfigParser
 from StringIO import StringIO
 
 from configglue.inischema.attributed import AttributedConfigParser

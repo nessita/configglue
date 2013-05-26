@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 ###############################################################################
 #
 # configglue -- glue for your apps' configuration
@@ -19,7 +20,7 @@
 
 import unittest
 from StringIO import StringIO
-from ConfigParser import RawConfigParser
+from configparser import RawConfigParser
 
 from configglue.inischema.typed import TypedConfigParser
 
@@ -37,7 +38,7 @@ def some_parser(value):
 class BaseTest(unittest.TestCase):
     """ Base class to keep common set-up """
     def setUp(self):
-        self.config_string = '''
+        self.config_string = u'''
 [xyzzy]
 foo.parser = complex
 foo.default = 1j
@@ -52,14 +53,8 @@ baz = marker
 baz2.parser = more.parser
 baz2 = -1
 
-meep = \xe1rbol
+meep = árbol
 meep.parser = unicode
-meep.parser.args = latin1
-
-quux = \xe1rbol
-quux.parser = unicode
-quux.parser.args = utf-8
-                   replace
 
 thud.help = this is the help for thud
 
@@ -120,8 +115,6 @@ class TestParserd(BaseTest):
                                      ('baz2', None),
                                      ('foo', 1j),
                                      ('meep', u'\xe1rbol'),
-                                     ('quux', unicode('\xe1rbol', 'utf-8',
-                                                      'replace')),
                                      ('thud', None),
                                      ('woof', True),
                                      ])])
