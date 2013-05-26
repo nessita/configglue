@@ -14,6 +14,7 @@
 # For bug reports, support, and new releases: http://launchpad.net/configglue
 #
 ###############################################################################
+from __future__ import unicode_literals
 
 import os
 import shutil
@@ -897,20 +898,20 @@ class TestSchemaConfigParser(unittest.TestCase):
 
         try:
             f = open(filename, 'w')
-            f.write(u'[__main__]\nfoo=€'.encode(CONFIG_FILE_ENCODING))
+            f.write('[__main__]\nfoo=€'.encode(CONFIG_FILE_ENCODING))
             f.close()
 
             self.parser.read(filename)
             self.assertEqual(self.parser.values(),
-                {'__main__': {'foo': u'€'}})
+                {'__main__': {'foo': '€'}})
         finally:
             # destroy config file
             os.remove(filename)
 
     def test_readfp_with_utf8_encoded_text(self):
-        config = StringIO(u'[__main__]\nfoo=€'.encode(CONFIG_FILE_ENCODING))
+        config = StringIO('[__main__]\nfoo=€'.encode(CONFIG_FILE_ENCODING))
         self.parser.readfp(config)
-        self.assertEqual(self.parser.values(), {'__main__': {'foo': u'€'}})
+        self.assertEqual(self.parser.values(), {'__main__': {'foo': '€'}})
 
     def test_set(self):
         with tempfile.NamedTemporaryFile() as f:
@@ -953,7 +954,7 @@ class TestSchemaConfigParser(unittest.TestCase):
                 pass
 
         parser = SchemaConfigParser(MySchema())
-        expected = u"[{0}]\nbaz = 2\n\n[__main__]\nfoo = bar".format(
+        expected = "[{0}]\nbaz = 2\n\n[__main__]\nfoo = bar".format(
             DEFAULTSECT)
         config = StringIO(expected)
         parser.readfp(config)
@@ -974,7 +975,7 @@ class TestSchemaConfigParser(unittest.TestCase):
             foo = IntOption()
 
         parser = SchemaConfigParser(MySchema())
-        expected = u"[__main__]\nfoo = 0"
+        expected = "[__main__]\nfoo = 0"
 
         # create config file
         fp, filename = tempfile.mkstemp()
@@ -987,11 +988,11 @@ class TestSchemaConfigParser(unittest.TestCase):
             os.unlink(filename)
 
     def test_save_config(self):
-        expected = u'[__main__]\nfoo = 42'
+        expected = '[__main__]\nfoo = 42'
         self._check_save_file(expected)
 
     def test_save_config_non_ascii(self):
-        expected = u'[__main__]\nfoo = fóobâr'
+        expected = '[__main__]\nfoo = fóobâr'
         self._check_save_file(expected)
 
     def _check_save_file(self, expected, read_config=True):
@@ -1015,7 +1016,7 @@ class TestSchemaConfigParser(unittest.TestCase):
 
     def test_save_config_prefill_parser(self):
         """Test parser save config when no config files read."""
-        expected = u'[__main__]\nfoo ='
+        expected = '[__main__]\nfoo ='
         self._check_save_file(expected, read_config=False)
 
     def test_save_no_config_same_files(self):
@@ -1213,7 +1214,7 @@ class TestParserIsValid(unittest.TestCase):
         valid, errors = self.parser.is_valid(report=True)
         self.assertFalse(valid)
         self.assertEqual(errors[0],
-            u'Sections in configuration are missing from schema: bar')
+            'Sections in configuration are missing from schema: bar')
 
     def test_different_sections(self):
         config = StringIO("[__main__]\nfoo=1\n[bar]\nbaz=2")

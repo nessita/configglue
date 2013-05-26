@@ -13,6 +13,7 @@
 # For bug reports, support, and new releases: http://launchpad.net/configglue
 #
 ###############################################################################
+from __future__ import unicode_literals
 
 import json
 from configparser import (
@@ -21,6 +22,8 @@ from configparser import (
 )
 from copy import deepcopy
 from inspect import getmembers
+
+from configglue._compat import text_type
 
 
 __all__ = [
@@ -341,7 +344,7 @@ class Option(object):
 
     def to_string(self, value):
         """Return a string representation of the value."""
-        return str(value)
+        return text_type(value)
 
 
 class BoolOption(Option):
@@ -683,7 +686,7 @@ class DictOption(Option):
                     if not raw:
                         value = option.default
                     else:
-                        value = unicode(option.default)
+                        value = text_type(option.default)
                     result[key] = value
         return result
 

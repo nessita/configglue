@@ -14,6 +14,7 @@
 # For bug reports, support, and new releases: http://launchpad.net/configglue
 #
 ###############################################################################
+from __future__ import unicode_literals
 
 import unittest
 import os
@@ -368,10 +369,10 @@ class TestSchemaConfigGlue(unittest.TestCase):
 
         parser = SchemaConfigParser(MySchema())
         op, options, args = schemaconfigglue(
-            parser, argv=[u'--foo', u'fóobâr'])
+            parser, argv=['--foo', 'fóobâr'])
         self.assertEqual(parser.get('__main__', 'foo', parse=False),
-            u'fóobâr')
-        self.assertEqual(parser.get('__main__', 'foo'), u'fóobâr')
+            'fóobâr')
+        self.assertEqual(parser.get('__main__', 'foo'), 'fóobâr')
 
     def test_option_short_name(self):
         """Test schemaconfigglue support for short option names."""

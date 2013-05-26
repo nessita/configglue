@@ -14,6 +14,7 @@
 # For bug reports, support, and new releases: http://launchpad.net/configglue
 #
 ###############################################################################
+from __future__ import unicode_literals
 
 import sys
 import textwrap
@@ -64,7 +65,7 @@ class TestGlueConvertor(unittest.TestCase):
         self.assertEqual(vars(cg), vars(sg))
 
     def test_parser_unicode(self):
-        s = textwrap.dedent(u"""
+        s = textwrap.dedent("""
             [__main__]
             bar = zátrapa
         """)

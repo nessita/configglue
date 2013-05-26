@@ -14,6 +14,7 @@
 # For bug reports, support, and new releases: http://launchpad.net/configglue
 #
 ###############################################################################
+from __future__ import unicode_literals
 
 # in testfiles, putting docstrings on methods messes up with the
 # runner's output, so pylint: disable-msg=C0111
@@ -38,7 +39,7 @@ def some_parser(value):
 class BaseTest(unittest.TestCase):
     """ Base class to keep common set-up """
     def setUp(self):
-        self.config_string = u'''
+        self.config_string = '''
 [xyzzy]
 foo.parser = complex
 foo.default = 1j
@@ -114,7 +115,7 @@ class TestParserd(BaseTest):
                                      ('baz', marker),
                                      ('baz2', None),
                                      ('foo', 1j),
-                                     ('meep', u'\xe1rbol'),
+                                     ('meep', '\xe1rbol'),
                                      ('thud', None),
                                      ('woof', True),
                                      ])])

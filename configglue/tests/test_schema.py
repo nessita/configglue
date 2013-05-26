@@ -23,6 +23,7 @@ from configparser import (
 )
 from StringIO import StringIO
 
+from configglue._compat import text_type
 from configglue.parser import (
     SchemaConfigParser,
     SchemaValidationError,
@@ -1116,7 +1117,7 @@ wham=42
     def test_to_string_when_no_json(self):
         option = DictOption(parse_json=False)
         result = option.to_string({'foo': '1'})
-        self.assertEqual(result, str({'foo': '1'}))
+        self.assertEqual(result, text_type({'foo': '1'}))
 
 
 class TestListOfDictOption(unittest.TestCase):
@@ -1331,6 +1332,6 @@ class MultiSchemaTestCase(unittest.TestCase):
         try:
             merge(SchemaA, SchemaB)
             self.fail('SchemaValidationError not raised.')
-        except SchemaValidationError, e:
-            self.assertEqual(str(e),
+        except SchemaValidationError as e:
+            self.assertEqual(text_type(e),
                 "Conflicting option '__main__.foo' while merging schemas.")

@@ -29,6 +29,9 @@ from configparser import (
     NoOptionError,
     NoSectionError,
 )
+from functools import reduce
+
+from configglue._compat import text_type
 
 
 __all__ = [
@@ -157,8 +160,8 @@ class SchemaConfigParser(BaseConfigParser, object):
             # structure validates, validate content
             self.parse_all()
 
-        except Exception, e:
-            errors.append(str(e))
+        except Exception as e:
+            errors.append(text_type(e))
             valid = False
 
         if report:
@@ -203,7 +206,7 @@ class SchemaConfigParser(BaseConfigParser, object):
             for option in options:
                 try:
                     value = self._interpolate(section, option, d[option], d)
-                except InterpolationMissingOptionError, e:
+                except InterpolationMissingOptionError as e:
                     # interpolation failed, because key was not found in
                     # section. try other sections before bailing out
                     value = self._interpolate_value(section, option)
@@ -350,7 +353,7 @@ class SchemaConfigParser(BaseConfigParser, object):
 
             try:
                 value = option_obj.parse(value, **kwargs)
-            except ValueError, e:
+            except ValueError as e:
                 raise ValueError("Invalid value '%s' for %s '%s' in"
                     " section '%s'. Original exception was: %s" %
                     (value, option_obj.__class__.__name__, option,
@@ -515,13 +518,13 @@ class SchemaConfigParser(BaseConfigParser, object):
             # value is defined entirely in current section
             value = super(SchemaConfigParser, self).get(section, option,
                                                         raw=raw, vars=vars)
-        except InterpolationMissingOptionError, e:
+        except InterpolationMissingOptionError as e:
             # interpolation key not in same section
             value = self._interpolate_value(section, option)
             if value is None:
                 # this should be a string, so None indicates an error
                 raise e
-        except (NoSectionError, NoOptionError), e:
+        except (NoSectionError, NoOptionError) as e:
             # option not found in config, try to get its default value from
             # schema
             value = self._get_default(section, option)
