@@ -23,7 +23,7 @@ from configparser import (
 from copy import deepcopy
 from inspect import getmembers
 
-from configglue._compat import text_type
+from configglue._compat import text_type, string_types
 
 
 __all__ = [
@@ -159,6 +159,9 @@ class Schema(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def __hash__(self):
+        return id(self)
+
     def is_valid(self):
         """Return whether the schema has a valid structure."""
         explicit_default_section = isinstance(getattr(self, '__main__', None),
@@ -189,7 +192,7 @@ class Schema(object):
         To get options from the default section, specify section='__main__'
 
         """
-        if isinstance(section, basestring):
+        if isinstance(section, string_types):
             section = self.section(section)
         if section is None:
             options = []
@@ -224,6 +227,9 @@ class Section(object):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def __hash__(self):
+        return id(self)
 
     def __repr__(self):
         if self.name:
@@ -318,6 +324,9 @@ class Option(object):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def __hash__(self):
+        return id(self)
 
     def __repr__(self):
         extra = ' raw' if self.raw else ''
@@ -435,6 +444,9 @@ class ListOption(Option):
 
         return equal
 
+    def __hash__(self):
+        return id(self)
+
     def _get_default(self):
         return []
 
@@ -504,6 +516,9 @@ class StringOption(Option):
 
         return equal
 
+    def __hash__(self):
+        return id(self)
+
     def _get_default(self):
         return '' if not self.null else None
 
@@ -517,7 +532,7 @@ class StringOption(Option):
             result = value
         elif self.null:
             result = None if value in (None, 'None') else value
-        elif isinstance(value, basestring):
+        elif isinstance(value, string_types):
             result = value
         else:
             result = repr(value)
@@ -529,7 +544,7 @@ class StringOption(Option):
         return value
 
     def validate(self, value):
-        return (self.null and value is None) or isinstance(value, basestring)
+        return (self.null and value is None) or isinstance(value, string_types)
 
 
 class TupleOption(Option):
@@ -554,6 +569,9 @@ class TupleOption(Option):
             equal &= self.length == other.length
 
         return equal
+
+    def __hash__(self):
+        return id(self)
 
     def _get_default(self):
         return ()
@@ -622,6 +640,9 @@ class DictOption(Option):
                 self.item == other.item)
 
         return equal
+
+    def __hash__(self):
+        return id(self)
 
     def _get_default(self):
         default = {}

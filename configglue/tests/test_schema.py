@@ -22,7 +22,7 @@ from configparser import (
     NoOptionError,
     NoSectionError,
 )
-from io import StringIO
+from io import BytesIO
 
 from configglue._compat import text_type
 from configglue.parser import (
@@ -391,19 +391,19 @@ class TestIntOption(unittest.TestCase):
         class MySchema(Schema):
             foo = self.cls()
 
-        config = StringIO("[__main__]\nfoo = 42")
+        config = BytesIO(b"[__main__]\nfoo = 42")
         expected_values = {'__main__': {'foo': 42}}
         schema = MySchema()
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
         self.assertEqual(parser.values(), expected_values)
 
-        config = StringIO("[__main__]\nfoo =")
+        config = BytesIO(b"[__main__]\nfoo =")
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
         self.assertRaises(ValueError, parser.values)
 
-        config = StringIO("[__main__]\nfoo = bla")
+        config = BytesIO(b"[__main__]\nfoo = bla")
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
         self.assertRaises(ValueError, parser.values)
@@ -437,24 +437,24 @@ class TestBoolOption(unittest.TestCase):
         class MySchema(Schema):
             foo = self.cls()
 
-        config = StringIO("[__main__]\nfoo = Yes")
+        config = BytesIO(b"[__main__]\nfoo = Yes")
         expected_values = {'__main__': {'foo': True}}
         schema = MySchema()
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
         self.assertEqual(parser.values(), expected_values)
 
-        config = StringIO("[__main__]\nfoo = tRuE")
+        config = BytesIO(b"[__main__]\nfoo = tRuE")
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
         self.assertEqual(parser.values(), expected_values)
 
-        config = StringIO("[__main__]\nfoo =")
+        config = BytesIO(b"[__main__]\nfoo =")
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
         self.assertRaises(ValueError, parser.values)
 
-        config = StringIO("[__main__]\nfoo = bla")
+        config = BytesIO(b"[__main__]\nfoo = bla")
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
         self.assertRaises(ValueError, parser.values)
@@ -488,7 +488,7 @@ class TestListOption(unittest.TestCase):
         class MySchema(Schema):
             foo = self.cls(item=IntOption())
 
-        config = StringIO("[__main__]\nfoo = 42\n 43\n 44")
+        config = BytesIO(b"[__main__]\nfoo = 42\n 43\n 44")
         expected_values = {'__main__': {'foo': [42, 43, 44]}}
         schema = MySchema()
         parser = SchemaConfigParser(schema)
@@ -499,7 +499,7 @@ class TestListOption(unittest.TestCase):
         class MySchema(Schema):
             foo = self.cls(item=IntOption(), parse_json=False)
 
-        config = StringIO("[__main__]\nfoo = 42\n 43\n 44")
+        config = BytesIO(b"[__main__]\nfoo = 42\n 43\n 44")
         expected_values = {'__main__': {'foo': [42, 43, 44]}}
         schema = MySchema()
         parser = SchemaConfigParser(schema)
@@ -510,7 +510,7 @@ class TestListOption(unittest.TestCase):
         class MySchema(Schema):
             foo = self.cls(item=IntOption(), parse_json=False)
 
-        config = StringIO("[__main__]\nfoo = [42, 43, 44]")
+        config = BytesIO(b"[__main__]\nfoo = [42, 43, 44]")
         schema = MySchema()
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
@@ -520,7 +520,7 @@ class TestListOption(unittest.TestCase):
         class MySchema(Schema):
             foo = self.cls(item=IntOption())
 
-        config = StringIO("[__main__]\nfoo = [42, 43, 44]")
+        config = BytesIO(b"[__main__]\nfoo = [42, 43, 44]")
         expected_values = {'__main__': {'foo': [42, 43, 44]}}
         schema = MySchema()
         parser = SchemaConfigParser(schema)
@@ -531,7 +531,7 @@ class TestListOption(unittest.TestCase):
         class MySchema(Schema):
             foo = self.cls(item=IntOption())
 
-        config = StringIO('[__main__]\nfoo = 1, 2, 3')
+        config = BytesIO(b'[__main__]\nfoo = 1, 2, 3')
         schema = MySchema()
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
@@ -541,7 +541,7 @@ class TestListOption(unittest.TestCase):
         class MySchema(Schema):
             foo = self.cls(item=IntOption())
 
-        config = StringIO('[__main__]\nfoo = {"foo": "bar"}')
+        config = BytesIO(b'[__main__]\nfoo = {"foo": "bar"}')
         schema = MySchema()
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
@@ -553,7 +553,7 @@ class TestListOption(unittest.TestCase):
             foo = self.cls(item=BoolOption())
 
         schema = MySchema()
-        config = StringIO("[__main__]\nfoo = tRuE\n No\n 0\n 1")
+        config = BytesIO(b"[__main__]\nfoo = tRuE\n No\n 0\n 1")
         expected_values = {'__main__': {'foo': [True, False, False, True]}}
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
@@ -565,7 +565,7 @@ class TestListOption(unittest.TestCase):
             foo = self.cls(item=BoolOption())
 
         schema = MySchema()
-        config = StringIO("[__main__]\nfoo =")
+        config = BytesIO(b"[__main__]\nfoo =")
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
         expected_values = {'__main__': {'foo': []}}
@@ -577,12 +577,12 @@ class TestListOption(unittest.TestCase):
             foo = self.cls(item=BoolOption())
 
         schema = MySchema()
-        config = StringIO("[__main__]\nfoo = bla")
+        config = BytesIO(b"[__main__]\nfoo = bla")
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
         self.assertRaises(ValueError, parser.values)
 
-        config = StringIO("[__main__]\nfoo = True\n bla")
+        config = BytesIO(b"[__main__]\nfoo = True\n bla")
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
         self.assertRaises(ValueError, parser.values)
@@ -598,7 +598,7 @@ class TestListOption(unittest.TestCase):
             foo = self.cls(item=StringOption(), remove_duplicates=True)
 
         schema = MySchema()
-        config = StringIO("[__main__]\nfoo = bla\n blah\n bla")
+        config = BytesIO(b"[__main__]\nfoo = bla\n blah\n bla")
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
         self.assertEquals({'__main__': {'foo': ['bla', 'blah']}},
@@ -610,7 +610,7 @@ class TestListOption(unittest.TestCase):
             foo = self.cls(item=DictOption(), remove_duplicates=True)
 
         schema = MyOtherSchema()
-        config = StringIO("[__main__]\nfoo = bla\n bla\n[bla]\nbar = baz")
+        config = BytesIO(b"[__main__]\nfoo = bla\n bla\n[bla]\nbar = baz")
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
         self.assertEquals({'__main__': {'foo': [{'bar': 'baz'}]}},
@@ -663,7 +663,8 @@ class TestListOption(unittest.TestCase):
     def test_to_string_when_no_json(self):
         option = ListOption(parse_json=False)
         result = option.to_string(['1', '2', '3'])
-        self.assertEqual(result, "[u'1', u'2', u'3']")
+        expected = list(map(text_type, [1, 2, 3]))
+        self.assertEqual(result, text_type(expected))
 
 
 class TestTupleOption(unittest.TestCase):
@@ -685,7 +686,7 @@ class TestTupleOption(unittest.TestCase):
         class MySchema(Schema):
             foo = self.cls()
 
-        config = StringIO('[__main__]\nfoo=1,2,3,4')
+        config = BytesIO(b'[__main__]\nfoo=1,2,3,4')
         expected_values = {'__main__': {'foo': ('1', '2', '3', '4')}}
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
@@ -696,19 +697,19 @@ class TestTupleOption(unittest.TestCase):
         class MySchema(Schema):
             foo = self.cls(length=4)
 
-        config = StringIO('[__main__]\nfoo = 1, 2, 3, 4')
+        config = BytesIO(b'[__main__]\nfoo = 1, 2, 3, 4')
         expected_values = {'__main__': {'foo': ('1', '2', '3', '4')}}
         schema = MySchema()
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
         self.assertEqual(parser.values(), expected_values)
 
-        config = StringIO('[__main__]\nfoo = 1, 2, 3')
+        config = BytesIO(b'[__main__]\nfoo = 1, 2, 3')
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
         self.assertRaises(ValueError, parser.values)
 
-        config = StringIO('[__main__]\nfoo = ')
+        config = BytesIO(b'[__main__]\nfoo = ')
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
         self.assertRaises(ValueError, parser.values)
@@ -765,7 +766,7 @@ class TestDictOption(unittest.TestCase):
         class MySchema(Schema):
             foo = self.cls(item=self.cls())
 
-        config = StringIO("""
+        config = BytesIO(b"""
 [__main__]
 foo=dict1
 [dict1]
@@ -790,7 +791,7 @@ baz=42
                 'bla': BoolOption(),
             })
 
-        config = StringIO("""[__main__]
+        config = BytesIO(b"""[__main__]
 foo = mydict
 [mydict]
 bar=baz
@@ -815,7 +816,7 @@ bla=Yes
                 'bla': BoolOption(),
             }, parse_json=False)
 
-        config = StringIO("""[__main__]
+        config = BytesIO(b"""[__main__]
 foo = mydict
 [mydict]
 bar=baz
@@ -840,13 +841,13 @@ bla=Yes
                 'bla': BoolOption(),
             })
 
-        config = StringIO(textwrap.dedent("""
+        config = BytesIO(textwrap.dedent("""
             [__main__]
             foo = {
                 "bar": "baz",
                 "baz": "42",
                 "bla": "Yes"}
-            """))
+            """).encode('utf-8'))
         expected_values = {
             '__main__': {
                 'foo': {'bar': 'baz', 'baz': 42, 'bla': True}}}
@@ -865,10 +866,10 @@ bla=Yes
                 'bla': BoolOption(),
             })
 
-        config = StringIO(textwrap.dedent("""
+        config = BytesIO(textwrap.dedent("""
             [__main__]
             foo = {'bar': 23}
-            """))
+            """).encode('utf-8'))
 
         schema = MySchema()
         parser = SchemaConfigParser(schema)
@@ -884,10 +885,10 @@ bla=Yes
                 'bla': BoolOption(),
             })
 
-        config = StringIO(textwrap.dedent("""
+        config = BytesIO(textwrap.dedent("""
             [__main__]
             foo = [1, 2, 3]
-            """))
+            """).encode('utf-8'))
 
         schema = MySchema()
         parser = SchemaConfigParser(schema)
@@ -903,13 +904,13 @@ bla=Yes
                 'bla': BoolOption(),
             }, parse_json=False)
 
-        config = StringIO(textwrap.dedent("""
+        config = BytesIO(textwrap.dedent("""
             [__main__]
             foo = {
                 "bar": "baz",
                 "baz": "42",
                 "bla": "Yes"}
-            """))
+            """).encode('utf-8'))
 
         schema = MySchema()
         parser = SchemaConfigParser(schema)
@@ -925,7 +926,7 @@ bla=Yes
                 'bla': BoolOption(),
             })
 
-        config = StringIO("""[__main__]
+        config = BytesIO(b"""[__main__]
 foo = mydict
 [mydict]
 baz=42
@@ -944,10 +945,10 @@ baz=42
             class logging(Section):
                 formatters = self.cls(raw=True, item=self.cls())
 
-        config = StringIO(textwrap.dedent("""
+        config = BytesIO(textwrap.dedent("""
             [logging]
             formatters = {"sample": {"format": "%(name)s"}}
-            """))
+            """).encode('utf-8'))
         expected = {'sample': {'format': '%(name)s'}}
 
         schema = MySchema()
@@ -962,7 +963,7 @@ baz=42
             class logging(Section):
                 formatters = self.cls(raw=True, item=self.cls())
 
-        config = StringIO(textwrap.dedent("""
+        config = BytesIO(textwrap.dedent("""
             [logging]
             formatters = logging_formatters
 
@@ -971,7 +972,7 @@ baz=42
 
             [sample_formatter]
             format = %%(name)s
-            """))
+            """).encode('utf-8'))
         expected = {'sample': {'format': '%(name)s'}}
 
         schema = MySchema()
@@ -985,7 +986,7 @@ baz=42
         class MySchema(Schema):
             foo = self.cls(spec={'bar': IntOption()})
 
-        config = StringIO("[__main__]\nfoo=mydict\n[mydict]\nbaz=2")
+        config = BytesIO(b"[__main__]\nfoo=mydict\n[mydict]\nbaz=2")
         expected_values = {'__main__': {'foo': {'bar': 0, 'baz': '2'}}}
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
@@ -998,7 +999,7 @@ baz=42
                 'bar': IntOption(),
                 'baz': IntOption(fatal=True)})
 
-        config = StringIO("[__main__]\nfoo=mydict\n[mydict]\nbar=2")
+        config = BytesIO(b"[__main__]\nfoo=mydict\n[mydict]\nbar=2")
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
         self.assertRaises(ValueError, parser.parse_all)
@@ -1012,7 +1013,7 @@ baz=42
         class MySchema(Schema):
             foo = self.cls(spec={'bar': IntOption()})
 
-        config = StringIO("[__main__]\nfoo=mydict\n[mydict]")
+        config = BytesIO(b"[__main__]\nfoo=mydict\n[mydict]")
         expected_values = {'__main__': {'foo': {'bar': 0}}}
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
@@ -1022,7 +1023,7 @@ baz=42
         class MySchema(Schema):
             foo = self.cls()
 
-        config = StringIO("[__main__]\nfoo=mydict\n[mydict]\nbar=2")
+        config = BytesIO(b"[__main__]\nfoo=mydict\n[mydict]\nbar=2")
         expected_values = {'__main__': {'foo': {'bar': '2'}}}
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
@@ -1034,7 +1035,7 @@ baz=42
             foo = self.cls(
                       item=self.cls(
                           item=IntOption()))
-        config = StringIO("""
+        config = BytesIO(b"""
 [__main__]
 foo = mydict
 [mydict]
@@ -1053,7 +1054,7 @@ wham=42
             spec = {'bar': IntOption()}
             foo = self.cls(spec=spec, strict=True)
 
-        config = StringIO("[__main__]\nfoo=mydict\n[mydict]\nbar=2")
+        config = BytesIO(b"[__main__]\nfoo=mydict\n[mydict]\nbar=2")
         expected_values = {'__main__': {'foo': {'bar': 2}}}
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
@@ -1066,7 +1067,7 @@ wham=42
                     'baz': IntOption()}
             foo = self.cls(spec=spec, strict=True)
 
-        config = StringIO("[__main__]\nfoo=mydict\n[mydict]\nbar=2")
+        config = BytesIO(b"[__main__]\nfoo=mydict\n[mydict]\nbar=2")
         expected_values = {'__main__': {'foo': {'bar': 2, 'baz': 0}}}
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
@@ -1078,7 +1079,7 @@ wham=42
             spec = {'bar': IntOption()}
             foo = self.cls(spec=spec, strict=True)
 
-        config = StringIO("[__main__]\nfoo=mydict\n[mydict]\nbar=2\nbaz=3")
+        config = BytesIO(b"[__main__]\nfoo=mydict\n[mydict]\nbar=2\nbaz=3")
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
         self.assertRaises(ValueError, parser.parse_all)
@@ -1132,7 +1133,7 @@ class TestListOfDictOption(unittest.TestCase):
                     'bla': BoolOption(),
                 }))
 
-        config = StringIO("""[__main__]
+        config = BytesIO(b"""[__main__]
 foo = mylist0
       mylist1
 [mylist0]
@@ -1169,7 +1170,7 @@ class TestDictWithDicts(unittest.TestCase):
         class MySchema(Schema):
             foo = DictOption(spec=spec)
 
-        config = StringIO("""[__main__]
+        config = BytesIO(b"""[__main__]
 foo = outerdict
 [outerdict]
 options = innerdict
@@ -1196,19 +1197,19 @@ class TestListOfTuples(unittest.TestCase):
         self.parser = SchemaConfigParser(schema)
 
     def test_parse_list_of_tuples(self):
-        config = StringIO('[__main__]\nfoo = a, b, c\n      d, e, f')
+        config = BytesIO(b'[__main__]\nfoo = a, b, c\n      d, e, f')
         expected_values = {
             '__main__': {'foo': [('a', 'b', 'c'), ('d', 'e', 'f')]}}
         self.parser.readfp(config)
         self.assertEqual(self.parser.values(), expected_values)
 
     def test_parse_wrong_tuple_size(self):
-        config = StringIO('[__main__]\nfoo = a, b, c\n      d, e')
+        config = BytesIO(b'[__main__]\nfoo = a, b, c\n      d, e')
         self.parser.readfp(config)
         self.assertRaises(ValueError, self.parser.values)
 
     def test_parse_empty_tuple(self):
-        config = StringIO('[__main__]\nfoo=()')
+        config = BytesIO(b'[__main__]\nfoo=()')
         expected_values = {'__main__': {'foo': [()]}}
         self.parser.readfp(config)
         self.assertEqual(self.parser.values(), expected_values)

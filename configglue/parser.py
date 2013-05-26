@@ -20,7 +20,7 @@ import copy
 import logging
 import os
 import re
-import string
+from io import TextIOWrapper
 
 from configparser import (
     DEFAULTSECT,
@@ -31,7 +31,7 @@ from configparser import (
 )
 from functools import reduce
 
-from configglue._compat import text_type
+from configglue._compat import text_type, string_types
 
 
 __all__ = [
@@ -248,7 +248,7 @@ class SchemaConfigParser(BaseConfigParser, object):
         """Like ConfigParser.read, but consider files we've already read."""
         if already_read is None:
             already_read = set()
-        if isinstance(filenames, basestring):
+        if isinstance(filenames, string_types):
             filenames = [filenames]
         read_ok = []
         for filename in filenames:
@@ -285,7 +285,7 @@ class SchemaConfigParser(BaseConfigParser, object):
             old_basedir, self._basedir = self._basedir, os.path.dirname(
                 fpname)
             includes = self.get('__main__', 'includes')
-            filenames = map(string.strip, includes)
+            filenames = list(map(text_type.strip, includes))
             self.read(filenames, already_read=already_read)
             self._basedir = old_basedir
 
@@ -305,7 +305,7 @@ class SchemaConfigParser(BaseConfigParser, object):
 
     def _update_location(self, old_sections, filename):
         # keep list of valid options to include locations for
-        option_names = map(lambda x: x.name, self.schema.options())
+        option_names = list(map(lambda x: x.name, self.schema.options()))
 
         # new values
         sections = self._sections
@@ -384,7 +384,7 @@ class SchemaConfigParser(BaseConfigParser, object):
 
     def _extract_interpolation_keys(self, item):
         if isinstance(item, (list, tuple)):
-            keys = map(self._extract_interpolation_keys, item)
+            keys = list(map(self._extract_interpolation_keys, item))
             keys = reduce(set.union, keys, set())
         else:
             keys = set(self._KEYCRE.findall(item))
@@ -438,7 +438,7 @@ class SchemaConfigParser(BaseConfigParser, object):
         # replace holders with values
         result = rawval % values
 
-        assert isinstance(result, basestring)
+        assert isinstance(result, string_types)
         return result
 
     def interpolate_environment(self, rawval, raw=False):
@@ -530,7 +530,7 @@ class SchemaConfigParser(BaseConfigParser, object):
             value = self._get_default(section, option)
 
         # interpolate environment variables
-        if isinstance(value, basestring):
+        if isinstance(value, string_types):
             try:
                 value = self.interpolate_environment(value, raw=raw)
                 if parse:
@@ -591,11 +591,12 @@ class SchemaConfigParser(BaseConfigParser, object):
 
         """
         if fp is not None:
-            if isinstance(fp, basestring):
+            if isinstance(fp, string_types):
                 fp = open(fp, 'w')
-            # write to a specific file
-            encoded_fp = codecs.getwriter(CONFIG_FILE_ENCODING)(fp)
-            self.write(encoded_fp)
+            if not isinstance(fp, TextIOWrapper):
+                # write to a specific file
+                fp = codecs.getwriter(CONFIG_FILE_ENCODING)(fp)
+            self.write(fp)
         else:
             # write to the original files
             for filename, sections in self._dirty.items():

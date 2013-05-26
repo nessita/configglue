@@ -16,6 +16,7 @@
 ###############################################################################
 from __future__ import unicode_literals
 
+import codecs
 import os
 import shutil
 import tempfile
@@ -28,7 +29,7 @@ from configparser import (
     InterpolationSyntaxError,
     NoSectionError,
 )
-from io import BytesIO, StringIO
+from io import BytesIO
 
 from mock import (
     MagicMock,
@@ -36,6 +37,7 @@ from mock import (
     patch,
 )
 
+from configglue._compat import PY2, iteritems
 from configglue.parser import (
     CONFIG_FILE_ENCODING,
     NoOptionError,
@@ -67,20 +69,22 @@ class TestIncludes(unittest.TestCase):
             foo = StringOption()
         self.schema = MySchema()
         fd, self.name = tempfile.mkstemp(suffix='.cfg')
-        os.write(fd, '[__main__]\nfoo=bar\n')
+        os.write(fd, b'[__main__]\nfoo=bar\n')
         os.close(fd)
 
     def tearDown(self):
         os.remove(self.name)
 
     def test_basic_include(self):
-        config = StringIO('[__main__]\nincludes=%s' % self.name)
+        config = '[__main__]\nincludes=%s' % self.name
+        config = BytesIO(config.encode(CONFIG_FILE_ENCODING))
         parser = SchemaConfigParser(self.schema)
         parser.readfp(config, 'my.cfg')
         self.assertEquals({'__main__': {'foo': 'bar'}}, parser.values())
 
     def test_locate(self):
-        config = StringIO("[__main__]\nincludes=%s" % self.name)
+        config = "[__main__]\nincludes=%s" % self.name
+        config = BytesIO(config.encode(CONFIG_FILE_ENCODING))
         parser = SchemaConfigParser(self.schema)
         parser.readfp(config, 'my.cfg')
 
@@ -123,7 +127,8 @@ class TestIncludes(unittest.TestCase):
             f.write("[__main__]\nbaz=3")
             f.close()
 
-            config = StringIO("[__main__]\nincludes=%s/first.cfg" % folder)
+            config = "[__main__]\nincludes=%s/first.cfg" % folder
+            config = BytesIO(config.encode(CONFIG_FILE_ENCODING))
             return config, folder
 
         class MySchema(Schema):
@@ -160,8 +165,8 @@ class TestIncludes(unittest.TestCase):
             f.write("[__main__]\nbaz=3")
             f.close()
 
-            config = StringIO(
-                "[__main__]\nfoo=4\nincludes=%s/first.cfg" % folder)
+            config = "[__main__]\nfoo=4\nincludes=%s/first.cfg" % folder
+            config = BytesIO(config.encode(CONFIG_FILE_ENCODING))
             return config, folder
 
         class MySchema(Schema):
@@ -192,7 +197,7 @@ class TestInterpolation(unittest.TestCase):
         class MySchema(Schema):
             foo = StringOption()
             bar = BoolOption()
-        config = StringIO('[__main__]\nbar=%(foo)s\nfoo=True')
+        config = BytesIO(b'[__main__]\nbar=%(foo)s\nfoo=True')
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config, 'my.cfg')
         self.assertEquals({'__main__': {'foo': 'True', 'bar': True}},
@@ -249,7 +254,7 @@ class TestInterpolation(unittest.TestCase):
             class baz(Section):
                 wham = IntOption()
 
-        config = StringIO("[foo]\nbar=%(wham)s\n[baz]\nwham=42")
+        config = BytesIO(b"[foo]\nbar=%(wham)s\n[baz]\nwham=42")
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
         self.assertRaises(InterpolationMissingOptionError,
@@ -264,7 +269,7 @@ class TestInterpolation(unittest.TestCase):
             class baz(Section):
                 wham = IntOption()
 
-        config = StringIO("[foo]\nbar=%(wham)s\n[baz]\nwham=42")
+        config = BytesIO(b"[foo]\nbar=%(wham)s\n[baz]\nwham=42")
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
         self.assertRaises(InterpolationMissingOptionError, parser.get,
@@ -355,7 +360,7 @@ class TestInterpolation(unittest.TestCase):
             pythonpath = StringOption()
             path = StringOption()
 
-        config = StringIO("[__main__]\npythonpath=${PYTHONPATH}\npath=$PATH")
+        config = BytesIO(b"[__main__]\npythonpath=${PYTHONPATH}\npath=$PATH")
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
         self.assertEqual(parser.values('__main__'),
@@ -373,7 +378,7 @@ class TestInterpolation(unittest.TestCase):
         class MySchema(Schema):
             foo = IntOption()
 
-        config = StringIO("[__main__]\nfoo=$FOO")
+        config = BytesIO(b"[__main__]\nfoo=$FOO")
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
         self.assertEqual(parser.get('__main__', 'foo'), 42)
@@ -382,7 +387,7 @@ class TestInterpolation(unittest.TestCase):
         class MySchema(Schema):
             foo = IntOption()
 
-        config = StringIO("[__main__]\nfoo=$FOO")
+        config = BytesIO(b"[__main__]\nfoo=$FOO")
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
         self.assertEqual(parser.get('__main__', 'foo'), 0)
@@ -391,7 +396,7 @@ class TestInterpolation(unittest.TestCase):
         """Test get_interpolation_keys for a string."""
         class MySchema(Schema):
             foo = StringOption()
-        config = StringIO("[__main__]\nfoo=%(bar)s")
+        config = BytesIO(b"[__main__]\nfoo=%(bar)s")
         expected = ('%(bar)s', set(['bar']))
 
         parser = SchemaConfigParser(MySchema())
@@ -403,7 +408,7 @@ class TestInterpolation(unittest.TestCase):
         """Test get_interpolation_keys for an integer."""
         class MySchema(Schema):
             foo = IntOption()
-        config = StringIO("[__main__]\nfoo=%(bar)s")
+        config = BytesIO(b"[__main__]\nfoo=%(bar)s")
         expected = ('%(bar)s', set(['bar']))
 
         parser = SchemaConfigParser(MySchema())
@@ -415,7 +420,7 @@ class TestInterpolation(unittest.TestCase):
         """Test get_interpolation_keys for a boolean."""
         class MySchema(Schema):
             foo = BoolOption()
-        config = StringIO("[__main__]\nfoo=%(bar)s")
+        config = BytesIO(b"[__main__]\nfoo=%(bar)s")
         expected = ('%(bar)s', set(['bar']))
 
         parser = SchemaConfigParser(MySchema())
@@ -427,7 +432,7 @@ class TestInterpolation(unittest.TestCase):
         """Test get_interpolation_keys for a tuple."""
         class MySchema(Schema):
             foo = TupleOption(2)
-        config = StringIO("[__main__]\nfoo=%(bar)s,%(baz)s")
+        config = BytesIO(b"[__main__]\nfoo=%(bar)s,%(baz)s")
         expected = ('%(bar)s,%(baz)s', set(['bar', 'baz']))
 
         parser = SchemaConfigParser(MySchema())
@@ -439,7 +444,7 @@ class TestInterpolation(unittest.TestCase):
         """Test get_interpolation_keys for a list."""
         class MySchema(Schema):
             foo = ListOption(item=StringOption())
-        config = StringIO("[__main__]\nfoo=%(bar)s\n    %(baz)s")
+        config = BytesIO(b"[__main__]\nfoo=%(bar)s\n    %(baz)s")
         expected = ('%(bar)s\n%(baz)s', set(['bar', 'baz']))
 
         parser = SchemaConfigParser(MySchema())
@@ -451,8 +456,8 @@ class TestInterpolation(unittest.TestCase):
         """Test get_interpolation_keys for a list of tuples."""
         class MySchema(Schema):
             foo = ListOption(item=TupleOption(2))
-        config = StringIO(
-            "[__main__]\nfoo=%(bar)s,%(bar)s\n    %(baz)s,%(baz)s")
+        config = BytesIO(
+            b"[__main__]\nfoo=%(bar)s,%(bar)s\n    %(baz)s,%(baz)s")
         expected = ('%(bar)s,%(bar)s\n%(baz)s,%(baz)s',
                     set(['bar', 'baz']))
 
@@ -465,14 +470,14 @@ class TestInterpolation(unittest.TestCase):
         """Test get_interpolation_keys for a dict."""
         class MySchema(Schema):
             foo = DictOption(spec={'a': IntOption()})
-        config = StringIO(textwrap.dedent("""
+        config = BytesIO(textwrap.dedent("""
             [__noschema__]
             bar=4
             [__main__]
             foo=mydict
             [mydict]
             a=%(bar)s
-            """))
+            """).encode(CONFIG_FILE_ENCODING))
         expected = ('mydict', set([]))
 
         parser = SchemaConfigParser(MySchema())
@@ -484,8 +489,8 @@ class TestInterpolation(unittest.TestCase):
         """Test interpolate_value for a duplicate key."""
         class MySchema(Schema):
             foo = TupleOption(2)
-        config = StringIO(
-            "[__noschema__]\nbar=4\n[__main__]\nfoo=%(bar)s,%(bar)s")
+        config = BytesIO(
+            b"[__noschema__]\nbar=4\n[__main__]\nfoo=%(bar)s,%(bar)s")
         expected_value = '4,4'
 
         parser = SchemaConfigParser(MySchema())
@@ -497,7 +502,7 @@ class TestInterpolation(unittest.TestCase):
         """Test interpolate_value with an invalid key."""
         class MySchema(Schema):
             foo = TupleOption(2)
-        config = StringIO("[other]\nbar=4\n[__main__]\nfoo=%(bar)s,%(bar)s")
+        config = BytesIO(b"[other]\nbar=4\n[__main__]\nfoo=%(bar)s,%(bar)s")
         expected_value = None
 
         parser = SchemaConfigParser(MySchema())
@@ -509,7 +514,7 @@ class TestInterpolation(unittest.TestCase):
         """Test interpolate_value with no keys."""
         class MySchema(Schema):
             foo = TupleOption(2)
-        config = StringIO("[__main__]\nfoo=%(bar)s,%(bar)s")
+        config = BytesIO(b"[__main__]\nfoo=%(bar)s,%(bar)s")
 
         mock_get_interpolation_keys = Mock(return_value=('%(bar)s', None))
 
@@ -525,7 +530,7 @@ class TestInterpolation(unittest.TestCase):
         """Test get using a raw value."""
         class MySchema(Schema):
             foo = StringOption(raw=True)
-        config = StringIO('[__main__]\nfoo=blah%(asd)##$@@dddf2kjhkjs')
+        config = BytesIO(b'[__main__]\nfoo=blah%(asd)##$@@dddf2kjhkjs')
         expected_value = 'blah%(asd)##$@@dddf2kjhkjs'
 
         parser = SchemaConfigParser(MySchema())
@@ -537,14 +542,14 @@ class TestInterpolation(unittest.TestCase):
         """Test interpolation while parsing a dict."""
         class MySchema(Schema):
             foo = DictOption(spec={'a': IntOption()})
-        config = StringIO(textwrap.dedent("""
+        config = BytesIO(textwrap.dedent("""
             [__noschema__]
             bar=4
             [__main__]
             foo=mydict
             [mydict]
             a=%(bar)s
-            """))
+            """).encode(CONFIG_FILE_ENCODING))
         expected = {'__main__': {'foo': {'a': 4}}}
 
         parser = SchemaConfigParser(MySchema())
@@ -559,7 +564,7 @@ class TestSchemaConfigParser(unittest.TestCase):
             foo = StringOption()
         self.schema = MySchema()
         self.parser = SchemaConfigParser(self.schema)
-        self.config = StringIO("[__main__]\nfoo = bar")
+        self.config = BytesIO(b"[__main__]\nfoo = bar")
 
     def test_init_no_args(self):
         self.assertRaises(TypeError, SchemaConfigParser)
@@ -584,13 +589,13 @@ class TestSchemaConfigParser(unittest.TestCase):
         self.assertRaises(NoSectionError, self.parser.items, '__main__')
 
     def test_items_raw(self):
-        config = StringIO('[__main__]\nfoo=%(baz)s')
+        config = BytesIO(b'[__main__]\nfoo=%(baz)s')
         self.parser.readfp(config)
         items = self.parser.items('__main__', raw=True)
         self.assertEqual(set(items), set([('foo', '%(baz)s')]))
 
     def test_items_vars(self):
-        config = StringIO('[__main__]\nfoo=%(baz)s')
+        config = BytesIO(b'[__main__]\nfoo=%(baz)s')
         self.parser.readfp(config)
         items = self.parser.items('__main__', vars={'baz': '42'})
         self.assertEqual(set(items), set([('foo', '42'), ('baz', '42')]))
@@ -604,14 +609,14 @@ class TestSchemaConfigParser(unittest.TestCase):
                 bar = StringOption()
 
         parser = SchemaConfigParser(MySchema())
-        config = StringIO('[__main__]\nfoo=%(bar)s\n[baz]\nbar=42')
+        config = BytesIO(b'[__main__]\nfoo=%(bar)s\n[baz]\nbar=42')
         parser.readfp(config)
         # test interpolate
         items = parser.items('baz')
-        self.assertEqual(items, {'bar': '42'}.items())
+        self.assertEqual(items, list(iteritems({'bar': '42'})))
 
     def test_items_interpolate_error(self):
-        config = StringIO('[__main__]\nfoo=%(bar)s')
+        config = BytesIO(b'[__main__]\nfoo=%(bar)s')
         self.parser.readfp(config)
         self.assertRaises(InterpolationMissingOptionError, self.parser.items,
                           '__main__')
@@ -638,7 +643,7 @@ class TestSchemaConfigParser(unittest.TestCase):
             class baz(Section):
                 bar = IntOption()
 
-        config = StringIO("[foo]\nbar=3\n[baz]\nbar=4")
+        config = BytesIO(b"[foo]\nbar=3\n[baz]\nbar=4")
         expected_values = {'foo': {'bar': 3}, 'baz': {'bar': 4}}
 
         schema = MySchema()
@@ -656,7 +661,7 @@ class TestSchemaConfigParser(unittest.TestCase):
             class bar(Section):
                 baz = IntOption()
 
-        config = StringIO("[foo]\nbar=3\n[bar]\nbaz=4")
+        config = BytesIO(b"[foo]\nbar=3\n[bar]\nbaz=4")
         expected_values = {'foo': {'bar': 3}, 'bar': {'baz': 4}}
 
         schema = MySchema()
@@ -672,7 +677,7 @@ class TestSchemaConfigParser(unittest.TestCase):
                 bar = StringOption()
 
         expected_value = 'baz'
-        config = StringIO("[foo]\nbar = baz")
+        config = BytesIO(b"[foo]\nbar = baz")
         parser = SchemaConfigParser(MyOtherSchema())
         parser.readfp(config)
         value = parser.get('foo', 'bar')
@@ -692,14 +697,14 @@ class TestSchemaConfigParser(unittest.TestCase):
                 bla = StringOption(default='hello')
 
         schema = MySchema()
-        config = StringIO("[bar]\nbaz=123")
+        config = BytesIO(b"[bar]\nbaz=123")
         expected_values = {'__main__': {'foo': True},
                            'bar': {'baz': 123, 'bla': 'hello'}}
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
         self.assertEquals(expected_values, parser.values())
 
-        config = StringIO("[bar]\nbla=123")
+        config = BytesIO(b"[bar]\nbla=123")
         expected = {
             '__main__': {'foo': True},
             'bar': {'baz': 0, 'bla': '123'}}
@@ -713,13 +718,13 @@ class TestSchemaConfigParser(unittest.TestCase):
             foo = IntOption(fatal=True)
             bar = IntOption()
         schema = MySchema()
-        config = StringIO("[__main__]\nfoo=123")
+        config = BytesIO(b"[__main__]\nfoo=123")
         expected = {'__main__': {'foo': 123, 'bar': 0}}
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
         self.assertEquals(expected, parser.values())
 
-        config = StringIO("[__main__]\nbar=123")
+        config = BytesIO(b"[__main__]\nbar=123")
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
         self.assertRaises(NoOptionError, parser.values)
@@ -729,7 +734,7 @@ class TestSchemaConfigParser(unittest.TestCase):
         class MySchema(Schema):
             foo = DictOption(spec={'bar': IntOption()})
 
-        config = StringIO("[__main__]\nfoo=mydict\n[mydict]\nbar=1")
+        config = BytesIO(b"[__main__]\nfoo=mydict\n[mydict]\nbar=1")
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
         parser.parse_all()
@@ -755,10 +760,10 @@ class TestSchemaConfigParser(unittest.TestCase):
         class MySchema(Schema):
             foo = DictOption()
 
-        config = StringIO(textwrap.dedent("""
+        config = BytesIO(textwrap.dedent("""
             [__main__]
             foo = dict1
-            """))
+            """).encode(CONFIG_FILE_ENCODING))
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
         parser.parse_all()
@@ -771,8 +776,8 @@ class TestSchemaConfigParser(unittest.TestCase):
             foo = ListOption(
                 item=DictOption(spec={'bar': IntOption()}))
 
-        config = StringIO('[__main__]\nfoo=d1\n    d2\n    d3\n'
-                          '[d1]\nbar=1\n[d2]\nbar=2\n[d3]\nbar=3')
+        config = BytesIO(b'[__main__]\nfoo=d1\n    d2\n    d3\n'
+                         b'[d1]\nbar=1\n[d2]\nbar=2\n[d3]\nbar=3')
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
         parser.parse_all()
@@ -782,14 +787,14 @@ class TestSchemaConfigParser(unittest.TestCase):
         self.assertEqual(expected_sections, extra_sections)
 
     def test_get_default(self):
-        config = StringIO("[__main__]\n")
+        config = BytesIO(b"[__main__]\n")
         expected = ''
         self.parser.readfp(config)
         default = self.parser._get_default('__main__', 'foo')
         self.assertEqual(default, expected)
 
     def test_get_default_noschema(self):
-        config = StringIO("[__noschema__]\nbar=1\n[__main__]\n")
+        config = BytesIO(b"[__noschema__]\nbar=1\n[__main__]\n")
         expected = '1'
         self.parser.readfp(config)
         default = self.parser._get_default('__noschema__', 'bar')
@@ -800,7 +805,7 @@ class TestSchemaConfigParser(unittest.TestCase):
         class MySchema(Schema):
             class foo(Section):
                 bar = IntOption()
-        config = StringIO("[__main__]\n")
+        config = BytesIO(b"[__main__]\n")
         expected = 0
 
         parser = SchemaConfigParser(MySchema())
@@ -823,8 +828,8 @@ class TestSchemaConfigParser(unittest.TestCase):
                 'bar': IntOption(),
                 'baz': IntOption(),
             }, strict=True)
-        config1 = StringIO('[__main__]\nfoo=mydict\n[mydict]\nbar=1\nbaz=1')
-        config2 = StringIO('[mydict]\nbaz=2')
+        config1 = BytesIO(b'[__main__]\nfoo=mydict\n[mydict]\nbar=1\nbaz=1')
+        config2 = BytesIO(b'[mydict]\nbaz=2')
         expected_values = {'__main__': {'foo': {'bar': 1, 'baz': 2}}}
 
         parser = SchemaConfigParser(MySchema())
@@ -841,7 +846,7 @@ class TestSchemaConfigParser(unittest.TestCase):
                     'baz': IntOption(),
                 }, strict=True))
 
-        config1 = StringIO('[__main__]\nfoo=mydict\n[mydict]\nbar=1\nbaz=1')
+        config1 = BytesIO(b'[__main__]\nfoo=mydict\n[mydict]\nbar=1\nbaz=1')
         expected_values = {'__main__': {'foo': [{'bar': 1, 'baz': 1}]}}
 
         parser = SchemaConfigParser(MySchema())
@@ -849,19 +854,19 @@ class TestSchemaConfigParser(unittest.TestCase):
         self.assertEqual(parser.values(), expected_values)
 
         # override used dictionaries
-        config2 = StringIO('[__main__]\nfoo=otherdict\n[otherdict]\nbar=2')
+        config2 = BytesIO(b'[__main__]\nfoo=otherdict\n[otherdict]\nbar=2')
         expected_values = {'__main__': {'foo': [{'bar': 2, 'baz': 0}]}}
         parser.readfp(config2)
         self.assertEqual(parser.values(), expected_values)
 
         # override existing dictionaries
-        config3 = StringIO('[otherdict]\nbaz=3')
+        config3 = BytesIO(b'[otherdict]\nbaz=3')
         expected_values = {'__main__': {'foo': [{'bar': 2, 'baz': 3}]}}
         parser.readfp(config3)
         self.assertEqual(parser.values(), expected_values)
 
         # reuse existing dict
-        config4 = StringIO('[__main__]\nfoo=mydict\n    otherdict')
+        config4 = BytesIO(b'[__main__]\nfoo=mydict\n    otherdict')
         expected_values = {'__main__': {'foo': [{'bar': 1, 'baz': 1},
                                                {'bar': 2, 'baz': 3}]}}
         parser.readfp(config4)
@@ -897,8 +902,12 @@ class TestSchemaConfigParser(unittest.TestCase):
         fp, filename = tempfile.mkstemp()
 
         try:
-            f = open(filename, 'w')
-            f.write('[__main__]\nfoo=€'.encode(CONFIG_FILE_ENCODING))
+            if PY2:
+                f = open(filename, 'w')
+                f.write('[__main__]\nfoo=€'.encode(CONFIG_FILE_ENCODING))
+            else:
+                f = open(filename, 'w', encoding=CONFIG_FILE_ENCODING)
+                f.write('[__main__]\nfoo=€')
             f.close()
 
             self.parser.read(filename)
@@ -915,7 +924,7 @@ class TestSchemaConfigParser(unittest.TestCase):
 
     def test_set(self):
         with tempfile.NamedTemporaryFile() as f:
-            f.write('[__main__]\nfoo=1')
+            f.write(b'[__main__]\nfoo=1')
             f.flush()
 
             self.parser.read(f.name)
@@ -956,7 +965,7 @@ class TestSchemaConfigParser(unittest.TestCase):
         parser = SchemaConfigParser(MySchema())
         expected = "[{0}]\nbaz = 2\n\n[__main__]\nfoo = bar".format(
             DEFAULTSECT)
-        config = StringIO(expected)
+        config = BytesIO(expected.encode(CONFIG_FILE_ENCODING))
         parser.readfp(config)
 
         # create config file
@@ -1004,12 +1013,14 @@ class TestSchemaConfigParser(unittest.TestCase):
         fp, filename = tempfile.mkstemp()
         try:
             self.parser.save(open(filename, 'w'))
-            result = open(filename, 'r').read().strip()
-            self.assertEqual(result.decode(CONFIG_FILE_ENCODING), expected)
+            result = codecs.open(filename, 'r',
+                                 encoding=CONFIG_FILE_ENCODING).read().strip()
+            self.assertEqual(result, expected)
 
             self.parser.save(filename)
-            result = open(filename, 'r').read().strip()
-            self.assertEqual(result.decode(CONFIG_FILE_ENCODING), expected)
+            result = codecs.open(filename, 'r',
+                                 encoding=CONFIG_FILE_ENCODING).read().strip()
+            self.assertEqual(result, expected)
         finally:
             # remove the file
             os.unlink(filename)
@@ -1132,7 +1143,7 @@ class TestParserIsValid(unittest.TestCase):
             foo = StringOption()
         self.schema = MySchema()
         self.parser = SchemaConfigParser(self.schema)
-        self.config = StringIO("[__main__]\nfoo = bar")
+        self.config = BytesIO(b"[__main__]\nfoo = bar")
 
     def test_basic_is_valid(self):
         """Test basic validation without error reporting."""
@@ -1140,7 +1151,7 @@ class TestParserIsValid(unittest.TestCase):
             foo = IntOption()
 
         schema = MySchema()
-        config = StringIO("[__main__]\nfoo = 5")
+        config = BytesIO(b"[__main__]\nfoo = 5")
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
 
@@ -1151,7 +1162,7 @@ class TestParserIsValid(unittest.TestCase):
         class MySchema(Schema):
             foo = IntOption()
 
-        config = StringIO("[__main__]\nfoo=5")
+        config = BytesIO(b"[__main__]\nfoo=5")
         expected = (True, [])
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
@@ -1164,7 +1175,7 @@ class TestParserIsValid(unittest.TestCase):
             foo = IntOption()
 
         schema = MySchema()
-        config = StringIO("[__main__]\nfoo = 5\nbar = 6")
+        config = BytesIO(b"[__main__]\nfoo = 5\nbar = 6")
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
 
@@ -1175,7 +1186,7 @@ class TestParserIsValid(unittest.TestCase):
         class MySchema(Schema):
             foo = IntOption()
 
-        config = StringIO("[__main__]\nfoo=5\nbar=6")
+        config = BytesIO(b"[__main__]\nfoo=5\nbar=6")
         errors = ["Configuration includes invalid options for "
                   "section '__main__': bar"]
         expected = (False, errors)
@@ -1194,7 +1205,7 @@ class TestParserIsValid(unittest.TestCase):
             assert False
 
         schema = MySchema()
-        config = StringIO("[__main__]\nfoo = 5")
+        config = BytesIO(b"[__main__]\nfoo = 5")
         parser = SchemaConfigParser(schema)
         parser.parse_all = mock_parse_all
         parser.readfp(config)
@@ -1202,13 +1213,13 @@ class TestParserIsValid(unittest.TestCase):
         self.assertFalse(parser.is_valid())
 
     def test_parse_invalid_section(self):
-        config = StringIO("[bar]\nbaz=foo")
+        config = BytesIO(b"[bar]\nbaz=foo")
         self.parser.readfp(config)
 
         self.assertFalse(self.parser.is_valid())
 
     def test_parse_invalid_section_with_report(self):
-        config = StringIO("[bar]\nbaz=foo")
+        config = BytesIO(b"[bar]\nbaz=foo")
         self.parser.readfp(config)
 
         valid, errors = self.parser.is_valid(report=True)
@@ -1217,7 +1228,7 @@ class TestParserIsValid(unittest.TestCase):
             'Sections in configuration are missing from schema: bar')
 
     def test_different_sections(self):
-        config = StringIO("[__main__]\nfoo=1\n[bar]\nbaz=2")
+        config = BytesIO(b"[__main__]\nfoo=1\n[bar]\nbaz=2")
         self.parser.readfp(config)
 
         self.assertFalse(self.parser.is_valid())
@@ -1228,7 +1239,7 @@ class TestParserIsValid(unittest.TestCase):
             foo = IntOption()
             bar = IntOption(fatal=True)
 
-        config = StringIO("[__main__]\nfoo=1")
+        config = BytesIO(b"[__main__]\nfoo=1")
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
 
@@ -1240,7 +1251,7 @@ class TestParserIsValid(unittest.TestCase):
             foo = IntOption()
             bar = IntOption(fatal=True)
 
-        config = StringIO("[__main__]\nbar=2")
+        config = BytesIO(b"[__main__]\nbar=2")
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
 
@@ -1251,7 +1262,7 @@ class TestParserIsValid(unittest.TestCase):
         class MySchema(Schema):
             foo = DictOption(spec={'bar': IntOption()})
 
-        config = StringIO("[__main__]\nfoo=mydict\n[mydict]\nbar=1")
+        config = BytesIO(b"[__main__]\nfoo=mydict\n[mydict]\nbar=1")
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
         parser.parse_all()
@@ -1263,7 +1274,7 @@ class TestParserIsValid(unittest.TestCase):
         class MySchema(Schema):
             foo = DictOption(item=DictOption())
 
-        config = StringIO("""
+        config = BytesIO(b"""
 [__main__]
 foo=dict1
 [dict1]
@@ -1284,7 +1295,7 @@ baz=42
         class MySchema(Schema):
             foo = DictOption(spec={'bar': DictOption()}, strict=True)
 
-        config = StringIO("""
+        config = BytesIO(b"""
 [__main__]
 foo=dict1
 [dict1]
@@ -1306,7 +1317,7 @@ baz=42
             foo = ListOption(
                 item=DictOption(item=DictOption()))
 
-        config = StringIO("""
+        config = BytesIO(b"""
 [__main__]
 foo = dict1
       dict2
@@ -1335,7 +1346,7 @@ whaz = 2
             foo = DictOption(
                 item=ListOption(item=DictOption()))
 
-        config = StringIO("""
+        config = BytesIO(b"""
 [__main__]
 foo = dict1
 [dict1]
@@ -1361,7 +1372,7 @@ wham = 2
                 item=DictOption(
                     item=ListOption(item=DictOption())))
 
-        config = StringIO("""
+        config = BytesIO(b"""
 [__main__]
 foo = dict1
       dict2
@@ -1395,10 +1406,10 @@ swoosh = 4
         class MySchema(Schema):
             foo = DictOption()
 
-        config = StringIO(textwrap.dedent("""
+        config = BytesIO(textwrap.dedent("""
             [__main__]
             foo = dict1
-            """))
+            """).encode(CONFIG_FILE_ENCODING))
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
         parser.parse_all()
@@ -1413,8 +1424,8 @@ swoosh = 4
             foo = ListOption(
                 item=DictOption(spec={'bar': IntOption()}))
 
-        config = StringIO('[__main__]\nfoo=d1\n    d2\n    d3\n'
-                          '[d1]\nbar=1\n[d2]\nbar=2\n[d3]\nbar=3')
+        config = BytesIO(b'[__main__]\nfoo=d1\n    d2\n    d3\n'
+                         b'[d1]\nbar=1\n[d2]\nbar=2\n[d3]\nbar=3')
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
         parser.parse_all()
@@ -1422,8 +1433,8 @@ swoosh = 4
         self.assertTrue(parser.is_valid())
 
     def test_noschema_section(self):
-        config = StringIO(
-            "[__main__]\nfoo=%(bar)s\n[__noschema__]\nbar=hello")
+        config = BytesIO(
+            b"[__main__]\nfoo=%(bar)s\n[__noschema__]\nbar=hello")
         parser = SchemaConfigParser(self.schema)
         parser.readfp(config)
         parser.parse_all()
@@ -1438,10 +1449,10 @@ swoosh = 4
             class bar(Section):
                 baz = BoolOption()
 
-        config = StringIO(textwrap.dedent("""
+        config = BytesIO(textwrap.dedent("""
             [foo]
             bar = 3
-            """))
+            """).encode(CONFIG_FILE_ENCODING))
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
         parser.parse_all()
