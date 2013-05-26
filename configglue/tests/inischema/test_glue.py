@@ -13,13 +13,14 @@
 # For bug reports, support, and new releases: http://launchpad.net/configglue
 #
 ###############################################################################
+from __future__ import unicode_literals
 
 # in testfiles, putting docstrings on methods messes up with the
 # runner's output, so pylint: disable-msg=C0111
 
 import sys
 import unittest
-from StringIO import StringIO
+from io import BytesIO, StringIO
 
 from configglue.inischema.glue import configglue
 
@@ -60,7 +61,7 @@ foo = 2
                          {self.opt: '5'})
 
     def test_help_is_displayed(self):
-        sys.stdout = StringIO()
+        sys.stdout = BytesIO()
         try:
             configglue(self.file, args=['', '--help'])
         except SystemExit:

@@ -19,7 +19,7 @@ from __future__ import unicode_literals
 import unittest
 import os
 import sys
-from StringIO import StringIO
+from io import BytesIO, StringIO
 from optparse import (
     OptionConflictError,
     OptionParser,
@@ -326,7 +326,7 @@ class TestSchemaConfigGlue(unittest.TestCase):
             {'foo': {'bar': 1}, '__main__': {'baz': 0}})
 
         # replace stdout to capture its value
-        stdout = StringIO()
+        stdout = BytesIO()
         _stdout = sys.stdout
         sys.stdout = stdout
         # call the method and assert its value
@@ -348,7 +348,7 @@ class TestSchemaConfigGlue(unittest.TestCase):
         self.parser = SchemaConfigParser(MySchema())
 
         # replace stdout to capture its value
-        stdout = StringIO()
+        stdout = BytesIO()
         _stdout = sys.stdout
         sys.stdout = stdout
         # call the method and assert its value

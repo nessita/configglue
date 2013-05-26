@@ -20,7 +20,7 @@ from __future__ import unicode_literals
 # runner's output, so pylint: disable-msg=C0111
 
 import unittest
-from StringIO import StringIO
+from io import StringIO
 from configparser import RawConfigParser
 
 from configglue.inischema.typed import TypedConfigParser

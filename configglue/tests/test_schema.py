@@ -14,6 +14,7 @@
 # For bug reports, support, and new releases: http://launchpad.net/configglue
 #
 ###############################################################################
+from __future__ import unicode_literals
 
 import textwrap
 import unittest
@@ -21,7 +22,7 @@ from configparser import (
     NoOptionError,
     NoSectionError,
 )
-from StringIO import StringIO
+from io import StringIO
 
 from configglue._compat import text_type
 from configglue.parser import (
@@ -662,7 +663,7 @@ class TestListOption(unittest.TestCase):
     def test_to_string_when_no_json(self):
         option = ListOption(parse_json=False)
         result = option.to_string(['1', '2', '3'])
-        self.assertEqual(result, "['1', '2', '3']")
+        self.assertEqual(result, "[u'1', u'2', u'3']")
 
 
 class TestTupleOption(unittest.TestCase):

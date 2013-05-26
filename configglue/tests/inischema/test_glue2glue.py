@@ -19,7 +19,7 @@ from __future__ import unicode_literals
 import sys
 import textwrap
 import unittest
-from StringIO import StringIO
+from io import StringIO
 
 from configglue.inischema.glue import (
     configglue,

@@ -28,7 +28,7 @@ from configparser import (
     InterpolationSyntaxError,
     NoSectionError,
 )
-from StringIO import StringIO
+from io import BytesIO, StringIO
 
 from mock import (
     MagicMock,
@@ -909,7 +909,7 @@ class TestSchemaConfigParser(unittest.TestCase):
             os.remove(filename)
 
     def test_readfp_with_utf8_encoded_text(self):
-        config = StringIO('[__main__]\nfoo=€'.encode(CONFIG_FILE_ENCODING))
+        config = BytesIO('[__main__]\nfoo=€'.encode(CONFIG_FILE_ENCODING))
         self.parser.readfp(config)
         self.assertEqual(self.parser.values(), {'__main__': {'foo': '€'}})
 
@@ -996,7 +996,7 @@ class TestSchemaConfigParser(unittest.TestCase):
         self._check_save_file(expected)
 
     def _check_save_file(self, expected, read_config=True):
-        config = StringIO(expected.encode(CONFIG_FILE_ENCODING))
+        config = BytesIO(expected.encode(CONFIG_FILE_ENCODING))
         if read_config:
             self.parser.readfp(config)
 
