@@ -24,9 +24,9 @@ import configglue
 from configglue._compat import PY2
 
 
-install_requires = []
+install_requires = ['pyxdg']
 if PY2:
-    install_requires.extend(['pyxdg', 'configparser'])
+    install_requires.extend(['configparser'])
 
 
 setup(name='configglue',
@@ -43,8 +43,10 @@ interface.
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
         ],
       author='John R. Lenton, Ricardo Kirkner',
