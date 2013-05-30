@@ -46,3 +46,5 @@ class DjangoOpenIdAuthSchema(Schema):
         openid_trust_root = StringOption()
         openid_sso_server_url = StringOption(
             null=True)
+        openid_email_whitelist_regexp_list = ListOption(
+            item=StringOption())
