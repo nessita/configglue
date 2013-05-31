@@ -285,7 +285,7 @@ class SchemaConfigParser(BaseConfigParser, object):
             old_basedir, self._basedir = self._basedir, os.path.dirname(
                 fpname)
             includes = self.get('__main__', 'includes')
-            filenames = list(map(text_type.strip, includes))
+            filenames = [text_type.strip(x) for x in includes]
             self.read(filenames, already_read=already_read)
             self._basedir = old_basedir
 
@@ -305,7 +305,7 @@ class SchemaConfigParser(BaseConfigParser, object):
 
     def _update_location(self, old_sections, filename):
         # keep list of valid options to include locations for
-        option_names = list(map(lambda x: x.name, self.schema.options()))
+        option_names = [x.name for x in self.schema.options()]
 
         # new values
         sections = self._sections
@@ -384,7 +384,7 @@ class SchemaConfigParser(BaseConfigParser, object):
 
     def _extract_interpolation_keys(self, item):
         if isinstance(item, (list, tuple)):
-            keys = list(map(self._extract_interpolation_keys, item))
+            keys = [self._extract_interpolation_keys(x) for x in item]
             keys = reduce(set.union, keys, set())
         else:
             keys = set(self._KEYCRE.findall(item))

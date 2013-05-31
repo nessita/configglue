@@ -663,7 +663,7 @@ class TestListOption(unittest.TestCase):
     def test_to_string_when_no_json(self):
         option = ListOption(parse_json=False)
         result = option.to_string(['1', '2', '3'])
-        expected = list(map(text_type, [1, 2, 3]))
+        expected = [text_type(x) for x in [1, 2, 3]]
         self.assertEqual(result, text_type(expected))
 
 
