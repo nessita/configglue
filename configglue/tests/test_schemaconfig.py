@@ -14,11 +14,12 @@
 # For bug reports, support, and new releases: http://launchpad.net/configglue
 #
 ###############################################################################
+from __future__ import unicode_literals
 
 import unittest
 import os
 import sys
-from StringIO import StringIO
+from io import BytesIO, StringIO
 from optparse import (
     OptionConflictError,
     OptionParser,
@@ -29,6 +30,7 @@ from mock import (
     patch,
 )
 
+from configglue._compat import PY2
 from configglue.glue import (
     configglue,
     schemaconfigglue,
@@ -146,7 +148,7 @@ class TestSchemaConfigGlue(unittest.TestCase):
 
     def test_glue_no_op(self):
         """Test schemaconfigglue with the default OptionParser value."""
-        config = StringIO("[__main__]\nbaz=1")
+        config = BytesIO(b"[__main__]\nbaz=1")
         self.parser.readfp(config)
         self.assertEqual(self.parser.values(),
             {'foo': {'bar': 0}, '__main__': {'baz': 1}})
@@ -157,7 +159,7 @@ class TestSchemaConfigGlue(unittest.TestCase):
 
     def test_glue_no_argv(self):
         """Test schemaconfigglue with the default argv value."""
-        config = StringIO("[__main__]\nbaz=1")
+        config = BytesIO(b"[__main__]\nbaz=1")
         self.parser.readfp(config)
         self.assertEqual(self.parser.values(),
             {'foo': {'bar': 0}, '__main__': {'baz': 1}})
@@ -172,7 +174,7 @@ class TestSchemaConfigGlue(unittest.TestCase):
 
     def test_glue_section_option(self):
         """Test schemaconfigglue overriding one option."""
-        config = StringIO("[foo]\nbar=1")
+        config = BytesIO(b"[foo]\nbar=1")
         self.parser.readfp(config)
         self.assertEqual(self.parser.values(),
             {'foo': {'bar': 1}, '__main__': {'baz': 0}})
@@ -187,7 +189,7 @@ class TestSchemaConfigGlue(unittest.TestCase):
         class MySchema(Schema):
             foo = DictOption()
 
-        config = StringIO("[__main__]\nfoo = bar")
+        config = BytesIO(b"[__main__]\nfoo = bar")
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
 
@@ -216,7 +218,7 @@ class TestSchemaConfigGlue(unittest.TestCase):
     @patch('configglue.glue.os')
     def test_glue_environ(self, mock_os):
         mock_os.environ = {'CONFIGGLUE_FOO_BAR': '42', 'CONFIGGLUE_BAZ': 3}
-        config = StringIO("[foo]\nbar=1")
+        config = BytesIO(b"[foo]\nbar=1")
         self.parser.readfp(config)
 
         _argv, sys.argv = sys.argv, ['prognam']
@@ -230,7 +232,7 @@ class TestSchemaConfigGlue(unittest.TestCase):
     @patch('configglue.glue.os')
     def test_glue_environ_bad_name(self, mock_os):
         mock_os.environ = {'FOO_BAR': 2, 'BAZ': 3}
-        config = StringIO("[foo]\nbar=1")
+        config = BytesIO(b"[foo]\nbar=1")
         self.parser.readfp(config)
 
         _argv, sys.argv = sys.argv, ['prognam']
@@ -245,7 +247,7 @@ class TestSchemaConfigGlue(unittest.TestCase):
         with patch.object(os, 'environ',
             {'CONFIGGLUE_FOO_BAR': '42', 'BAR': '1'}):
 
-            config = StringIO("[foo]\nbar=$BAR")
+            config = BytesIO(b"[foo]\nbar=$BAR")
             self.parser.readfp(config)
 
             _argv, sys.argv = sys.argv, ['prognam']
@@ -306,7 +308,7 @@ class TestSchemaConfigGlue(unittest.TestCase):
             class bar(Section):
                 baz = IntOption()
 
-        config = StringIO("[foo]\nbaz=1")
+        config = BytesIO(b"[foo]\nbaz=1")
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
         self.assertEqual(parser.values('foo'), {'baz': 1})
@@ -319,24 +321,22 @@ class TestSchemaConfigGlue(unittest.TestCase):
 
     def test_help(self):
         """Test schemaconfigglue with --help."""
-        config = StringIO("[foo]\nbar=1")
+        config = BytesIO(b"[foo]\nbar=1")
         self.parser.readfp(config)
         self.assertEqual(self.parser.values(),
             {'foo': {'bar': 1}, '__main__': {'baz': 0}})
 
         # replace stdout to capture its value
-        stdout = StringIO()
-        _stdout = sys.stdout
-        sys.stdout = stdout
-        # call the method and assert its value
-        self.assertRaises(SystemExit, schemaconfigglue, self.parser,
-            argv=['--help'])
-        # replace stdout again to cleanup
-        sys.stdout = _stdout
+        new_callable = StringIO
+        if PY2:
+            new_callable = BytesIO
+        with patch('sys.stdout', new_callable=new_callable) as mock_stdout:
+            # call the method and assert its value
+            self.assertRaises(SystemExit, schemaconfigglue, self.parser,
+                argv=['--help'])
 
         # assert the value of stdout is correct
-        stdout.seek(0)
-        output = stdout.read()
+        output = mock_stdout.getvalue()
         self.assertTrue(output.startswith('Usage:'))
 
     def test_help_with_fatal(self):
@@ -347,18 +347,16 @@ class TestSchemaConfigGlue(unittest.TestCase):
         self.parser = SchemaConfigParser(MySchema())
 
         # replace stdout to capture its value
-        stdout = StringIO()
-        _stdout = sys.stdout
-        sys.stdout = stdout
-        # call the method and assert its value
-        self.assertRaises(SystemExit, schemaconfigglue, self.parser,
-            argv=['--help'])
-        # replace stdout again to cleanup
-        sys.stdout = _stdout
+        new_callable = StringIO
+        if PY2:
+            new_callable = BytesIO
+        with patch('sys.stdout', new_callable=new_callable) as mock_stdout:
+            # call the method and assert its value
+            self.assertRaises(SystemExit, schemaconfigglue, self.parser,
+                argv=['--help'])
 
         # assert the value of stdout is correct
-        stdout.seek(0)
-        output = stdout.read()
+        output = mock_stdout.getvalue()
         self.assertTrue(output.startswith('Usage:'))
 
     def test_parser_set_with_encoding(self):
@@ -410,7 +408,7 @@ class TestSchemaConfigGlue(unittest.TestCase):
         class MySchema(Schema):
             foo = IntOption(fatal=True)
 
-        config = StringIO("[__main__]\nfoo=1")
+        config = BytesIO(b"[__main__]\nfoo=1")
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
 

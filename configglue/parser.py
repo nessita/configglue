@@ -20,15 +20,18 @@ import copy
 import logging
 import os
 import re
-import string
+from io import TextIOWrapper
 
-from ConfigParser import (
+from configparser import (
     DEFAULTSECT,
     SafeConfigParser as BaseConfigParser,
     InterpolationMissingOptionError,
     NoOptionError,
     NoSectionError,
 )
+from functools import reduce
+
+from configglue._compat import text_type, string_types
 
 
 __all__ = [
@@ -75,6 +78,8 @@ class SchemaConfigParser(BaseConfigParser, object):
         self._basedir = ''
         self._dirty = collections.defaultdict(
             lambda: collections.defaultdict(dict))
+        # map to location in configparser
+        self._KEYCRE = self._interpolation._KEYCRE
 
     def is_valid(self, report=False):
         """Return if the state of the parser is valid.
@@ -155,8 +160,8 @@ class SchemaConfigParser(BaseConfigParser, object):
             # structure validates, validate content
             self.parse_all()
 
-        except Exception, e:
-            errors.append(str(e))
+        except Exception as e:
+            errors.append(text_type(e))
             valid = False
 
         if report:
@@ -201,7 +206,7 @@ class SchemaConfigParser(BaseConfigParser, object):
             for option in options:
                 try:
                     value = self._interpolate(section, option, d[option], d)
-                except InterpolationMissingOptionError, e:
+                except InterpolationMissingOptionError as e:
                     # interpolation failed, because key was not found in
                     # section. try other sections before bailing out
                     value = self._interpolate_value(section, option)
@@ -243,7 +248,7 @@ class SchemaConfigParser(BaseConfigParser, object):
         """Like ConfigParser.read, but consider files we've already read."""
         if already_read is None:
             already_read = set()
-        if isinstance(filenames, basestring):
+        if isinstance(filenames, string_types):
             filenames = [filenames]
         read_ok = []
         for filename in filenames:
@@ -280,7 +285,7 @@ class SchemaConfigParser(BaseConfigParser, object):
             old_basedir, self._basedir = self._basedir, os.path.dirname(
                 fpname)
             includes = self.get('__main__', 'includes')
-            filenames = map(string.strip, includes)
+            filenames = [text_type.strip(x) for x in includes]
             self.read(filenames, already_read=already_read)
             self._basedir = old_basedir
 
@@ -300,7 +305,7 @@ class SchemaConfigParser(BaseConfigParser, object):
 
     def _update_location(self, old_sections, filename):
         # keep list of valid options to include locations for
-        option_names = map(lambda x: x.name, self.schema.options())
+        option_names = [x.name for x in self.schema.options()]
 
         # new values
         sections = self._sections
@@ -348,7 +353,7 @@ class SchemaConfigParser(BaseConfigParser, object):
 
             try:
                 value = option_obj.parse(value, **kwargs)
-            except ValueError, e:
+            except ValueError as e:
                 raise ValueError("Invalid value '%s' for %s '%s' in"
                     " section '%s'. Original exception was: %s" %
                     (value, option_obj.__class__.__name__, option,
@@ -379,7 +384,7 @@ class SchemaConfigParser(BaseConfigParser, object):
 
     def _extract_interpolation_keys(self, item):
         if isinstance(item, (list, tuple)):
-            keys = map(self._extract_interpolation_keys, item)
+            keys = [self._extract_interpolation_keys(x) for x in item]
             keys = reduce(set.union, keys, set())
         else:
             keys = set(self._KEYCRE.findall(item))
@@ -390,7 +395,7 @@ class SchemaConfigParser(BaseConfigParser, object):
 
     def _get_interpolation_keys(self, section, option):
 
-        rawval = super(SchemaConfigParser, self).get(section, option, True)
+        rawval = super(SchemaConfigParser, self).get(section, option, raw=True)
         try:
             opt = self.schema.section(section).option(option)
             value = opt.parse(rawval, raw=True)
@@ -399,6 +404,10 @@ class SchemaConfigParser(BaseConfigParser, object):
 
         keys = self._extract_interpolation_keys(value)
         return rawval, keys
+
+    def _interpolate(self, *args, **kwargs):
+        """Helper method for transition to configparser."""
+        return self._interpolation.before_get(self, *args, **kwargs)
 
     def _interpolate_value(self, section, option):
         rawval, keys = self._get_interpolation_keys(section, option)
@@ -429,7 +438,7 @@ class SchemaConfigParser(BaseConfigParser, object):
         # replace holders with values
         result = rawval % values
 
-        assert isinstance(result, basestring)
+        assert isinstance(result, string_types)
         return result
 
     def interpolate_environment(self, rawval, raw=False):
@@ -508,20 +517,20 @@ class SchemaConfigParser(BaseConfigParser, object):
                 pass
             # value is defined entirely in current section
             value = super(SchemaConfigParser, self).get(section, option,
-                                                        raw, vars)
-        except InterpolationMissingOptionError, e:
+                                                        raw=raw, vars=vars)
+        except InterpolationMissingOptionError as e:
             # interpolation key not in same section
             value = self._interpolate_value(section, option)
             if value is None:
                 # this should be a string, so None indicates an error
                 raise e
-        except (NoSectionError, NoOptionError), e:
+        except (NoSectionError, NoOptionError) as e:
             # option not found in config, try to get its default value from
             # schema
             value = self._get_default(section, option)
 
         # interpolate environment variables
-        if isinstance(value, basestring):
+        if isinstance(value, string_types):
             try:
                 value = self.interpolate_environment(value, raw=raw)
                 if parse:
@@ -582,11 +591,12 @@ class SchemaConfigParser(BaseConfigParser, object):
 
         """
         if fp is not None:
-            if isinstance(fp, basestring):
+            if isinstance(fp, string_types):
                 fp = open(fp, 'w')
-            # write to a specific file
-            encoded_fp = codecs.getwriter(CONFIG_FILE_ENCODING)(fp)
-            self.write(encoded_fp)
+            if not isinstance(fp, TextIOWrapper):
+                # write to a specific file
+                fp = codecs.getwriter(CONFIG_FILE_ENCODING)(fp)
+            self.write(fp)
         else:
             # write to the original files
             for filename, sections in self._dirty.items():

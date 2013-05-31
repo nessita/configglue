@@ -13,13 +13,14 @@
 # For bug reports, support, and new releases: http://launchpad.net/configglue
 #
 ###############################################################################
+from __future__ import unicode_literals
 
 # in testfiles, putting docstrings on methods messes up with the
 # runner's output, so pylint: disable-msg=C0111
 
 import unittest
-from ConfigParser import RawConfigParser
-from StringIO import StringIO
+from configparser import RawConfigParser
+from io import StringIO
 
 from configglue.inischema.attributed import AttributedConfigParser
 

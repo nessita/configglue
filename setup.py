@@ -21,6 +21,12 @@ from setuptools import (
 )
 
 import configglue
+from configglue._compat import PY2
+
+
+install_requires = ['pyxdg']
+if PY2:
+    install_requires.extend(['configparser'])
 
 
 setup(name='configglue',
@@ -36,12 +42,18 @@ interface.
         'License :: OSI Approved :: BSD License',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3',
         ],
       author='John R. Lenton, Ricardo Kirkner',
       author_email='john.lenton@canonical.com, ricardo.kirkner@canonical.com',
       url='https://launchpad.net/configglue',
       license='BSD License',
-      install_requires=['pyxdg'],
+      install_requires=install_requires,
       dependency_links=['http://www.freedesktop.org/wiki/Software/pyxdg'],
       packages=find_packages(),
       include_package_data=True,

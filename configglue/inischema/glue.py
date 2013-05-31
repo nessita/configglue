@@ -18,9 +18,9 @@
 """
 from __future__ import absolute_import
 
-import __builtin__
 from collections import namedtuple
 
+from configglue._compat import builtins
 from configglue.inischema import parsers
 from configglue.inischema.attributed import AttributedConfigParser
 from configglue.glue import schemaconfigglue
@@ -78,7 +78,7 @@ def ini2schema(fd, p=None):
             parser_args = option.attrs.pop('parser.args', '').split()
             parser_fun = getattr(parsers, parser, None)
             if parser_fun is None:
-                parser_fun = getattr(__builtin__, parser, None)
+                parser_fun = getattr(builtins, parser, None)
             if parser_fun is None:
                 parser_fun = lambda x: x
 

@@ -14,11 +14,12 @@
 # For bug reports, support, and new releases: http://launchpad.net/configglue
 #
 ###############################################################################
+from __future__ import unicode_literals
 
 import sys
 import textwrap
 import unittest
-from StringIO import StringIO
+from io import StringIO
 
 from configglue.inischema.glue import (
     configglue,
@@ -67,8 +68,6 @@ class TestGlueConvertor(unittest.TestCase):
         s = textwrap.dedent("""
             [__main__]
             bar = zátrapa
-            bar.parser = unicode
-            bar.parser.args = utf-8
         """)
         _, cg, _ = configglue(StringIO(s))
         _, sg, _ = schemaconfigglue(ini2schema(StringIO(s)))

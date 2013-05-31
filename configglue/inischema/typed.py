@@ -15,10 +15,11 @@
 ###############################################################################
 
 """ TypedConfigParser lives here """
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 
 import os
 
+from configglue._compat import text_type
 from . import parsers
 from .attributed import AttributedConfigParser
 
@@ -34,7 +35,7 @@ class TypedConfigParser(AttributedConfigParser):
                         'float': float,
                         'int': int,
                         'lines': parsers.lines,
-                        'unicode': unicode,
+                        'unicode': text_type,
                         'getenv': os.getenv,
                         None: lambda x: x}
 

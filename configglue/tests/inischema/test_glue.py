@@ -13,21 +13,25 @@
 # For bug reports, support, and new releases: http://launchpad.net/configglue
 #
 ###############################################################################
+from __future__ import unicode_literals
 
 # in testfiles, putting docstrings on methods messes up with the
 # runner's output, so pylint: disable-msg=C0111
 
 import sys
 import unittest
-from StringIO import StringIO
+from io import BytesIO, StringIO, TextIOWrapper
 
+from mock import patch
+
+from configglue._compat import PY2
 from configglue.inischema.glue import configglue
 
 
 class TestBase(unittest.TestCase):
     """ Base class to keep common set-up """
     def setUp(self):
-        self.file = StringIO(self.ini)
+        self.file = TextIOWrapper(BytesIO(self.ini))
         self.old_sys_argv = sys.argv
         sys.argv = ['']
 
@@ -36,7 +40,7 @@ class TestBase(unittest.TestCase):
 
 
 class TestGlue(TestBase):
-    ini = '''
+    ini = b'''
 [blah]
 foo.help = yadda yadda yadda
          yadda
@@ -60,17 +64,20 @@ foo = 2
                          {self.opt: '5'})
 
     def test_help_is_displayed(self):
-        sys.stdout = StringIO()
-        try:
-            configglue(self.file, args=['', '--help'])
-        except SystemExit:
-            output = sys.stdout.getvalue()
-            sys.stdout = sys.__stdout__
+        new_callable = StringIO
+        if PY2:
+            new_callable = BytesIO
+
+        with patch('sys.stdout', new_callable=new_callable) as mock_stdout:
+            try:
+                configglue(self.file, args=['', '--help'])
+            except SystemExit:
+                output = mock_stdout.getvalue()
         self.assertTrue('yadda yadda yadda yadda' in output)
 
 
 class TestCrazyGlue(TestGlue):
-    ini = '''
+    ini = b'''
 [bl-ah]
 foo.default = 3
 foo.help = yadda yadda yadda
@@ -84,7 +91,7 @@ foo = 2
 
 
 class TestNoValue(TestGlue):
-    ini = '''
+    ini = b'''
 [blah]
 foo.help = yadda yadda yadda
          yadda
@@ -96,7 +103,7 @@ foo = 3
 
 
 class TestGlue2(TestBase):
-    ini = '[__main__]\na=1\n'
+    ini = b'[__main__]\na=1\n'
 
     def test_main(self):
         parser, options, args = configglue(self.file)
@@ -104,7 +111,7 @@ class TestGlue2(TestBase):
 
 
 class TestGlue3(TestBase):
-    ini = '[x]\na.help=hi\n'
+    ini = b'[x]\na.help=hi\n'
 
     def test_empty(self):
         parser, options, args = configglue(self.file)
@@ -117,7 +124,7 @@ class TestGlue3(TestBase):
 
 
 class TestGlueBool(TestBase):
-    ini = '''[__main__]
+    ini = b'''[__main__]
 foo.parser=bool
 foo.action=store_true
 
@@ -136,7 +143,7 @@ bar.action = store_false
 
 
 class TestGlueLines(TestBase):
-    ini = '''[__main__]
+    ini = b'''[__main__]
 foo.parser = lines
 foo.action = append
 

@@ -16,7 +16,7 @@
 
 import os
 import sys
-from ConfigParser import (
+from configparser import (
     NoOptionError,
     NoSectionError,
 )

@@ -18,7 +18,7 @@
 AttributtedConfigParser lives here.
 """
 import re
-from ConfigParser import RawConfigParser
+from configparser import RawConfigParser
 
 
 marker = object()

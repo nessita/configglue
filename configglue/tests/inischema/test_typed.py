@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 ###############################################################################
 #
 # configglue -- glue for your apps' configuration
@@ -13,13 +14,14 @@
 # For bug reports, support, and new releases: http://launchpad.net/configglue
 #
 ###############################################################################
+from __future__ import unicode_literals
 
 # in testfiles, putting docstrings on methods messes up with the
 # runner's output, so pylint: disable-msg=C0111
 
 import unittest
-from StringIO import StringIO
-from ConfigParser import RawConfigParser
+from io import StringIO
+from configparser import RawConfigParser
 
 from configglue.inischema.typed import TypedConfigParser
 
@@ -52,14 +54,8 @@ baz = marker
 baz2.parser = more.parser
 baz2 = -1
 
-meep = \xe1rbol
+meep = árbol
 meep.parser = unicode
-meep.parser.args = latin1
-
-quux = \xe1rbol
-quux.parser = unicode
-quux.parser.args = utf-8
-                   replace
 
 thud.help = this is the help for thud
 
@@ -119,9 +115,7 @@ class TestParserd(BaseTest):
                                      ('baz', marker),
                                      ('baz2', None),
                                      ('foo', 1j),
-                                     ('meep', u'\xe1rbol'),
-                                     ('quux', unicode('\xe1rbol', 'utf-8',
-                                                      'replace')),
+                                     ('meep', '\xe1rbol'),
                                      ('thud', None),
                                      ('woof', True),
                                      ])])
