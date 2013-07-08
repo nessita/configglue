@@ -37,7 +37,7 @@ from mock import (
     patch,
 )
 
-from configglue._compat import PY2, iteritems
+from configglue._compat import iteritems
 from configglue.parser import (
     CONFIG_FILE_ENCODING,
     NoOptionError,
@@ -110,20 +110,24 @@ class TestIncludes(unittest.TestCase):
         def setup_config():
             folder = tempfile.mkdtemp()
 
-            f = open("%s/first.cfg" % folder, 'w')
+            f = codecs.open("%s/first.cfg" % folder, 'w',
+                            encoding=CONFIG_FILE_ENCODING)
             f.write("[__main__]\nfoo=1\nincludes=second.cfg")
             f.close()
 
-            f = open("%s/second.cfg" % folder, 'w')
+            f = codecs.open("%s/second.cfg" % folder, 'w',
+                            encoding=CONFIG_FILE_ENCODING)
             f.write("[__main__]\nbar=2\nincludes=sub/third.cfg")
             f.close()
 
             os.mkdir("%s/sub" % folder)
-            f = open("%s/sub/third.cfg" % folder, 'w')
+            f = codecs.open("%s/sub/third.cfg" % folder, 'w',
+                            encoding=CONFIG_FILE_ENCODING)
             f.write("[__main__]\nincludes=../fourth.cfg")
             f.close()
 
-            f = open("%s/fourth.cfg" % folder, 'w')
+            f = codecs.open("%s/fourth.cfg" % folder, 'w',
+                            encoding=CONFIG_FILE_ENCODING)
             f.write("[__main__]\nbaz=3")
             f.close()
 
@@ -157,11 +161,13 @@ class TestIncludes(unittest.TestCase):
         def setup_config():
             folder = tempfile.mkdtemp()
 
-            f = open("%s/first.cfg" % folder, 'w')
+            f = codecs.open("%s/first.cfg" % folder, 'w',
+                            encoding=CONFIG_FILE_ENCODING)
             f.write("[__main__]\nfoo=1\nbar=2\nincludes=second.cfg")
             f.close()
 
-            f = open("%s/second.cfg" % folder, 'w')
+            f = codecs.open("%s/second.cfg" % folder, 'w',
+                            encoding=CONFIG_FILE_ENCODING)
             f.write("[__main__]\nbaz=3")
             f.close()
 
@@ -876,11 +882,13 @@ class TestSchemaConfigParser(unittest.TestCase):
         def setup_config():
             folder = tempfile.mkdtemp()
 
-            f = open("%s/first.cfg" % folder, 'w')
+            f = codecs.open("%s/first.cfg" % folder, 'w',
+                            encoding=CONFIG_FILE_ENCODING)
             f.write("[__main__]\nfoo=foo")
             f.close()
 
-            f = open("%s/second.cfg" % folder, 'w')
+            f = codecs.open("%s/second.cfg" % folder, 'w',
+                            encoding=CONFIG_FILE_ENCODING)
             f.write("[__main__]\nfoo=bar")
             f.close()
 
@@ -902,12 +910,9 @@ class TestSchemaConfigParser(unittest.TestCase):
         fp, filename = tempfile.mkstemp()
 
         try:
-            if PY2:
-                f = open(filename, 'w')
-                f.write('[__main__]\nfoo=€'.encode(CONFIG_FILE_ENCODING))
-            else:
-                f = open(filename, 'w', encoding=CONFIG_FILE_ENCODING)
-                f.write('[__main__]\nfoo=€')
+            f = codecs.open(filename, 'w',
+                            encoding=CONFIG_FILE_ENCODING)
+            f.write('[__main__]\nfoo=€')
             f.close()
 
             self.parser.read(filename)
@@ -971,8 +976,10 @@ class TestSchemaConfigParser(unittest.TestCase):
         # create config file
         fp, filename = tempfile.mkstemp()
         try:
-            parser.write(open(filename, 'w'))
-            result = open(filename, 'r').read().strip()
+            parser.write(codecs.open(filename, 'w',
+                                     encoding=CONFIG_FILE_ENCODING))
+            result = codecs.open(filename, 'r',
+                                 encoding=CONFIG_FILE_ENCODING).read().strip()
             self.assertEqual(result, expected)
         finally:
             # remove the file
@@ -989,8 +996,10 @@ class TestSchemaConfigParser(unittest.TestCase):
         # create config file
         fp, filename = tempfile.mkstemp()
         try:
-            parser.write(open(filename, 'w'))
-            result = open(filename, 'r').read().strip()
+            parser.write(codecs.open(filename, 'w',
+                                     encoding=CONFIG_FILE_ENCODING))
+            result = codecs.open(filename, 'r',
+                                 encoding=CONFIG_FILE_ENCODING).read().strip()
             self.assertEqual(result, expected)
         finally:
             # remove the file
@@ -1012,7 +1021,8 @@ class TestSchemaConfigParser(unittest.TestCase):
         # create config file
         fp, filename = tempfile.mkstemp()
         try:
-            self.parser.save(open(filename, 'w'))
+            self.parser.save(codecs.open(filename, 'w',
+                                         encoding=CONFIG_FILE_ENCODING))
             result = codecs.open(filename, 'r',
                                  encoding=CONFIG_FILE_ENCODING).read().strip()
             self.assertEqual(result, expected)
@@ -1043,11 +1053,13 @@ class TestSchemaConfigParser(unittest.TestCase):
         def setup_config():
             folder = tempfile.mkdtemp()
 
-            f = open("%s/first.cfg" % folder, 'w')
+            f = codecs.open("%s/first.cfg" % folder, 'w',
+                            encoding=CONFIG_FILE_ENCODING)
             f.write("[__main__]\nfoo=1")
             f.close()
 
-            f = open("%s/second.cfg" % folder, 'w')
+            f = codecs.open("%s/second.cfg" % folder, 'w',
+                            encoding=CONFIG_FILE_ENCODING)
             f.write("[__main__]\nbar=2")
             f.close()
 
@@ -1069,12 +1081,14 @@ class TestSchemaConfigParser(unittest.TestCase):
         self.parser.save()
 
         # test the changes were correctly saved
-        data = open("%s/first.cfg" % folder).read()
+        data = codecs.open("%s/first.cfg" % folder,
+                           encoding=CONFIG_FILE_ENCODING).read()
         self.assertTrue('foo = 42' in data)
         self.assertFalse('bar = 42' in data)
         # new value goes into last read config file
         self.assertFalse('baz = 42' in data)
-        data = open("%s/second.cfg" % folder).read()
+        data = codecs.open("%s/second.cfg" % folder,
+                           encoding=CONFIG_FILE_ENCODING).read()
         self.assertFalse('foo = 42' in data)
         self.assertTrue('bar = 42' in data)
         # new value goes into last read config file
@@ -1090,15 +1104,18 @@ class TestSchemaConfigParser(unittest.TestCase):
         def setup_config():
             folder = tempfile.mkdtemp()
 
-            f = open("%s/first.cfg" % folder, 'w')
+            f = codecs.open("%s/first.cfg" % folder, 'w',
+                            encoding=CONFIG_FILE_ENCODING)
             f.write("[__main__]\nfoo=1")
             f.close()
 
-            f = open("%s/second.cfg" % folder, 'w')
+            f = codecs.open("%s/second.cfg" % folder, 'w',
+                            encoding=CONFIG_FILE_ENCODING)
             f.write("[__main__]\nbar=2\nincludes = third.cfg")
             f.close()
 
-            f = open("%s/third.cfg" % folder, 'w')
+            f = codecs.open("%s/third.cfg" % folder, 'w',
+                            encoding=CONFIG_FILE_ENCODING)
             f.write("[__main__]\nfoo=3")
             f.close()
 
@@ -1120,11 +1137,14 @@ class TestSchemaConfigParser(unittest.TestCase):
         self.parser.save()
 
         # test the changes were correctly saved
-        data = open("%s/first.cfg" % folder).read()
+        data = codecs.open("%s/first.cfg" % folder,
+                           encoding=CONFIG_FILE_ENCODING).read()
         self.assertEqual(data.strip(), '[__main__]\nfoo=1')
-        data = open("%s/third.cfg" % folder).read()
+        data = codecs.open("%s/third.cfg" % folder,
+                           encoding=CONFIG_FILE_ENCODING).read()
         self.assertEqual(data.strip(), '[__main__]\nfoo = 42')
-        data = open("%s/second.cfg" % folder).read()
+        data = codecs.open("%s/second.cfg" % folder,
+                           encoding=CONFIG_FILE_ENCODING).read()
         self.assertTrue('bar = 42' in data)
         # new value goes into last read config file
         # not in the last included config file

@@ -20,7 +20,6 @@ import copy
 import logging
 import os
 import re
-from io import TextIOWrapper
 
 from configparser import (
     DEFAULTSECT,
@@ -256,7 +255,7 @@ class SchemaConfigParser(BaseConfigParser, object):
             if path in already_read:
                 continue
             try:
-                fp = codecs.open(path, 'r', CONFIG_FILE_ENCODING)
+                fp = codecs.open(path, 'r', encoding=CONFIG_FILE_ENCODING)
             except IOError:
                 logger.warn(
                     'File {0} could not be read. Skipping.'.format(path))
@@ -592,10 +591,7 @@ class SchemaConfigParser(BaseConfigParser, object):
         """
         if fp is not None:
             if isinstance(fp, string_types):
-                fp = open(fp, 'w')
-            if not isinstance(fp, TextIOWrapper):
-                # write to a specific file
-                fp = codecs.getwriter(CONFIG_FILE_ENCODING)(fp)
+                fp = codecs.open(fp, 'w', encoding=CONFIG_FILE_ENCODING)
             self.write(fp)
         else:
             # write to the original files
@@ -621,7 +617,8 @@ class SchemaConfigParser(BaseConfigParser, object):
                         parser.set(section, option, value)
 
                 # write to new file
-                parser.write(open("%s.new" % filename, 'w'))
+                parser.write(codecs.open("%s.new" % filename, 'w',
+                                         encoding=CONFIG_FILE_ENCODING))
                 # rename old file
                 if os.path.exists(filename):
                     os.rename(filename, "%s.old" % filename)
