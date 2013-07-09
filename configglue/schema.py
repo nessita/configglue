@@ -16,14 +16,11 @@
 from __future__ import unicode_literals
 
 import json
-from configparser import (
-    NoSectionError,
-    NoOptionError,
-)
 from copy import deepcopy
 from inspect import getmembers
 
-from configglue._compat import text_type, string_types
+from ._compat import configparser, text_type, string_types
+
 
 
 __all__ = [
@@ -177,7 +174,7 @@ class Schema(object):
         """Return a Section by name"""
         section = self._sections.get(name)
         if section is None:
-            raise NoSectionError(name)
+            raise configparser.NoSectionError(name)
         return section
 
     def sections(self):
@@ -248,7 +245,7 @@ class Section(object):
         """Return a Option by name"""
         opt = getattr(self, name, None)
         if opt is None:
-            raise NoOptionError(name, self.name)
+            raise configparser.NoOptionError(name, self.name)
         return opt
 
     def options(self):

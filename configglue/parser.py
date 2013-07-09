@@ -21,16 +21,9 @@ import logging
 import os
 import re
 
-from configparser import (
-    DEFAULTSECT,
-    SafeConfigParser as BaseConfigParser,
-    InterpolationMissingOptionError,
-    NoOptionError,
-    NoSectionError,
-)
 from functools import reduce
 
-from configglue._compat import text_type, string_types
+from ._compat import BaseConfigParser, configparser, text_type, string_types
 
 
 __all__ = [
@@ -77,8 +70,6 @@ class SchemaConfigParser(BaseConfigParser, object):
         self._basedir = ''
         self._dirty = collections.defaultdict(
             lambda: collections.defaultdict(dict))
-        # map to location in configparser
-        self._KEYCRE = self._interpolation._KEYCRE
 
     def is_valid(self, report=False):
         """Return if the state of the parser is valid.
@@ -123,7 +114,7 @@ class SchemaConfigParser(BaseConfigParser, object):
                     section = self.schema.section(name)
                     try:
                         parsed_options = set(self.options(name))
-                    except NoSectionError:
+                    except configparser.NoSectionError:
                         parsed_options = set([])
                     schema_options = set(section.options())
 
@@ -188,8 +179,8 @@ class SchemaConfigParser(BaseConfigParser, object):
         try:
             d.update(self._sections[section])
         except KeyError:
-            if section != DEFAULTSECT:
-                raise NoSectionError(section)
+            if section != configparser.DEFAULTSECT:
+                raise configparser.NoSectionError(section)
         # Update with the entry specific variables
         if vars:
             for key, value in vars.items():
@@ -205,7 +196,7 @@ class SchemaConfigParser(BaseConfigParser, object):
             for option in options:
                 try:
                     value = self._interpolate(section, option, d[option], d)
-                except InterpolationMissingOptionError as e:
+                except configparser.InterpolationMissingOptionError as e:
                     # interpolation failed, because key was not found in
                     # section. try other sections before bailing out
                     value = self._interpolate_value(section, option)
@@ -343,7 +334,7 @@ class SchemaConfigParser(BaseConfigParser, object):
             if section_obj is not None:
                 option_obj = getattr(section_obj, option, None)
             else:
-                raise NoSectionError(section)
+                raise configparser.NoSectionError(section)
 
         if option_obj is not None:
             kwargs = {}
@@ -373,7 +364,8 @@ class SchemaConfigParser(BaseConfigParser, object):
             for option in section.options():
                 try:
                     self.get(section.name, option.name, raw=option.raw)
-                except (NoSectionError, NoOptionError):
+                except (configparser.NoSectionError,
+                        configparser.NoOptionError):
                     if option.fatal:
                         raise
 
@@ -420,7 +412,7 @@ class SchemaConfigParser(BaseConfigParser, object):
             # we want the unparsed value
             try:
                 value = self.get(section, key, parse=False)
-            except (NoSectionError, NoOptionError):
+            except (configparser.NoSectionError, configparser.NoOptionError):
                 # value of key not found in config, so try in special
                 # sections
                 for section in ('__main__', '__noschema__'):
@@ -494,7 +486,7 @@ class SchemaConfigParser(BaseConfigParser, object):
             return value
 
         # no default value found, raise an error
-        raise NoOptionError(option, section)
+        raise configparser.NoOptionError(option, section)
 
     def get(self, section, option, raw=False, vars=None, parse=True):
         """Return the parsed value of an option.
@@ -517,13 +509,13 @@ class SchemaConfigParser(BaseConfigParser, object):
             # value is defined entirely in current section
             value = super(SchemaConfigParser, self).get(section, option,
                                                         raw=raw, vars=vars)
-        except InterpolationMissingOptionError as e:
+        except configparser.InterpolationMissingOptionError as e:
             # interpolation key not in same section
             value = self._interpolate_value(section, option)
             if value is None:
                 # this should be a string, so None indicates an error
                 raise e
-        except (NoSectionError, NoOptionError) as e:
+        except (configparser.NoSectionError, configparser.NoOptionError) as e:
             # option not found in config, try to get its default value from
             # schema
             value = self._get_default(section, option)
@@ -569,7 +561,7 @@ class SchemaConfigParser(BaseConfigParser, object):
         self._fill_parser()
 
         if self._defaults:
-            fp.write("[%s]\n" % DEFAULTSECT)
+            fp.write("[%s]\n" % configparser.DEFAULTSECT)
             for (key, value) in self._defaults.items():
                 fp.write("%s = %s\n" % (key, value.replace('\n', '\n\t')))
             fp.write("\n")
@@ -609,7 +601,7 @@ class SchemaConfigParser(BaseConfigParser, object):
                     else:
                         filename = self._last_location
 
-                parser = BaseConfigParser()
+                parser = configparser.SafeConfigParser()
                 parser.read(filename)
 
                 for section, options in sections.items():

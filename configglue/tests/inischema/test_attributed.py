@@ -19,9 +19,9 @@ from __future__ import unicode_literals
 # runner's output, so pylint: disable-msg=C0111
 
 import unittest
-from configparser import RawConfigParser
 from io import StringIO
 
+from configglue._compat import configparser
 from configglue.inischema.attributed import AttributedConfigParser
 
 
@@ -44,7 +44,7 @@ bar.blah    = 23
 class TestAttributed(BaseTest):
     """ pretty basic tests of AttributedConfigParser """
     def test_config_before_parsing_is_plain(self):
-        rawConfig = RawConfigParser()
+        rawConfig = configparser.RawConfigParser()
         rawConfig.readfp(StringIO(self.config_string))
         self.assertEqual([(section, sorted(self.config.items(section)))
                           for section in self.config.sections()],

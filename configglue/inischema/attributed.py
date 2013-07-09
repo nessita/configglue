@@ -18,7 +18,8 @@
 AttributtedConfigParser lives here.
 """
 import re
-from configparser import RawConfigParser
+
+from configglue._compat import configparser
 
 
 marker = object()
@@ -41,7 +42,7 @@ class ValueWithAttrs(object):
         return self.value is marker
 
 
-class AttributedConfigParser(RawConfigParser, object):
+class AttributedConfigParser(configparser.RawConfigParser, object):
     """Handle attributed ini-style configuration files
     """
     def optionxform(self, optionstr):

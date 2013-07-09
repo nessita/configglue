@@ -18,13 +18,9 @@ from __future__ import unicode_literals
 
 import textwrap
 import unittest
-from configparser import (
-    NoOptionError,
-    NoSectionError,
-)
 from io import BytesIO
 
-from configglue._compat import text_type
+from configglue._compat import configparser, text_type
 from configglue.parser import (
     SchemaConfigParser,
     SchemaValidationError,
@@ -874,7 +870,7 @@ bla=Yes
         schema = MySchema()
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
-        self.assertRaises(NoSectionError, parser.values)
+        self.assertRaises(configparser.NoSectionError, parser.values)
 
     def test_parse_dict_json_non_dict_json(self):
         """Test DictOption parse json not representing a dict."""
@@ -893,7 +889,7 @@ bla=Yes
         schema = MySchema()
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
-        self.assertRaises(NoSectionError, parser.values)
+        self.assertRaises(configparser.NoSectionError, parser.values)
 
     def test_parse_dict_no_json_with_json(self):
         """Test DictOption parse json when json is disabled."""
@@ -915,7 +911,7 @@ bla=Yes
         schema = MySchema()
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
-        self.assertRaises(NoSectionError, parser.values)
+        self.assertRaises(configparser.NoSectionError, parser.values)
 
     def test_parse_raw(self):
         """Test DictOption parse using raw=True."""
@@ -1265,7 +1261,7 @@ class TestSection(unittest.TestCase):
         section.foo = IntOption()
 
         self.assertEqual(section.option('foo'), section.foo)
-        self.assertRaises(NoOptionError, section.option, 'bar')
+        self.assertRaises(configparser.NoOptionError, section.option, 'bar')
 
     def test_options(self):
         """Test Section options method."""
