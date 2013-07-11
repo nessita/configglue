@@ -21,7 +21,7 @@ from __future__ import unicode_literals
 import unittest
 from io import StringIO
 
-from configglue._compat import configparser
+from configglue._compat import RawConfigParser
 from configglue.inischema.attributed import AttributedConfigParser
 
 
@@ -44,7 +44,7 @@ bar.blah    = 23
 class TestAttributed(BaseTest):
     """ pretty basic tests of AttributedConfigParser """
     def test_config_before_parsing_is_plain(self):
-        rawConfig = configparser.RawConfigParser()
+        rawConfig = RawConfigParser()
         rawConfig.readfp(StringIO(self.config_string))
         self.assertEqual([(section, sorted(self.config.items(section)))
                           for section in self.config.sections()],

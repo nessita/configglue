@@ -22,7 +22,7 @@ from __future__ import unicode_literals
 import unittest
 from io import StringIO
 
-from configglue._compat import configparser
+from configglue._compat import RawConfigParser
 from configglue.inischema.typed import TypedConfigParser
 
 
@@ -71,7 +71,7 @@ class TestBackwardsCompat(BaseTest):
     """ rather basic backwards compatibility checker
     """
     def test_config_before_parse_is_plain(self):
-        rawConfig = configparser.RawConfigParser()
+        rawConfig = RawConfigParser()
         rawConfig.readfp(StringIO(self.config_string))
         self.assertEqual([(section, sorted(self.config.items(section)))
                           for section in self.config.sections()],

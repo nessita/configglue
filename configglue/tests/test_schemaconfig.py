@@ -30,7 +30,8 @@ from mock import (
     patch,
 )
 
-from configglue._compat import PY2, configparser
+from configglue._compat import PY2
+from configglue._compat import NoSectionError
 from configglue.glue import (
     configglue,
     schemaconfigglue,
@@ -191,7 +192,7 @@ class TestSchemaConfigGlue(unittest.TestCase):
         parser.readfp(config)
 
         # hitting the parser directly raises an exception
-        self.assertRaises(configparser.NoSectionError, parser.values)
+        self.assertRaises(NoSectionError, parser.values)
         self.assertFalse(parser.is_valid())
 
         # which is nicely handled by the glue code, so as not to crash it
