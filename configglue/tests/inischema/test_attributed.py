@@ -4,7 +4,7 @@
 #
 # A library for simple, DRY configuration of applications
 #
-# (C) 2009--2011 by Canonical Ltd.
+# (C) 2009--2013 by Canonical Ltd.
 # by John R. Lenton <john.lenton@canonical.com>
 # and Ricardo Kirkner <ricardo.kirkner@canonical.com>
 #
@@ -19,9 +19,9 @@ from __future__ import unicode_literals
 # runner's output, so pylint: disable-msg=C0111
 
 import unittest
-from configparser import RawConfigParser
 from io import StringIO
 
+from configglue._compat import RawConfigParser
 from configglue.inischema.attributed import AttributedConfigParser
 
 

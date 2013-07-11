@@ -4,7 +4,7 @@
 #
 # A library for simple, DRY configuration of applications
 #
-# (C) 2009--2011 by Canonical Ltd.
+# (C) 2009--2013 by Canonical Ltd.
 # by John R. Lenton <john.lenton@canonical.com>
 # and Ricardo Kirkner <ricardo.kirkner@canonical.com>
 #
@@ -16,14 +16,12 @@
 from __future__ import unicode_literals
 
 import json
-from configparser import (
-    NoSectionError,
-    NoOptionError,
-)
 from copy import deepcopy
 from inspect import getmembers
 
-from configglue._compat import text_type, string_types
+from ._compat import text_type, string_types
+from ._compat import NoSectionError, NoOptionError
+
 
 
 __all__ = [

@@ -5,7 +5,7 @@
 #
 # A library for simple, DRY configuration of applications
 #
-# (C) 2009--2011 by Canonical Ltd.
+# (C) 2009--2013 by Canonical Ltd.
 # by John R. Lenton <john.lenton@canonical.com>
 # and Ricardo Kirkner <ricardo.kirkner@canonical.com>
 #
@@ -22,13 +22,6 @@ import shutil
 import tempfile
 import textwrap
 import unittest
-from configparser import (
-    DEFAULTSECT,
-    InterpolationDepthError,
-    InterpolationMissingOptionError,
-    InterpolationSyntaxError,
-    NoSectionError,
-)
 from io import BytesIO
 
 from mock import (
@@ -38,9 +31,16 @@ from mock import (
 )
 
 from configglue._compat import iteritems
+from configglue._compat import (
+    DEFAULTSECT,
+    InterpolationDepthError,
+    InterpolationMissingOptionError,
+    InterpolationSyntaxError,
+    NoOptionError,
+    NoSectionError,
+)
 from configglue.parser import (
     CONFIG_FILE_ENCODING,
-    NoOptionError,
     SchemaConfigParser,
     SchemaValidationError,
 )
@@ -248,8 +248,8 @@ class TestInterpolation(unittest.TestCase):
         rawval = '%(bar)'
         vars = {'foo': '%(bar)s', 'bar': 'pepe'}
         parser = SchemaConfigParser(MySchema())
-        self.assertRaises(InterpolationSyntaxError, parser._interpolate,
-            section, option, rawval, vars)
+        self.assertRaises(InterpolationSyntaxError,
+                          parser._interpolate, section, option, rawval, vars)
 
     def test_interpolate_across_sections(self):
         """Test interpolation across sections."""
@@ -278,8 +278,8 @@ class TestInterpolation(unittest.TestCase):
         config = BytesIO(b"[foo]\nbar=%(wham)s\n[baz]\nwham=42")
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config)
-        self.assertRaises(InterpolationMissingOptionError, parser.get,
-                          'foo', 'bar')
+        self.assertRaises(InterpolationMissingOptionError,
+                          parser.get, 'foo', 'bar')
 
     @patch('configglue.parser.os')
     def test_interpolate_environment_basic_syntax(self, mock_os):
@@ -592,7 +592,8 @@ class TestSchemaConfigParser(unittest.TestCase):
         self.assertEqual(set(items), set([('foo', 'bar')]))
 
     def test_items_no_section(self):
-        self.assertRaises(NoSectionError, self.parser.items, '__main__')
+        self.assertRaises(NoSectionError, self.parser.items,
+                          '__main__')
 
     def test_items_raw(self):
         config = BytesIO(b'[__main__]\nfoo=%(baz)s')
@@ -624,8 +625,8 @@ class TestSchemaConfigParser(unittest.TestCase):
     def test_items_interpolate_error(self):
         config = BytesIO(b'[__main__]\nfoo=%(bar)s')
         self.parser.readfp(config)
-        self.assertRaises(InterpolationMissingOptionError, self.parser.items,
-                          '__main__')
+        self.assertRaises(InterpolationMissingOptionError,
+                          self.parser.items, '__main__')
 
     def test_values_empty_parser(self):
         values = self.parser.values()
@@ -820,12 +821,12 @@ class TestSchemaConfigParser(unittest.TestCase):
         self.assertEqual(default, expected)
 
     def test_get_default_no_option(self):
-        self.assertRaises(NoOptionError, self.parser._get_default,
-            '__main__', 'bar')
+        self.assertRaises(NoOptionError,
+                          self.parser._get_default, '__main__', 'bar')
 
     def test_get_default_no_section(self):
-        self.assertRaises(NoSectionError, self.parser._get_default,
-            'foo', 'bar')
+        self.assertRaises(NoSectionError,
+                          self.parser._get_default, 'foo', 'bar')
 
     def test_multi_file_dict_config(self):
         """Test parsing a dict option spanning multiple files."""

@@ -21,12 +21,9 @@ from setuptools import (
 )
 
 import configglue
-from configglue._compat import PY2
 
 
 install_requires = ['pyxdg']
-if PY2:
-    install_requires.extend(['configparser'])
 
 
 setup(name='configglue',

@@ -4,7 +4,7 @@
 #
 # A library for simple, DRY configuration of applications
 #
-# (C) 2009--2011 by Canonical Ltd.
+# (C) 2009--2013 by Canonical Ltd.
 # by John R. Lenton <john.lenton@canonical.com>
 # and Ricardo Kirkner <ricardo.kirkner@canonical.com>
 #
@@ -21,16 +21,15 @@ import logging
 import os
 import re
 
-from configparser import (
+from functools import reduce
+
+from ._compat import BaseConfigParser, text_type, string_types
+from ._compat import (
     DEFAULTSECT,
-    SafeConfigParser as BaseConfigParser,
     InterpolationMissingOptionError,
     NoOptionError,
     NoSectionError,
 )
-from functools import reduce
-
-from configglue._compat import text_type, string_types
 
 
 __all__ = [
@@ -77,8 +76,6 @@ class SchemaConfigParser(BaseConfigParser, object):
         self._basedir = ''
         self._dirty = collections.defaultdict(
             lambda: collections.defaultdict(dict))
-        # map to location in configparser
-        self._KEYCRE = self._interpolation._KEYCRE
 
     def is_valid(self, report=False):
         """Return if the state of the parser is valid.
@@ -386,7 +383,7 @@ class SchemaConfigParser(BaseConfigParser, object):
             keys = [self._extract_interpolation_keys(x) for x in item]
             keys = reduce(set.union, keys, set())
         else:
-            keys = set(self._KEYCRE.findall(item))
+            keys = set(self._interpolation._KEYCRE.findall(item))
         # remove invalid key
         if '' in keys:
             keys.remove('')

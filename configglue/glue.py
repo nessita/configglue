@@ -4,7 +4,7 @@
 #
 # A library for simple, DRY configuration of applications
 #
-# (C) 2009--2011 by Canonical Ltd.
+# (C) 2009--2013 by Canonical Ltd.
 # by John R. Lenton <john.lenton@canonical.com>
 # and Ricardo Kirkner <ricardo.kirkner@canonical.com>
 #
@@ -16,13 +16,10 @@
 
 import os
 import sys
-from configparser import (
-    NoOptionError,
-    NoSectionError,
-)
 from optparse import OptionParser
 from collections import namedtuple
 
+from ._compat import NoSectionError, NoOptionError
 from .parser import SchemaConfigParser
 
 

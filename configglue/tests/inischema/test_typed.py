@@ -5,7 +5,7 @@
 #
 # A library for simple, DRY configuration of applications
 #
-# (C) 2009--2011 by Canonical Ltd.
+# (C) 2009--2013 by Canonical Ltd.
 # by John R. Lenton <john.lenton@canonical.com>
 # and Ricardo Kirkner <ricardo.kirkner@canonical.com>
 #
@@ -21,8 +21,8 @@ from __future__ import unicode_literals
 
 import unittest
 from io import StringIO
-from configparser import RawConfigParser
 
+from configglue._compat import RawConfigParser
 from configglue.inischema.typed import TypedConfigParser
 
 
