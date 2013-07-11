@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Code for the BasicInterpolation class in this module has been takem from
 Python 3.3's configparser module.  Because of this, the proper licensing for
