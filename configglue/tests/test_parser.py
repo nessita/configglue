@@ -196,6 +196,57 @@ class TestIncludes(unittest.TestCase):
         except:
             pass
 
+    def test_multiple_includes(self):
+        """Test parser correctly handles multiple included files."""
+        def setup_config():
+            folder = tempfile.mkdtemp()
+
+            f = codecs.open("%s/first.cfg" % folder, 'w',
+                            encoding=CONFIG_FILE_ENCODING)
+            f.write("[__main__]\nfoo=1\nbar=1")
+            f.close()
+
+            f = codecs.open("%s/second.cfg" % folder, 'w',
+                            encoding=CONFIG_FILE_ENCODING)
+            f.write("[__main__]\nfoo=2\nbar=2")
+            f.close()
+
+            f = codecs.open("%s/third.cfg" % folder, 'w',
+                            encoding=CONFIG_FILE_ENCODING)
+            f.write("[__main__]\nfoo=3\nbar=3")
+            f.close()
+
+            config = textwrap.dedent("""
+                [__main__]
+                includes =
+                    {folder}/first.cfg
+                    {folder}/second.cfg
+                    {folder}/third.cfg
+                foo = 4
+                """.format(folder=folder))
+            config = BytesIO(config.encode(CONFIG_FILE_ENCODING))
+            return config, folder
+
+        class MySchema(Schema):
+            foo = IntOption()
+            bar = IntOption()
+
+        config, folder = setup_config()
+        expected_values = {'__main__': {'foo': 4, 'bar': 3}}
+        parser = SchemaConfigParser(MySchema())
+        # make sure we start on a clean basedir
+        self.assertEqual(parser._basedir, '')
+        parser.readfp(config, 'my.cfg')
+        self.assertEqual(parser.values(), expected_values)
+        # make sure we leave the basedir clean
+        self.assertEqual(parser._basedir, '')
+
+        # silently remove any created files
+        try:
+            shutil.rmtree(folder)
+        except:
+            pass
+
 
 class TestInterpolation(unittest.TestCase):
     """Test basic interpolation."""
