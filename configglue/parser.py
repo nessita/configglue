@@ -289,9 +289,7 @@ class SchemaConfigParser(BaseConfigParser, object):
             sub_parser._location = self._location
             sub_parser.read(filenames)
             # update current parser with those values
-            for section, options in sub_parser.values().items():
-                for option, value in options.items():
-                    self.set(section, option, value)
+            self._sections.update(sub_parser._sections)
 
             self._basedir = old_basedir
 

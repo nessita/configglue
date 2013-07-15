@@ -317,6 +317,83 @@ class TestInterpolation(unittest.TestCase):
         self.assertRaises(InterpolationMissingOptionError,
             parser.get, 'foo', 'bar')
 
+    def test_interpolate_across_includes(self):
+        """Test interpolation across included files."""
+        def setup_config():
+            folder = tempfile.mkdtemp()
+
+            f = codecs.open("%s/first.cfg" % folder, 'w',
+                            encoding=CONFIG_FILE_ENCODING)
+            f.write("[__main__]\nfoo=1\nincludes=second.cfg")
+            f.close()
+
+            f = codecs.open("%s/second.cfg" % folder, 'w',
+                            encoding=CONFIG_FILE_ENCODING)
+            f.write("[__main__]\nbar=3")
+            f.close()
+
+            config = "[__main__]\nfoo=%%(bar)s\nincludes=%s/first.cfg" % folder
+            config = BytesIO(config.encode(CONFIG_FILE_ENCODING))
+            return config, folder
+
+        class MySchema(Schema):
+            foo = IntOption()
+            bar = IntOption()
+
+        config, folder = setup_config()
+        expected_values = {'__main__': {'foo': 3, 'bar': 3}}
+        parser = SchemaConfigParser(MySchema())
+        # make sure we start on a clean basedir
+        self.assertEqual(parser._basedir, '')
+        parser.readfp(config, 'my.cfg')
+        self.assertEqual(parser.values(), expected_values)
+        # make sure we leave the basedir clean
+        self.assertEqual(parser._basedir, '')
+
+        # silently remove any created files
+        try:
+            shutil.rmtree(folder)
+        except:
+            pass
+
+    def test_interpolate_using_noschema(self):
+        """Test interpolation across included files."""
+        def setup_config():
+            folder = tempfile.mkdtemp()
+
+            f = codecs.open("%s/first.cfg" % folder, 'w',
+                            encoding=CONFIG_FILE_ENCODING)
+            f.write("[__noschema__]\nbar=1\n[__main__]\nincludes=second.cfg")
+            f.close()
+
+            f = codecs.open("%s/second.cfg" % folder, 'w',
+                            encoding=CONFIG_FILE_ENCODING)
+            f.write("[__noschema__]\nbar=3")
+            f.close()
+
+            config = "[__main__]\nfoo=%%(bar)s\nincludes=%s/first.cfg" % folder
+            config = BytesIO(config.encode(CONFIG_FILE_ENCODING))
+            return config, folder
+
+        class MySchema(Schema):
+            foo = IntOption()
+
+        config, folder = setup_config()
+        expected_values = {'__main__': {'foo': 1}}
+        parser = SchemaConfigParser(MySchema())
+        # make sure we start on a clean basedir
+        self.assertEqual(parser._basedir, '')
+        parser.readfp(config, 'my.cfg')
+        self.assertEqual(parser.values(), expected_values)
+        # make sure we leave the basedir clean
+        self.assertEqual(parser._basedir, '')
+
+        # silently remove any created files
+        try:
+            shutil.rmtree(folder)
+        except:
+            pass
+
     def test_interpolate_invalid_key(self):
         """Test interpolation of invalid key."""
         class MySchema(Schema):
