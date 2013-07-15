@@ -109,6 +109,7 @@ class TestIncludes(unittest.TestCase):
         """Test parser include files using relative paths."""
         def setup_config():
             folder = tempfile.mkdtemp()
+            self.addCleanup(shutil.rmtree, folder)
 
             f = codecs.open("%s/first.cfg" % folder, 'w',
                             encoding=CONFIG_FILE_ENCODING)
@@ -150,16 +151,11 @@ class TestIncludes(unittest.TestCase):
         # make sure we leave the basedir clean
         self.assertEqual(parser._basedir, '')
 
-        # silently remove any created files
-        try:
-            shutil.rmtree(folder)
-        except:
-            pass
-
     def test_local_override(self):
         """Test parser override values from included files."""
         def setup_config():
             folder = tempfile.mkdtemp()
+            self.addCleanup(shutil.rmtree, folder)
 
             f = codecs.open("%s/first.cfg" % folder, 'w',
                             encoding=CONFIG_FILE_ENCODING)
@@ -190,16 +186,11 @@ class TestIncludes(unittest.TestCase):
         # make sure we leave the basedir clean
         self.assertEqual(parser._basedir, '')
 
-        # silently remove any created files
-        try:
-            shutil.rmtree(folder)
-        except:
-            pass
-
     def test_multiple_includes(self):
         """Test parser correctly handles multiple included files."""
         def setup_config():
             folder = tempfile.mkdtemp()
+            self.addCleanup(shutil.rmtree, folder)
 
             f = codecs.open("%s/first.cfg" % folder, 'w',
                             encoding=CONFIG_FILE_ENCODING)
@@ -240,12 +231,6 @@ class TestIncludes(unittest.TestCase):
         self.assertEqual(parser.values(), expected_values)
         # make sure we leave the basedir clean
         self.assertEqual(parser._basedir, '')
-
-        # silently remove any created files
-        try:
-            shutil.rmtree(folder)
-        except:
-            pass
 
 
 class TestInterpolation(unittest.TestCase):
@@ -321,6 +306,7 @@ class TestInterpolation(unittest.TestCase):
         """Test interpolation across included files."""
         def setup_config():
             folder = tempfile.mkdtemp()
+            self.addCleanup(shutil.rmtree, folder)
 
             f = codecs.open("%s/first.cfg" % folder, 'w',
                             encoding=CONFIG_FILE_ENCODING)
@@ -350,16 +336,11 @@ class TestInterpolation(unittest.TestCase):
         # make sure we leave the basedir clean
         self.assertEqual(parser._basedir, '')
 
-        # silently remove any created files
-        try:
-            shutil.rmtree(folder)
-        except:
-            pass
-
     def test_interpolate_using_noschema(self):
         """Test interpolation across included files."""
         def setup_config():
             folder = tempfile.mkdtemp()
+            self.addCleanup(shutil.rmtree, folder)
 
             f = codecs.open("%s/first.cfg" % folder, 'w',
                             encoding=CONFIG_FILE_ENCODING)
@@ -387,12 +368,6 @@ class TestInterpolation(unittest.TestCase):
         self.assertEqual(parser.values(), expected_values)
         # make sure we leave the basedir clean
         self.assertEqual(parser._basedir, '')
-
-        # silently remove any created files
-        try:
-            shutil.rmtree(folder)
-        except:
-            pass
 
     def test_interpolate_invalid_key(self):
         """Test interpolation of invalid key."""
@@ -1010,6 +985,7 @@ class TestSchemaConfigParser(unittest.TestCase):
     def test_read_multiple_files(self):
         def setup_config():
             folder = tempfile.mkdtemp()
+            self.addCleanup(shutil.rmtree, folder)
 
             f = codecs.open("%s/first.cfg" % folder, 'w',
                             encoding=CONFIG_FILE_ENCODING)
@@ -1027,12 +1003,6 @@ class TestSchemaConfigParser(unittest.TestCase):
         files, folder = setup_config()
         self.parser.read(files)
         self.assertEqual(self.parser.values(), {'__main__': {'foo': 'bar'}})
-
-        # silently remove any created files
-        try:
-            shutil.rmtree(folder)
-        except:
-            pass
 
     def test_read_utf8_encoded_file(self):
         # create config file
@@ -1181,6 +1151,7 @@ class TestSchemaConfigParser(unittest.TestCase):
         """Test parser save config values to original files."""
         def setup_config():
             folder = tempfile.mkdtemp()
+            self.addCleanup(shutil.rmtree, folder)
 
             f = codecs.open("%s/first.cfg" % folder, 'w',
                             encoding=CONFIG_FILE_ENCODING)
@@ -1223,15 +1194,10 @@ class TestSchemaConfigParser(unittest.TestCase):
         # new value goes into last read config file
         self.assertTrue('baz = 42' in data)
 
-        # silently remove any created files
-        try:
-            shutil.rmtree(folder)
-        except:
-            pass
-
     def test_save_config_last_location_nested_includes(self):
         def setup_config():
             folder = tempfile.mkdtemp()
+            self.addCleanup(shutil.rmtree, folder)
 
             f = codecs.open("%s/first.cfg" % folder, 'w',
                             encoding=CONFIG_FILE_ENCODING)
@@ -1278,12 +1244,6 @@ class TestSchemaConfigParser(unittest.TestCase):
         # new value goes into last read config file
         # not in the last included config file
         self.assertTrue('baz = 42' in data)
-
-        # silently remove any created files
-        try:
-            shutil.rmtree(folder)
-        except:
-            pass
 
 
 class TestParserIsValid(unittest.TestCase):
