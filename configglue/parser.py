@@ -282,7 +282,15 @@ class SchemaConfigParser(BaseConfigParser, object):
                 fpname)
             includes = self.get('__main__', 'includes')
             filenames = [text_type.strip(x) for x in includes]
-            self.read(filenames, already_read=already_read)
+
+            # parse included files
+            sub_parser = self.__class__(self.schema)
+            sub_parser._basedir = self._basedir
+            sub_parser._location = self._location
+            sub_parser.read(filenames)
+            # update current parser with those values
+            self._sections.update(sub_parser._sections)
+
             self._basedir = old_basedir
 
             if filenames:
