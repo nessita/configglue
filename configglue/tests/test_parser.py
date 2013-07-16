@@ -1004,6 +1004,48 @@ class TestSchemaConfigParser(unittest.TestCase):
         self.parser.read(files)
         self.assertEqual(self.parser.values(), {'__main__': {'foo': 'bar'}})
 
+    def test_interpolate_using_noschema_from_multiple_files(self):
+        """Test interpolation across files."""
+        def setup_config():
+            folder = tempfile.mkdtemp()
+            self.addCleanup(shutil.rmtree, folder)
+
+            f = codecs.open("%s/first.cfg" % folder, 'w',
+                            encoding=CONFIG_FILE_ENCODING)
+            config = textwrap.dedent(
+                """
+                [__noschema__]
+                bar = 42
+                [one]
+                foo = %(bar)s
+                """)
+            f.write(config)
+            f.close()
+
+            f = codecs.open("%s/second.cfg" % folder, 'w',
+                            encoding=CONFIG_FILE_ENCODING)
+            f.write("[__main__]\nincludes = third.cfg")
+            f.close()
+
+            f = codecs.open("%s/third.cfg" % folder, 'w',
+                            encoding=CONFIG_FILE_ENCODING)
+            f.write("[__noschema__]\nbaz = 3")
+            f.close()
+
+            files = ["%s/first.cfg" % folder, "%s/second.cfg" % folder]
+            return files
+
+        class MySchema(Schema):
+            class one(Section):
+                foo = IntOption()
+
+        files = setup_config()
+        expected_values = {'one': {'foo': 42}}
+
+        parser = SchemaConfigParser(MySchema())
+        parser.read(files)
+        self.assertEqual(parser.values(), expected_values)
+
     def test_read_utf8_encoded_file(self):
         # create config file
         fp, filename = tempfile.mkstemp()
