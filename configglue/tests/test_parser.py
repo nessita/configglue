@@ -1033,13 +1033,13 @@ class TestSchemaConfigParser(unittest.TestCase):
             f.close()
 
             files = ["%s/first.cfg" % folder, "%s/second.cfg" % folder]
-            return files, folder
+            return files
 
         class MySchema(Schema):
             class one(Section):
                 foo = IntOption()
 
-        files, folder = setup_config()
+        files = setup_config()
         expected_values = {'one': {'foo': 42}}
 
         parser = SchemaConfigParser(MySchema())
