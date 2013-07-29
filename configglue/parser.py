@@ -257,7 +257,21 @@ class SchemaConfigParser(BaseConfigParser, object):
                 logger.warn(
                     'File {0} could not be read. Skipping.'.format(path))
                 continue
-            self._read(fp, path, already_read=already_read)
+            # parse file
+            sub_parser = self.__class__(self.schema)
+            sub_parser._basedir = self._basedir
+            sub_parser._location = self._location
+            sub_parser._read(fp, path, already_read=already_read)
+            # update current parser with those values
+            for section, options in sub_parser._sections.items():
+                if section == '__main__':
+                    # skip copying includes to avoid including same files twice
+                    options.pop('includes', None)
+                if section in self._sections:
+                    self._sections[section].update(options)
+                else:
+                    self._sections[section] = options
+
             fp.close()
             read_ok.append(path)
             self._last_location = filename
@@ -290,6 +304,9 @@ class SchemaConfigParser(BaseConfigParser, object):
             sub_parser.read(filenames)
             # update current parser with those values
             for section, options in sub_parser._sections.items():
+                if section == '__main__':
+                    # skip copying includes to avoid including same files twice
+                    options.pop('includes', None)
                 if section in self._sections:
                     self._sections[section].update(options)
                 else:

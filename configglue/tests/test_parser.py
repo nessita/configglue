@@ -194,26 +194,47 @@ class TestIncludes(unittest.TestCase):
 
             f = codecs.open("%s/first.cfg" % folder, 'w',
                             encoding=CONFIG_FILE_ENCODING)
-            f.write("[__main__]\nfoo=1\nbar=1")
+            f.write(textwrap.dedent(
+                """
+                [__noschema__]
+                baz = 1
+                [__main__]
+                includes = {folder}/second.cfg
+                foo = 1
+                bar = 1
+                """.format(folder=folder)))
             f.close()
 
             f = codecs.open("%s/second.cfg" % folder, 'w',
                             encoding=CONFIG_FILE_ENCODING)
-            f.write("[__main__]\nfoo=2\nbar=2")
+            f.write(textwrap.dedent(
+                """
+                [__noschema__]
+                baz = 2
+                [__main__]
+                foo = 2
+                bar = 2
+                """))
             f.close()
 
             f = codecs.open("%s/third.cfg" % folder, 'w',
                             encoding=CONFIG_FILE_ENCODING)
-            f.write("[__main__]\nfoo=3\nbar=3")
+            f.write(textwrap.dedent(
+                """
+                [__main__]
+                foo = 3
+                bar = 3
+                """))
             f.close()
 
-            config = textwrap.dedent("""
+            config = textwrap.dedent(
+                """
                 [__main__]
                 includes =
                     {folder}/first.cfg
-                    {folder}/second.cfg
                     {folder}/third.cfg
                 foo = 4
+                blam = %(baz)s
                 """.format(folder=folder))
             config = BytesIO(config.encode(CONFIG_FILE_ENCODING))
             return config, folder
@@ -221,9 +242,10 @@ class TestIncludes(unittest.TestCase):
         class MySchema(Schema):
             foo = IntOption()
             bar = IntOption()
+            blam = IntOption()
 
         config, folder = setup_config()
-        expected_values = {'__main__': {'foo': 4, 'bar': 3}}
+        expected_values = {'__main__': {'foo': 4, 'bar': 3, 'blam': 1}}
         parser = SchemaConfigParser(MySchema())
         # make sure we start on a clean basedir
         self.assertEqual(parser._basedir, '')
