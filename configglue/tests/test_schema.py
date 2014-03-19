@@ -134,6 +134,15 @@ class TestSchema(unittest.TestCase):
         self.assertEqual(MySchema(), MySchema())
         self.assertNotEqual(MySchema(), OtherSchema())
 
+    def test_same_hash_if_equal(self):
+        class MySchema(Schema):
+            foo = IntOption()
+
+        my_schema = MySchema()
+        other_schema = MySchema()
+        self.assertEqual(my_schema, other_schema)
+        self.assertEqual(hash(my_schema), hash(other_schema))
+
 
 class TestSchemaHelpers(unittest.TestCase):
     def test_get_config_objects(self):
@@ -193,6 +202,13 @@ class TestOption(unittest.TestCase):
         # make sure an attribute error is raised
         del opt2.name
         self.assertNotEqual(opt1, opt2)
+
+    def test_same_hash_if_equal(self):
+        opt1 = IntOption(name='opt1')
+        opt2 = IntOption(name='opt1')
+
+        self.assertEqual(opt1, opt2)
+        self.assertEqual(hash(opt1), hash(opt2))
 
     def test_validate(self):
         """Test Option default validate behaviour."""
@@ -378,6 +394,13 @@ class TestStringOption(unittest.TestCase):
 
         self.assertEqual(option1, option1)
         self.assertNotEqual(option1, option2)
+
+    def test_same_hash_if_equal(self):
+        option1 = StringOption()
+        option2 = StringOption()
+
+        self.assertEqual(option1, option2)
+        self.assertEqual(hash(option1), hash(option2))
 
 
 class TestIntOption(unittest.TestCase):
@@ -651,6 +674,13 @@ class TestListOption(unittest.TestCase):
         self.assertNotEqual(option1, option6)
         self.assertNotEqual(option1, option7)
 
+    def test_same_hash_if_equal(self):
+        option1 = ListOption()
+        option2 = ListOption(item=StringOption())
+
+        self.assertEqual(option1, option2)
+        self.assertEqual(hash(option1), hash(option2))
+
     def test_to_string_when_json(self):
         option = ListOption()
         result = option.to_string(['1', '2', '3'])
@@ -738,6 +768,13 @@ class TestTupleOption(unittest.TestCase):
 
         self.assertEqual(option1, option1)
         self.assertNotEqual(option1, option2)
+
+    def test_same_hash_if_equal(self):
+        option1 = TupleOption(length=2)
+        option2 = TupleOption(length=2)
+
+        self.assertEqual(option1, option2)
+        self.assertEqual(hash(option1), hash(option2))
 
 
 class TestDictOption(unittest.TestCase):
@@ -1108,6 +1145,13 @@ wham=42
         self.assertEqual(option1, option4)
         self.assertNotEqual(option1, option5)
 
+    def test_same_hash_if_equal(self):
+        option1 = DictOption()
+        option2 = DictOption(item=StringOption())
+
+        self.assertEqual(option1, option2)
+        self.assertEqual(hash(option1), hash(option2))
+
     def test_to_string_when_json(self):
         option = DictOption()
         result = option.to_string({'foo': '1'})
@@ -1237,6 +1281,13 @@ class TestSection(unittest.TestCase):
         self.assertEqual(section1, section2)
         self.assertNotEqual(section1, section3)
         self.assertNotEqual(section1, section4)
+
+    def test_same_hash_if_equal(self):
+        section1 = self.cls()
+        section2 = self.cls()
+
+        self.assertEqual(section1, section2)
+        self.assertEqual(hash(section1), hash(section2))
 
     def test_repr(self):
         """Test Section repr."""
