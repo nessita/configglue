@@ -158,7 +158,8 @@ class Schema(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return id(self)
+        attrs = ['_sections', 'includes']
+        return hash(hash(getattr(self, attr)) for attr in attrs)
 
     def is_valid(self):
         """Return whether the schema has a valid structure."""
@@ -227,7 +228,9 @@ class Section(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return id(self)
+        return hash(
+            hash(self.name) + hash(hash(option) for option in self.options())
+        )
 
     def __repr__(self):
         if self.name:
@@ -324,7 +327,11 @@ class Option(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return id(self)
+        attrs = [
+            'name', 'short_name', 'raw', 'fatal', 'default', 'help', 'action',
+            'section',
+        ]
+        return hash(hash(getattr(self, attr)) for attr in attrs)
 
     def __repr__(self):
         extra = ' raw' if self.raw else ''
@@ -443,7 +450,10 @@ class ListOption(Option):
         return equal
 
     def __hash__(self):
-        return id(self)
+        attrs = [
+            'item', 'require_parser', 'raw', 'remove_duplicates',
+        ]
+        return hash(hash(getattr(self, attr)) for attr in attrs)
 
     def _get_default(self):
         return []
@@ -515,7 +525,8 @@ class StringOption(Option):
         return equal
 
     def __hash__(self):
-        return id(self)
+        attrs = ['null']
+        return hash(hash(getattr(self, attr)) for attr in attrs)
 
     def _get_default(self):
         return '' if not self.null else None
@@ -569,7 +580,8 @@ class TupleOption(Option):
         return equal
 
     def __hash__(self):
-        return id(self)
+        attrs = ['length']
+        return hash(hash(getattr(self, attr)) for attr in attrs)
 
     def _get_default(self):
         return ()
@@ -640,7 +652,8 @@ class DictOption(Option):
         return equal
 
     def __hash__(self):
-        return id(self)
+        attrs = ['spec', 'strict', 'item']
+        return hash(hash(getattr(self, attr)) for attr in attrs)
 
     def _get_default(self):
         default = {}
