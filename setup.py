@@ -45,6 +45,8 @@ interface.
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
         ],
       author='John R. Lenton, Ricardo Kirkner',
       author_email='john.lenton@canonical.com, ricardo.kirkner@canonical.com',
