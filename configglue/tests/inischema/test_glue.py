@@ -123,6 +123,32 @@ class TestGlue3(TestBase):
         self.assertEqual(options.x_a, '1')
 
 
+class TestGlueShortName(TestBase):
+    ini = b'[x]\nlong_opt.short_name=L'
+
+    def test_accepts_long_args(self):
+        parser, options, args = configglue(self.file, 'dummy',
+                                           args=['', '--x_long_opt=13579'])
+        self.assertEqual(options.x_long_opt, '13579')
+
+    def test_accepts_short_args(self):
+        parser, options, args = configglue(self.file, 'dummy',
+                                           args=['', '-L86420'])
+        self.assertEqual(options.x_long_opt, '86420')
+
+    def test_help_displays_both_args(self):
+        new_callable = StringIO
+        if PY2:
+            new_callable = BytesIO
+
+        with patch('sys.stdout', new_callable=new_callable) as mock_stdout:
+            try:
+                configglue(self.file, args=['', '--help'])
+            except SystemExit:
+                output = mock_stdout.getvalue()
+        self.assertTrue('-L X_LONG_OPT, --x_long_opt=X_LONG_OPT' in output)
+
+
 class TestGlueBool(TestBase):
     ini = b'''[__main__]
 foo.parser=bool

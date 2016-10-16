@@ -83,6 +83,9 @@ def ini2schema(fd, p=None):
                 parser_fun = lambda x: x
 
             attrs = {'name': option_name}
+            option_short_name = option.attrs.pop('short_name', None)
+            if option_short_name is not None:
+                attrs['short_name'] = option_short_name
             option_help = option.attrs.pop('help', None)
             if option_help is not None:
                 attrs['help'] = option_help
