@@ -58,5 +58,5 @@ interface.
       include_package_data=True,
       zip_safe=True,
       test_suite='configglue.tests',
-      tests_require=['mock'],
+      tests_require=['mock==3.0.5'],
 )
