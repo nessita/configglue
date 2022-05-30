@@ -55,5 +55,4 @@ interface.
       include_package_data=True,
       zip_safe=True,
       test_suite='configglue.tests',
-      test_requires=['configparser==3.5.0b1'],
 )
