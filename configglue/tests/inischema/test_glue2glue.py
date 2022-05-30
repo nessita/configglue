@@ -14,7 +14,6 @@
 # For bug reports, support, and new releases: http://launchpad.net/configglue
 #
 ###############################################################################
-from __future__ import unicode_literals
 
 import sys
 import textwrap

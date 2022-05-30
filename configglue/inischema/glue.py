@@ -14,9 +14,7 @@
 #
 ###############################################################################
 
-"""configglue lives here
-"""
-from __future__ import absolute_import
+"""configglue lives here"""
 
 from collections import namedtuple
 

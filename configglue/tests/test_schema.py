@@ -14,7 +14,6 @@
 # For bug reports, support, and new releases: http://launchpad.net/configglue
 #
 ###############################################################################
-from __future__ import unicode_literals
 
 import textwrap
 import unittest
@@ -62,15 +61,15 @@ class TestSchema(unittest.TestCase):
 
         schema = MySchema()
         names = set(s.name for s in schema.sections())
-        self.assertEquals(set(['__main__']), names)
+        self.assertEqual(set(['__main__']), names)
 
         schema = MyOtherSchema()
         names = set(s.name for s in schema.sections())
-        self.assertEquals(set(['web', 'froo']), names)
+        self.assertEqual(set(['web', 'froo']), names)
 
         schema = MyThirdSchema()
         names = set(s.name for s in schema.sections())
-        self.assertEquals(set(['__main__', 'froo']), names)
+        self.assertEqual(set(['__main__', 'froo']), names)
 
     def test_schema_validation(self):
         """Test Schema validation."""
@@ -97,11 +96,11 @@ class TestSchema(unittest.TestCase):
                 baz = IntOption()
 
         schema = MySchema()
-        self.assertEquals('foo', schema.foo.name)
-        self.assertEquals('__main__', schema.foo.section.name)
-        self.assertEquals('bar', schema.bar.name)
-        self.assertEquals('baz', schema.bar.baz.name)
-        self.assertEquals('bar', schema.bar.baz.section.name)
+        self.assertEqual('foo', schema.foo.name)
+        self.assertEqual('__main__', schema.foo.section.name)
+        self.assertEqual('bar', schema.bar.name)
+        self.assertEqual('baz', schema.bar.baz.name)
+        self.assertEqual('bar', schema.bar.baz.section.name)
 
     def test_options(self):
         """Test Schema options."""
@@ -113,11 +112,11 @@ class TestSchema(unittest.TestCase):
 
         schema = MySchema()
         names = set(s.name for s in schema.options())
-        self.assertEquals(set(['foo', 'baz']), names)
+        self.assertEqual(set(['foo', 'baz']), names)
         names = set(s.name for s in schema.options('__main__'))
-        self.assertEquals(set(['foo']), names)
+        self.assertEqual(set(['foo']), names)
         names = set(s.name for s in schema.options('bar'))
-        self.assertEquals(set(['baz']), names)
+        self.assertEqual(set(['baz']), names)
 
     def test_include(self):
         schema = Schema()
@@ -621,8 +620,8 @@ class TestListOption(unittest.TestCase):
         config = BytesIO(b"[__main__]\nfoo = bla\n blah\n bla")
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
-        self.assertEquals({'__main__': {'foo': ['bla', 'blah']}},
-                          parser.values())
+        self.assertEqual(
+            {'__main__': {'foo': ['bla', 'blah']}}, parser.values())
 
     def test_remove_dict_duplicates(self):
         """Test ListOption remove_duplicates with DictOption."""
@@ -633,8 +632,8 @@ class TestListOption(unittest.TestCase):
         config = BytesIO(b"[__main__]\nfoo = bla\n bla\n[bla]\nbar = baz")
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
-        self.assertEquals({'__main__': {'foo': [{'bar': 'baz'}]}},
-                          parser.values())
+        self.assertEqual(
+            {'__main__': {'foo': [{'bar': 'baz'}]}}, parser.values())
 
     def test_validate_list(self):
         """Test ListOption validate a list value."""
