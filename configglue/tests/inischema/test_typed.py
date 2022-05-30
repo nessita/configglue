@@ -14,7 +14,6 @@
 # For bug reports, support, and new releases: http://launchpad.net/configglue
 #
 ###############################################################################
-from __future__ import unicode_literals
 
 # in testfiles, putting docstrings on methods messes up with the
 # runner's output, so pylint: disable-msg=C0111

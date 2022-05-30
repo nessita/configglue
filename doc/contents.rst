@@ -5,11 +5,6 @@ configglue documentation contents
 =================================
 
 .. toctree::
-    :hidden:
-
-    contents
-
-.. toctree::
     :maxdepth: 3
 
     intro/index

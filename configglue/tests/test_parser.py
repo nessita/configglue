@@ -14,7 +14,6 @@
 # For bug reports, support, and new releases: http://launchpad.net/configglue
 #
 ###############################################################################
-from __future__ import unicode_literals
 
 import codecs
 import os
@@ -23,8 +22,7 @@ import tempfile
 import textwrap
 import unittest
 from io import BytesIO
-
-from mock import (
+from unittest.mock import (
     MagicMock,
     Mock,
     patch,
@@ -54,13 +52,6 @@ from configglue.schema import (
     StringOption,
     TupleOption,
 )
-
-
-# backwards compatibility
-if not hasattr(patch, 'object'):
-    # mock < 0.8
-    from mock import patch_object
-    patch.object = patch_object
 
 
 class TestIncludes(unittest.TestCase):
@@ -264,8 +255,8 @@ class TestInterpolation(unittest.TestCase):
         config = BytesIO(b'[__main__]\nbar=%(foo)s\nfoo=True')
         parser = SchemaConfigParser(MySchema())
         parser.readfp(config, 'my.cfg')
-        self.assertEquals({'__main__': {'foo': 'True', 'bar': True}},
-                          parser.values())
+        self.assertEqual(
+            {'__main__': {'foo': 'True', 'bar': True}}, parser.values())
 
     def test_interpolate_missing_option(self):
         """Test interpolation with a missing option."""
@@ -834,7 +825,7 @@ class TestSchemaConfigParser(unittest.TestCase):
                            'bar': {'baz': 123, 'bla': 'hello'}}
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
-        self.assertEquals(expected_values, parser.values())
+        self.assertEqual(expected_values, parser.values())
 
         config = BytesIO(b"[bar]\nbla=123")
         expected = {
@@ -842,7 +833,7 @@ class TestSchemaConfigParser(unittest.TestCase):
             'bar': {'baz': 0, 'bla': '123'}}
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
-        self.assertEquals(expected, parser.values())
+        self.assertEqual(expected, parser.values())
 
     def test_fatal_options(self):
         """Test parsing non-provided options marked as fatal."""
@@ -854,7 +845,7 @@ class TestSchemaConfigParser(unittest.TestCase):
         expected = {'__main__': {'foo': 123, 'bar': 0}}
         parser = SchemaConfigParser(schema)
         parser.readfp(config)
-        self.assertEquals(expected, parser.values())
+        self.assertEqual(expected, parser.values())
 
         config = BytesIO(b"[__main__]\nbar=123")
         parser = SchemaConfigParser(schema)

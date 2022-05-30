@@ -236,9 +236,11 @@ class SchemaConfigParser(BaseConfigParser, object):
                 values[sect.name][opt.name] = self.get(
                     sect.name, opt.name, parse=parse)
         if section is not None:
-            return values[section]
+            result = values[section]
         else:
-            return values
+            result = dict(values)
+
+        return result
 
     def read(self, filenames, already_read=None):
         """Like ConfigParser.read, but consider files we've already read."""

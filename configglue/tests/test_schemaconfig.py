@@ -14,7 +14,6 @@
 # For bug reports, support, and new releases: http://launchpad.net/configglue
 #
 ###############################################################################
-from __future__ import unicode_literals
 
 import unittest
 import os
@@ -24,8 +23,7 @@ from optparse import (
     OptionConflictError,
     OptionParser,
 )
-
-from mock import (
+from unittest.mock import (
     Mock,
     patch,
 )
@@ -45,13 +43,6 @@ from configglue.schema import (
     Section,
     StringOption,
 )
-
-
-# backwards compatibility
-if not hasattr(patch, 'object'):
-    # mock < 0.8
-    from mock import patch_object
-    patch.object = patch_object
 
 
 class TestOption(unittest.TestCase):

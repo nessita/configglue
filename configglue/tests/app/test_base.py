@@ -16,8 +16,7 @@
 import os
 from optparse import OptionParser
 from unittest import TestCase
-
-from mock import (
+from unittest.mock import (
     Mock,
     patch,
 )

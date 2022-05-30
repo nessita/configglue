@@ -63,7 +63,6 @@ configglue:
         --foo-bar=BAR   The bar number [7]
 
 """
-from __future__ import absolute_import
 
 from .typed import TypedConfigParser
 from .attributed import AttributedConfigParser

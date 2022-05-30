@@ -139,7 +139,7 @@ A list of items.
     If ``True``, duplicate elements will be removed from the parsed
     value.
 
-.. attribute:: DictOption.parse_json
+.. attribute:: ListOption.parse_json
 
     .. versionadded:: 1.0
 

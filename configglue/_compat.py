@@ -120,8 +120,8 @@ if PY2:
 
 else:
     import builtins
-    import configparser
-    from configparser import (
+    from backports import configparser
+    from backports.configparser import (
         DEFAULTSECT,
         InterpolationDepthError,
         InterpolationMissingOptionError,
